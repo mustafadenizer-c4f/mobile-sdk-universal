@@ -10,7 +10,10 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/example-app" />
+            <option value="$PROJECT_DIR$/flutter" />
+            <option value="$PROJECT_DIR$/flutter/surveysdk-flutter" />
+            <option value="$PROJECT_DIR$/react-native" />
+            <option value="$PROJECT_DIR$/react-native/surveysdk-react-native" />
             <option value="$PROJECT_DIR$/surveysdk" />
           </set>
         </option>
