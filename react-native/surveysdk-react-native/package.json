@@ -1,0 +1,24 @@
+{
+  "name": "surveysdk-react-native",
+  "version": "1.0.0",
+  "description": "React Native bridge for Survey SDK",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react-native",
+    "survey",
+    "feedback",
+    "sdk"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "peerDependencies": {
+    "react-native": ">=0.60.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mustafadenizer-c4f/surveysdk-react-native"
+  }
+}
