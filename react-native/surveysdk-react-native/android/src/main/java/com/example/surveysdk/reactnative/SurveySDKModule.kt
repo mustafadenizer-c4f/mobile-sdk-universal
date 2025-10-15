@@ -1,10 +1,8 @@
+// In your SDK's react-native bridge folder
 package com.example.surveysdk.reactnative
 
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.*
+import android.app.Activity
 import com.example.surveysdk.UniversalSurveySDK
 
 class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -17,12 +15,15 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             val activity = currentActivity
             if (activity != null) {
                 UniversalSurveySDK.getInstance().initializeWithActivity(activity, apiKey)
-                promise.resolve(null)
+                promise.resolve("SurveySDK initialized successfully")
             } else {
-                promise.reject("NO_ACTIVITY", "No current activity available")
+                // Fallback to application context
+                val context = reactApplicationContext
+                UniversalSurveySDK.getInstance().initialize(context, apiKey)
+                promise.resolve("SurveySDK initialized with application context")
             }
         } catch (e: Exception) {
-            promise.reject("INIT_ERROR", e.message)
+            promise.reject("INIT_ERROR", e.message ?: "Initialization failed")
         }
     }
 
@@ -32,12 +33,12 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             val activity = currentActivity
             if (activity != null) {
                 UniversalSurveySDK.getInstance().showSurvey(activity)
-                promise.resolve(null)
+                promise.resolve("Survey shown successfully")
             } else {
                 promise.reject("NO_ACTIVITY", "No current activity available")
             }
         } catch (e: Exception) {
-            promise.reject("SHOW_ERROR", e.message)
+            promise.reject("SHOW_ERROR", e.message ?: "Failed to show survey")
         }
     }
 
@@ -45,20 +46,39 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     fun setUserProperty(key: String, value: String, promise: Promise) {
         try {
             UniversalSurveySDK.getInstance().setUserProperty(key, value)
-            promise.resolve(null)
+            promise.resolve("User property set successfully")
         } catch (e: Exception) {
-            promise.reject("PROPERTY_ERROR", e.message)
+            promise.reject("PROPERTY_ERROR", e.message ?: "Failed to set user property")
         }
     }
 
     @ReactMethod
     fun trackEvent(eventName: String, properties: ReadableMap?, promise: Promise) {
         try {
-            val props = properties?.toHashMap() ?: emptyMap<String, Any>()
+            val props = convertReadableMapToMap(properties)
             UniversalSurveySDK.getInstance().trackEvent(eventName, props)
-            promise.resolve(null)
+            promise.resolve("Event tracked successfully")
         } catch (e: Exception) {
-            promise.reject("TRACK_ERROR", e.message)
+            promise.reject("TRACK_ERROR", e.message ?: "Failed to track event")
         }
+    }
+
+    // Helper method to convert ReadableMap to Map
+    private fun convertReadableMapToMap(readableMap: ReadableMap?): Map<String, Any> {
+        val map = mutableMapOf<String, Any>()
+        if (readableMap != null) {
+            val iterator = readableMap.keySetIterator()
+            while (iterator.hasNextKey()) {
+                val key = iterator.nextKey()
+                when (readableMap.getType(key)) {
+                    ReadableType.Null -> map[key] = ""
+                    ReadableType.Boolean -> map[key] = readableMap.getBoolean(key)
+                    ReadableType.Number -> map[key] = readableMap.getDouble(key)
+                    ReadableType.String -> map[key] = readableMap.getString(key) ?: ""
+                    else -> map[key] = ""
+                }
+            }
+        }
+        return map
     }
 }

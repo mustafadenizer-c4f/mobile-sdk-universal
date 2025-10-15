@@ -17,8 +17,6 @@
   "peerDependencies": {
     "react-native": ">=0.60.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mustafadenizer-c4f/surveysdk-react-native"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }
