@@ -2,6 +2,7 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("maven-publish")
 }
 
 android {
@@ -34,20 +35,6 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-
-    // Add publishing configuration here instead of afterEvaluate
-    publishing {
-        publications {
-            register<MavenPublication>("release") {
-                afterEvaluate {
-                    from(components["release"])
-                }
-                groupId = "com.github.mustafadenizer-c4f.mobile-sdk-universal"
-                artifactId = "surveysdk"
-                version = "main-SNAPSHOT"
-            }
-        }
-    }
 }
 
 dependencies {
@@ -64,5 +51,16 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-process:2.7.0")
 }
 
-// Apply maven-publish plugin at the end
-apply(plugin = "maven-publish")
+// Publishing configuration - CORRECT SYNTAX
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.github.mustafadenizer-c4f"
+                artifactId = "surveysdk"
+                version = "main-SNAPSHOT"
+            }
+        }
+    }
+}
