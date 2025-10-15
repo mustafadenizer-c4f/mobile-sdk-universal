@@ -2,7 +2,6 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    id("maven-publish")
 }
 
 android {
@@ -33,6 +32,20 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    // Add publishing configuration here
+    publishing {
+        publications {
+            register<MavenPublication>("release") {
+                afterEvaluate {
+                    from(components["release"])
+                }
+                groupId = "com.github.mustafadenizer-c4f.mobile-sdk-universal"
+                artifactId = "surveysdk-react-native"
+                version = "main-SNAPSHOT"
+            }
+        }
+    }
 }
 
 dependencies {
@@ -42,15 +55,5 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["release"])
-                groupId = "com.github.mustafadenizer-c4f.mobile-sdk-universal"
-                artifactId = "surveysdk-react-native"
-                version = "main-SNAPSHOT"
-            }
-        }
-    }
-}
+// Apply maven-publish plugin at the end
+apply(plugin = "maven-publish")

@@ -2,7 +2,6 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    id("maven-publish")
 }
 
 android {
@@ -35,52 +34,35 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    // Add publishing configuration here instead of afterEvaluate
+    publishing {
+        publications {
+            register<MavenPublication>("release") {
+                afterEvaluate {
+                    from(components["release"])
+                }
+                groupId = "com.github.mustafadenizer-c4f.mobile-sdk-universal"
+                artifactId = "surveysdk"
+                version = "main-SNAPSHOT"
+            }
+        }
+    }
 }
 
 dependencies {
     // Core Android
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-
-    // Material Design (for BottomSheetDialog)
     implementation("com.google.android.material:material:1.10.0")
-
-    // Security Crypto (for EncryptedSharedPreferences)
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
-
-    // Navigation (for NavController)
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.4")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.4")
-
-    // RecyclerView
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-
-    // ConstraintLayout
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-
-    // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-
-    // Lifecycle (for process lifecycle)
     implementation("androidx.lifecycle:lifecycle-process:2.7.0")
 }
 
-// Publishing configuration
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["release"])
-                groupId = "com.github.mustafadenizer-c4f.mobile-sdk-universal"
-                artifactId = "surveysdk"
-                version = "main-SNAPSHOT"
-                
-                pom {
-                    name.set("Survey SDK")
-                    description.set("Universal Survey SDK for Android, React Native, and Flutter")
-                    url.set("https://github.com/mustafadenizer-c4f/mobile-sdk-universal")
-                }
-            }
-        }
-    }
-}
+// Apply maven-publish plugin at the end
+apply(plugin = "maven-publish")
