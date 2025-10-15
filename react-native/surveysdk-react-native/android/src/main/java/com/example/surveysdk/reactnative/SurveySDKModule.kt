@@ -1,4 +1,4 @@
-// In your SDK's react-native bridge folder
+// react-native/surveysdk-react-native/android/src/main/java/com/example/surveysdk/reactnative/SurveySDKModule.kt
 package com.example.surveysdk.reactnative
 
 import com.facebook.react.bridge.*
@@ -12,16 +12,9 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun initialize(apiKey: String, promise: Promise) {
         try {
-            val activity = currentActivity
-            if (activity != null) {
-                UniversalSurveySDK.getInstance().initializeWithActivity(activity, apiKey)
-                promise.resolve("SurveySDK initialized successfully")
-            } else {
-                // Fallback to application context
-                val context = reactApplicationContext
-                UniversalSurveySDK.getInstance().initialize(context, apiKey)
-                promise.resolve("SurveySDK initialized with application context")
-            }
+            val context = reactApplicationContext
+            UniversalSurveySDK.getInstance().initialize(context, apiKey)
+            promise.resolve("SurveySDK initialized successfully")
         } catch (e: Exception) {
             promise.reject("INIT_ERROR", e.message ?: "Initialization failed")
         }
@@ -55,30 +48,11 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun trackEvent(eventName: String, properties: ReadableMap?, promise: Promise) {
         try {
-            val props = convertReadableMapToMap(properties)
+            val props = properties?.toHashMap() ?: emptyMap<String, Any>()
             UniversalSurveySDK.getInstance().trackEvent(eventName, props)
             promise.resolve("Event tracked successfully")
         } catch (e: Exception) {
             promise.reject("TRACK_ERROR", e.message ?: "Failed to track event")
         }
-    }
-
-    // Helper method to convert ReadableMap to Map
-    private fun convertReadableMapToMap(readableMap: ReadableMap?): Map<String, Any> {
-        val map = mutableMapOf<String, Any>()
-        if (readableMap != null) {
-            val iterator = readableMap.keySetIterator()
-            while (iterator.hasNextKey()) {
-                val key = iterator.nextKey()
-                when (readableMap.getType(key)) {
-                    ReadableType.Null -> map[key] = ""
-                    ReadableType.Boolean -> map[key] = readableMap.getBoolean(key)
-                    ReadableType.Number -> map[key] = readableMap.getDouble(key)
-                    ReadableType.String -> map[key] = readableMap.getString(key) ?: ""
-                    else -> map[key] = ""
-                }
-            }
-        }
-        return map
     }
 }

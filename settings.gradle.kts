@@ -1,3 +1,4 @@
+// settings.gradle.kts
 pluginManagement {
     repositories {
         google()
@@ -5,16 +6,18 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://jitpack.io") }
     }
 }
 
-rootProject.name = "SurveySDKUniversal"
+rootProject.name = "mobile-sdk-universal"
 include(":surveysdk")
-include(":react-native:surveysdk-react-native")
-include(":flutter:surveysdk-flutter")
+
+// Include React Native bridge as a submodule
+include(":surveysdk-react-native")
+project(":surveysdk-react-native").projectDir = file("../react-native/surveysdk-react-native/android")

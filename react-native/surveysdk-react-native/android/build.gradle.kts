@@ -1,4 +1,4 @@
-// surveysdk/build.gradle.kts
+// react-native/surveysdk-react-native/android/build.gradle.kts
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
@@ -6,14 +6,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.surveysdk"
+    namespace = "com.example.surveysdk.reactnative"
     compileSdk = 34
 
     defaultConfig {
         minSdk = 21
         targetSdk = 34
         
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -26,43 +25,26 @@ android {
             )
         }
     }
-
+    
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-
+    
     kotlinOptions {
         jvmTarget = "1.8"
     }
 }
 
 dependencies {
-    // Core Android
+    implementation(project(":surveysdk"))
+    
+    // React Native
+    implementation("com.facebook.react:react-android:+")
+    
+    // Kotlin
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
     implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-
-    // Material Design (for BottomSheetDialog)
-    implementation("com.google.android.material:material:1.10.0")
-
-    // Security Crypto (for EncryptedSharedPreferences)
-    implementation("androidx.security:security-crypto:1.1.0-alpha06")
-
-    // Navigation (for NavController)
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.4")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.4")
-
-    // RecyclerView
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-
-    // ConstraintLayout
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-
-    // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-
-    // Lifecycle (for process lifecycle)
-    implementation("androidx.lifecycle:lifecycle-process:2.7.0")
 }
 
 // Publishing configuration
@@ -72,12 +54,12 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 from(components["release"])
                 groupId = "com.github.mustafadenizer-c4f.mobile-sdk-universal"
-                artifactId = "surveysdk"
+                artifactId = "surveysdk-react-native"
                 version = "main-SNAPSHOT"
                 
                 pom {
-                    name.set("Survey SDK")
-                    description.set("Universal Survey SDK for Android, React Native, and Flutter")
+                    name.set("Survey SDK React Native")
+                    description.set("React Native bridge for Survey SDK")
                     url.set("https://github.com/mustafadenizer-c4f/mobile-sdk-universal")
                 }
             }
