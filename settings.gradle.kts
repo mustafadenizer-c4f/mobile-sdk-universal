@@ -17,7 +17,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "mobile-sdk-universal"
 include(":surveysdk")
-
-// Include React Native bridge as a submodule
-include(":surveysdk-react-native")
-project(":surveysdk-react-native").projectDir = file("../react-native/surveysdk-react-native/android")
+include(":surveysdk-react-native")  // Now directly in root

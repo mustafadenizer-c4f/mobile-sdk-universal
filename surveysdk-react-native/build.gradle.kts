@@ -1,4 +1,4 @@
-// react-native/surveysdk-react-native/android/build.gradle.kts
+// surveysdk-react-native/build.gradle.kts
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
@@ -12,7 +12,6 @@ android {
     defaultConfig {
         minSdk = 21
         targetSdk = 34
-        
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -38,16 +37,11 @@ android {
 
 dependencies {
     implementation(project(":surveysdk"))
-    
-    // React Native
     implementation("com.facebook.react:react-android:+")
-    
-    // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
     implementation("androidx.core:core-ktx:1.12.0")
 }
 
-// Publishing configuration
 afterEvaluate {
     publishing {
         publications {
@@ -56,12 +50,6 @@ afterEvaluate {
                 groupId = "com.github.mustafadenizer-c4f.mobile-sdk-universal"
                 artifactId = "surveysdk-react-native"
                 version = "main-SNAPSHOT"
-                
-                pom {
-                    name.set("Survey SDK React Native")
-                    description.set("React Native bridge for Survey SDK")
-                    url.set("https://github.com/mustafadenizer-c4f/mobile-sdk-universal")
-                }
             }
         }
     }
