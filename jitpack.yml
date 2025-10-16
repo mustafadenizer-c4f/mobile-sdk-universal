@@ -5,6 +5,5 @@ before_install:
   - chmod +x ./gradlew
 
 install:
-  - ./gradlew :surveysdk:assembleRelease
-  - ./gradlew :surveysdk-react-native:assembleRelease
-  - find . -name "*.aar" -ls  # Debug: List all aar files
+  - ./gradlew :surveysdk:assemble
+  - ./gradlew :surveysdk-react-native:assemble
