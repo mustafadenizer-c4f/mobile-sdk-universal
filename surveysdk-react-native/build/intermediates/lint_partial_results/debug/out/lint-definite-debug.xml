@@ -24,32 +24,32 @@
         severity="warning"
         message="Use version catalog instead">
         <fix-composite
-            description="Replace with new library catalog declaration for facebook-react-android"
+            description="Replace with new library catalog declaration for com-facebook-react-react-android"
             robot="true">
             <fix-replace
-                description="Replace with facebook-reactAndroid = &quot;0.72.0&quot;..."
+                description="Replace with com-facebook-react-reactAndroid = &quot;0.72.0&quot;..."
                 robot="true"
                 oldString="_lint_insert_begin_"
-                replacement="facebook-reactAndroid = &quot;0.72.0&quot;&#xA;">
+                replacement="com-facebook-react-reactAndroid = &quot;0.72.0&quot;&#xA;">
                 <range
                     file="$HOME/Desktop/SDK/SurveySDK_Android/gradle/libs.versions.toml"
                     startOffset="26"
                     endOffset="26"/>
             </fix-replace>
             <fix-replace
-                description="Replace with facebook-react-android = { module = &quot;com.facebook.react:react-android&quot;, version.ref = &quot;facebook-reactAndroid&quot; }..."
+                description="Replace with com-facebook-react-react-android = { module = &quot;com.facebook.react:react-android&quot;, version.ref = &quot;com-facebook-react-reactAndroid&quot; }..."
                 robot="true"
                 oldString="_lint_insert_begin_"
-                replacement="facebook-react-android = { module = &quot;com.facebook.react:react-android&quot;, version.ref = &quot;facebook-reactAndroid&quot; }&#xA;">
+                replacement="com-facebook-react-react-android = { module = &quot;com.facebook.react:react-android&quot;, version.ref = &quot;com-facebook-react-reactAndroid&quot; }&#xA;">
                 <range
                     file="$HOME/Desktop/SDK/SurveySDK_Android/gradle/libs.versions.toml"
                     startOffset="354"
                     endOffset="354"/>
             </fix-replace>
             <fix-replace
-                description="Replace with libs.facebook.react.android"
+                description="Replace with libs.com.facebook.react.react.android"
                 robot="true"
-                replacement="libs.facebook.react.android">
+                replacement="libs.com.facebook.react.react.android">
                 <range
                     file="${:surveysdk-react-native*projectDir}/build.gradle"
                     startOffset="728"
@@ -71,32 +71,32 @@
         severity="warning"
         message="Use version catalog instead">
         <fix-composite
-            description="Replace with new library catalog declaration for org-jetbrains-kotlin-kotlin-stdlib6"
+            description="Replace with new library catalog declaration for org-jetbrains-kotlin-kotlin-stdlib8"
             robot="true">
             <fix-replace
-                description="Replace with org-jetbrains-kotlin-kotlinStdlib6 = &quot;1.9.0&quot;..."
+                description="Replace with org-jetbrains-kotlin-kotlinStdlib8 = &quot;1.9.0&quot;..."
                 robot="true"
                 oldString="_lint_insert_begin_"
-                replacement="org-jetbrains-kotlin-kotlinStdlib6 = &quot;1.9.0&quot;&#xA;">
+                replacement="org-jetbrains-kotlin-kotlinStdlib8 = &quot;1.9.0&quot;&#xA;">
                 <range
                     file="$HOME/Desktop/SDK/SurveySDK_Android/gradle/libs.versions.toml"
                     startOffset="249"
                     endOffset="249"/>
             </fix-replace>
             <fix-replace
-                description="Replace with org-jetbrains-kotlin-kotlin-stdlib6 = { module = &quot;org.jetbrains.kotlin:kotlin-stdlib&quot;, version.ref = &quot;org-jetbrains-kotlin-kotlinStdlib6&quot; }..."
+                description="Replace with org-jetbrains-kotlin-kotlin-stdlib8 = { module = &quot;org.jetbrains.kotlin:kotlin-stdlib&quot;, version.ref = &quot;org-jetbrains-kotlin-kotlinStdlib8&quot; }..."
                 robot="true"
                 oldString="_lint_insert_begin_"
-                replacement="org-jetbrains-kotlin-kotlin-stdlib6 = { module = &quot;org.jetbrains.kotlin:kotlin-stdlib&quot;, version.ref = &quot;org-jetbrains-kotlin-kotlinStdlib6&quot; }&#xA;">
+                replacement="org-jetbrains-kotlin-kotlin-stdlib8 = { module = &quot;org.jetbrains.kotlin:kotlin-stdlib&quot;, version.ref = &quot;org-jetbrains-kotlin-kotlinStdlib8&quot; }&#xA;">
                 <range
                     file="$HOME/Desktop/SDK/SurveySDK_Android/gradle/libs.versions.toml"
                     startOffset="1756"
                     endOffset="1756"/>
             </fix-replace>
             <fix-replace
-                description="Replace with libs.org.jetbrains.kotlin.kotlin.stdlib6"
+                description="Replace with libs.org.jetbrains.kotlin.kotlin.stdlib8"
                 robot="true"
-                replacement="libs.org.jetbrains.kotlin.kotlin.stdlib6">
+                replacement="libs.org.jetbrains.kotlin.kotlin.stdlib8">
                 <range
                     file="${:surveysdk-react-native*projectDir}/build.gradle"
                     startOffset="790"
