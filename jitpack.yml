@@ -7,3 +7,5 @@ before_install:
 install:
   - ./gradlew :surveysdk:assembleRelease
   - ./gradlew :surveysdk-react-native:assembleRelease
+  - ./gradlew :surveysdk:generatePomFileForReleasePublication
+  - ./gradlew :surveysdk-react-native:generatePomFileForReleasePublication
