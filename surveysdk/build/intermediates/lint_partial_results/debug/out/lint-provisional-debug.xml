@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 8.1.0" type="conditional_incidents">
+
+    <incident
+        id="InlinedApi"
+        severity="warning"
+        message="">
+        <fix-data minSdk="fffffffffff00000" requiresApi="ffffffffffe00000"/>
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/AppUsageUtils.kt"
+            line="12"
+            column="62"
+            startOffset="342"
+            endLine="12"
+            endColumn="89"
+            endOffset="369"/>
+        <map>
+            <api-levels id="minSdk"
+                value="fffffffffff00000"/>
+            <api-levels id="requiresApi"
+                value="ffffffffffe00000"/>
+            <entry
+                name="message"
+                string="Field requires API level 22 (current min is %1$s): `android.content.Context#USAGE_STATS_SERVICE`"/>
+        </map>
+    </incident>
+
+    <incident
+        id="NewApi"
+        severity="error"
+        message="">
+        <fix-data minSdk="fffffffffff00000" requiresApi="ffffffffffc00000"/>
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/AppUsageUtils.kt"
+            line="18"
+            column="51"
+            startOffset="614"
+            endLine="18"
+            endColumn="70"
+            endOffset="633"/>
+        <map>
+            <api-levels id="minSdk"
+                value="fffffffffff00000"/>
+            <api-levels id="requiresApi"
+                value="ffffffffffc00000"/>
+            <entry
+                name="message"
+                string="Call requires API level 23 (current min is %1$s): `android.content.Context#checkSelfPermission`"/>
+        </map>
+    </incident>
+
+    <incident
+        id="InlinedApi"
+        severity="warning"
+        message="">
+        <fix-data minSdk="fffffffffff00000" requiresApi="ffffffffffc00000"/>
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/AppUsageUtils.kt"
+            line="19"
+            column="17"
+            startOffset="651"
+            endLine="19"
+            endColumn="64"
+            endOffset="698"/>
+        <map>
+            <api-levels id="minSdk"
+                value="fffffffffff00000"/>
+            <api-levels id="requiresApi"
+                value="ffffffffffc00000"/>
+            <entry
+                name="message"
+                string="Field requires API level 23 (current min is %1$s): `android.Manifest.permission#PACKAGE_USAGE_STATS`"/>
+        </map>
+    </incident>
+
+</incidents>

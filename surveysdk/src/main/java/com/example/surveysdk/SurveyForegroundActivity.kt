@@ -44,6 +44,7 @@ class SurveyForegroundActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        super.onBackPressed()
         finish()
     }
 }

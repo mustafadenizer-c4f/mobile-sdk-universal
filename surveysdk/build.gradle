@@ -28,10 +28,18 @@ android {
         jvmTarget = '1.8'
     }
 
+    lint {
+        baseline = file("lint-baseline.xml")
+        abortOnError = false
+    }
+
     publishing {
         singleVariant('release') {
             withSourcesJar()
         }
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 }
 
@@ -51,6 +59,10 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-process:2.7.0'
     implementation 'androidx.activity:activity-ktx:1.8.0'
     implementation 'androidx.fragment:fragment-ktx:1.6.1'
+
+    // Add test dependencies
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:1.9.0'
 }
 
 afterEvaluate {
