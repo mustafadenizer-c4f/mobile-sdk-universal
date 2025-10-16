@@ -29,6 +29,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    
     lint {
         abortOnError false
         checkReleaseBuilds false
@@ -40,8 +41,8 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.0'
     implementation 'androidx.core:core-ktx:1.12.0'
     
-    // FIX: Use the published version, not project reference
-    implementation 'com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:main-SNAPSHOT'
+    // REMOVED: surveysdk dependency for now
+    // implementation 'com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:main-SNAPSHOT'
 }
 
 afterEvaluate {
