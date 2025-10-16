@@ -17,12 +17,10 @@ class AndroidSurveySDK(
     }
 
     override fun showSurvey() {
-        // This will be handled by showSurveyInActivity for React Native
-        // For native Android, autoSetup should be called
+        throw IllegalStateException("Use showSurveyInActivity(activity) for React Native")
     }
 
     override fun setUserProperty(key: String, value: String) {
-        // Store in shared preferences for cross-platform access
         context.getSharedPreferences("survey_sdk_data", Context.MODE_PRIVATE)
             .edit()
             .putString(key, value)
@@ -30,13 +28,11 @@ class AndroidSurveySDK(
     }
 
     override fun trackEvent(eventName: String, properties: Map<String, Any>) {
-        // Track events for analytics
-        android.util.Log.d("SurveySDK", "Event: $eventName, Properties: $properties")
+        android.util.Log.d("SurveySDK", "Event tracked: $eventName, Properties: $properties")
     }
 
     override fun setApiKey(apiKey: String) {
-        // Re-initialize with new API key
-        SurveySDK.initialize(context, apiKey)
+        // Not used in React Native context
     }
 
     fun autoSetup(activity: Activity) {
@@ -47,16 +43,10 @@ class AndroidSurveySDK(
         surveySDK.showSurvey(activity)
     }
 
-    /**
-     * Check if user is excluded from surveys
-     */
     fun isUserExcluded(): Boolean {
         return surveySDK.isUserExcluded()
     }
 
-    /**
-     * Get debug status
-     */
     fun getDebugStatus(): String {
         return surveySDK.debugSurveyStatus()
     }

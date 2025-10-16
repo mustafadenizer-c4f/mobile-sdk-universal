@@ -24,45 +24,32 @@ class UniversalSurveySDK private constructor() {
     private var isInitialized = false
 
     /**
-     * Initialize for Native Android
-     */
-    fun initialize(context: Context, apiKey: String) {
-        if (!isInitialized) {
-            platform = AndroidSurveySDK(context.applicationContext as Application, apiKey)
-            isInitialized = true
-        }
-    }
-
-    /**
      * Initialize for React Native/Flutter (activity-based)
      */
     fun initializeWithActivity(activity: Activity, apiKey: String) {
         if (!isInitialized) {
-            platform = AndroidSurveySDK(activity.application, apiKey)
+            platform = AndroidSurveySDK(activity.application as Application, apiKey)
             isInitialized = true
         }
     }
 
     /**
-     * Show survey - works for all platforms
+     * Show survey - works for React Native
      */
-    fun showSurvey(activity: Activity? = null) {
+    fun showSurvey(activity: Activity) {
         if (!isInitialized) {
             throw IllegalStateException("SurveySDK not initialized. Call initialize() first.")
         }
-        
-        activity?.let {
-            // For React Native, we need to show the survey in the provided activity
-            (platform as? AndroidSurveySDK)?.showSurveyInActivity(it)
-        } ?: run {
-            platform?.showSurvey()
-        }
+        (platform as? AndroidSurveySDK)?.showSurveyInActivity(activity)
     }
 
     /**
      * Auto setup for Native Android
      */
     fun autoSetup(activity: Activity) {
+        if (!isInitialized) {
+            throw IllegalStateException("SurveySDK not initialized. Call initialize() first.")
+        }
         (platform as? AndroidSurveySDK)?.autoSetup(activity)
     }
 

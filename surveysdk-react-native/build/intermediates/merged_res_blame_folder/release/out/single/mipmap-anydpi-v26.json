@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/mipmap-anydpi-v26/ic_launcher.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-packaged_res-56:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/mipmap-anydpi-v26/ic_launcher_round.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-packaged_res-56:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    }
+]

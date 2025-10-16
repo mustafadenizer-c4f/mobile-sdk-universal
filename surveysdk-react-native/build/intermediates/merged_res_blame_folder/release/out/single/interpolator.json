@@ -1,0 +1,34 @@
+[
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_0.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-appcompat-1.7.0-4:/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_0.xml"
+    },
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/interpolator/fast_out_slow_in.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-appcompat-1.7.0-4:/interpolator/fast_out_slow_in.xml"
+    },
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_1.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-appcompat-1.7.0-4:/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_1.xml"
+    },
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/interpolator/btn_radio_to_off_mtrl_animation_interpolator_0.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-appcompat-1.7.0-4:/interpolator/btn_radio_to_off_mtrl_animation_interpolator_0.xml"
+    },
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_0.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-appcompat-1.7.0-4:/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_0.xml"
+    },
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_1.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-appcompat-1.7.0-4:/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_1.xml"
+    },
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/interpolator/btn_radio_to_on_mtrl_animation_interpolator_0.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-appcompat-1.7.0-4:/interpolator/btn_radio_to_on_mtrl_animation_interpolator_0.xml"
+    },
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/interpolator/mtrl_linear.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-material-1.10.0-19:/interpolator/mtrl_linear.xml"
+    }
+]

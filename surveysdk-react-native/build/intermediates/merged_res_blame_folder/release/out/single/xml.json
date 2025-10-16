@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/xml/data_extraction_rules.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-packaged_res-56:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/xml/backup_rules.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-packaged_res-56:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/xml/rn_dev_preferences.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-react-android-0.82.0-release-37:/xml/rn_dev_preferences.xml"
+    }
+]
