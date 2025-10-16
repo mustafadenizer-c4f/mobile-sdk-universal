@@ -5,5 +5,4 @@ before_install:
   - chmod +x ./gradlew
 
 install:
-  - ./gradlew :surveysdk:assemble
-  - ./gradlew :surveysdk-react-native:assemble
+  - ./gradlew build -x test -x lint
