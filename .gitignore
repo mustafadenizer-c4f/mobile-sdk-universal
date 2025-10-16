@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/surveysdk/build
+/surveysdk-react-native/build

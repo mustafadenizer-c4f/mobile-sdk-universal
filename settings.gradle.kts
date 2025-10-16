@@ -16,8 +16,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "mobile-sdk-universal"
 
-// CORRECT PATHS based on your structure:
-include(":surveysdk")  // This is in root/surveysdk/
-include(":surveysdk-react-native")  // This is in root/surveysdk-react-native/
+include(":surveysdk")
+include(":surveysdk-react-native")
 
-// NO projectDir overrides needed since they're in root
+// FIX PATHS - React Native module is in root, not android subfolder
+project(":surveysdk-react-native").projectDir = file("surveysdk-react-native")

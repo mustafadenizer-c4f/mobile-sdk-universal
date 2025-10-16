@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'maven-publish'  // ADD THIS
 }
 
 android {
@@ -30,6 +31,20 @@ android {
 
 dependencies {
     implementation 'com.facebook.react:react-android:+'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.0'  // ADD THIS
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.0'
     implementation project(':surveysdk')
+}
+
+// ADD THIS PUBLISHING BLOCK
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.mustafadenizer-c4f'
+                artifactId = 'surveysdk-react-native'
+                version = '1.0.0'
+            }
+        }
+    }
 }
