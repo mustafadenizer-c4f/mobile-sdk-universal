@@ -21,13 +21,15 @@ class UniversalSurveySDK private constructor() {
     }
 
     private var platform: SurveyPlatform? = null
+    private var isInitialized = false
 
     /**
      * Initialize for Native Android
      */
     fun initialize(context: Context, apiKey: String) {
-        if (platform == null) {
+        if (!isInitialized) {
             platform = AndroidSurveySDK(context.applicationContext as Application, apiKey)
+            isInitialized = true
         }
     }
 
@@ -35,8 +37,9 @@ class UniversalSurveySDK private constructor() {
      * Initialize for React Native/Flutter (activity-based)
      */
     fun initializeWithActivity(activity: Activity, apiKey: String) {
-        if (platform == null) {
+        if (!isInitialized) {
             platform = AndroidSurveySDK(activity.application, apiKey)
+            isInitialized = true
         }
     }
 
@@ -44,7 +47,16 @@ class UniversalSurveySDK private constructor() {
      * Show survey - works for all platforms
      */
     fun showSurvey(activity: Activity? = null) {
-        platform?.showSurvey()
+        if (!isInitialized) {
+            throw IllegalStateException("SurveySDK not initialized. Call initialize() first.")
+        }
+        
+        activity?.let {
+            // For React Native, we need to show the survey in the provided activity
+            (platform as? AndroidSurveySDK)?.showSurveyInActivity(it)
+        } ?: run {
+            platform?.showSurvey()
+        }
     }
 
     /**
@@ -58,6 +70,9 @@ class UniversalSurveySDK private constructor() {
      * Set user properties - works for all platforms
      */
     fun setUserProperty(key: String, value: String) {
+        if (!isInitialized) {
+            throw IllegalStateException("SurveySDK not initialized. Call initialize() first.")
+        }
         platform?.setUserProperty(key, value)
     }
 
@@ -65,6 +80,9 @@ class UniversalSurveySDK private constructor() {
      * Track events - works for all platforms
      */
     fun trackEvent(eventName: String, properties: Map<String, Any> = emptyMap()) {
+        if (!isInitialized) {
+            throw IllegalStateException("SurveySDK not initialized. Call initialize() first.")
+        }
         platform?.trackEvent(eventName, properties)
     }
 
@@ -72,4 +90,9 @@ class UniversalSurveySDK private constructor() {
      * Get platform instance (for bridges)
      */
     fun getPlatform(): SurveyPlatform? = platform
+
+    /**
+     * Check if SDK is initialized
+     */
+    fun isInitialized(): Boolean = isInitialized
 }

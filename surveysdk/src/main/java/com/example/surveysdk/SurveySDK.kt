@@ -1046,4 +1046,12 @@ class SurveySDK private constructor(private val context: Context) {
     fun isSDKEnabled(): Boolean {
         return configurationLoaded && !apiConfigurationFailed && config.baseUrl.isNotEmpty()
     }
+
+    fun isUserExcluded(): Boolean {
+    return if (this::config.isInitialized) {
+        ExclusionRuleEvaluator.shouldExcludeSurvey(context, config.exclusionRules)
+    } else {
+        false
+    }
+}
 }

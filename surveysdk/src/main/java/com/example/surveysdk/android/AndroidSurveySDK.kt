@@ -17,8 +17,8 @@ class AndroidSurveySDK(
     }
 
     override fun showSurvey() {
-        // Will be shown when activity is available
-        // For React Native/Flutter, we'll handle this differently
+        // This will be handled by showSurveyInActivity for React Native
+        // For native Android, autoSetup should be called
     }
 
     override fun setUserProperty(key: String, value: String) {
@@ -45,5 +45,19 @@ class AndroidSurveySDK(
 
     fun showSurveyInActivity(activity: Activity) {
         surveySDK.showSurvey(activity)
+    }
+
+    /**
+     * Check if user is excluded from surveys
+     */
+    fun isUserExcluded(): Boolean {
+        return surveySDK.isUserExcluded()
+    }
+
+    /**
+     * Get debug status
+     */
+    fun getDebugStatus(): String {
+        return surveySDK.debugSurveyStatus()
     }
 }
