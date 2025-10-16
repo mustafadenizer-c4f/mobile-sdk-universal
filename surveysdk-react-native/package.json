@@ -1,10 +1,12 @@
 {
-  "name": "surveysdk-react-native",
+  "name": "@mustafadenizer/surveysdk-react-native",
   "version": "1.0.0",
   "description": "React Native bridge for Survey SDK",
   "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo 'No build step required'",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "react-native",
@@ -12,11 +14,24 @@
     "feedback",
     "sdk"
   ],
-  "author": "Your Name",
+  "author": "Mustafa Denizer",
   "license": "MIT",
   "peerDependencies": {
     "react-native": ">=0.60.0"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mustafadenizer-c4f/mobile-sdk-universal.git",
+    "directory": "surveysdk-react-native"
+  },
+  "files": [
+    "android",
+    "lib",
+    "index.js",
+    "README.md"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  }
 }

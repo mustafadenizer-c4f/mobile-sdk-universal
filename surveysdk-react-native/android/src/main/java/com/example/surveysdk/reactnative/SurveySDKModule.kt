@@ -1,20 +1,25 @@
-// react-native/surveysdk-react-native/android/src/main/java/com/example/surveysdk/reactnative/SurveySDKModule.kt
 package com.example.surveysdk.reactnative
 
 import com.facebook.react.bridge.*
+import com.facebook.react.module.annotations.ReactModule
 import android.app.Activity
-import com.example.surveysdk.UniversalSurveySDK
+import com.example.surveysdk.SurveySDK
 
+@ReactModule(name = SurveySDKModule.NAME)
 class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
-    override fun getName(): String = "SurveySDK"
+    companion object {
+        const val NAME = "SurveySDK"
+    }
+
+    override fun getName(): String = NAME
 
     @ReactMethod
     fun initialize(apiKey: String, promise: Promise) {
         try {
             val context = reactApplicationContext
-            UniversalSurveySDK.getInstance().initialize(context, apiKey)
-            promise.resolve("SurveySDK initialized successfully")
+            SurveySDK.initialize(context, apiKey)
+            promise.resolve("SurveySDK initialized successfully with key: $apiKey")
         } catch (e: Exception) {
             promise.reject("INIT_ERROR", e.message ?: "Initialization failed")
         }
@@ -25,7 +30,8 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         try {
             val activity = currentActivity
             if (activity != null) {
-                UniversalSurveySDK.getInstance().showSurvey(activity)
+                val sdk = SurveySDK.getInstance()
+                sdk.showSurvey(activity)
                 promise.resolve("Survey shown successfully")
             } else {
                 promise.reject("NO_ACTIVITY", "No current activity available")
@@ -38,8 +44,10 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun setUserProperty(key: String, value: String, promise: Promise) {
         try {
-            UniversalSurveySDK.getInstance().setUserProperty(key, value)
-            promise.resolve("User property set successfully")
+            // Store in shared preferences (as shown in AndroidSurveySDK)
+            val prefs = reactApplicationContext.getSharedPreferences("survey_sdk_data", android.content.Context.MODE_PRIVATE)
+            prefs.edit().putString(key, value).apply()
+            promise.resolve("User property '$key' set to '$value'")
         } catch (e: Exception) {
             promise.reject("PROPERTY_ERROR", e.message ?: "Failed to set user property")
         }
@@ -49,10 +57,32 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     fun trackEvent(eventName: String, properties: ReadableMap?, promise: Promise) {
         try {
             val props = properties?.toHashMap() ?: emptyMap<String, Any>()
-            UniversalSurveySDK.getInstance().trackEvent(eventName, props)
-            promise.resolve("Event tracked successfully")
+            android.util.Log.d("SurveySDK", "Event: $eventName, Properties: $props")
+            promise.resolve("Event '$eventName' tracked successfully")
         } catch (e: Exception) {
             promise.reject("TRACK_ERROR", e.message ?: "Failed to track event")
+        }
+    }
+
+    @ReactMethod
+    fun isUserExcluded(promise: Promise) {
+        try {
+            val sdk = SurveySDK.getInstance()
+            val excluded = sdk.isUserExcluded()
+            promise.resolve(excluded)
+        } catch (e: Exception) {
+            promise.reject("EXCLUSION_ERROR", e.message ?: "Failed to check exclusion status")
+        }
+    }
+
+    @ReactMethod
+    fun debugSurveyStatus(promise: Promise) {
+        try {
+            val sdk = SurveySDK.getInstance()
+            val status = sdk.debugSurveyStatus()
+            promise.resolve(status)
+        } catch (e: Exception) {
+            promise.reject("DEBUG_ERROR", e.message ?: "Failed to get debug status")
         }
     }
 }
