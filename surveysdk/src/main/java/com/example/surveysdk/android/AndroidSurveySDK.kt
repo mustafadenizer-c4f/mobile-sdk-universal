@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import com.example.surveysdk.core.SurveyPlatform
 import com.example.surveysdk.SurveySDK
+import android.util.Log  // ← ADD THIS IMPORT
 
 class AndroidSurveySDK(
     private val context: Application,
@@ -15,6 +16,13 @@ class AndroidSurveySDK(
         SurveySDK.initialize(context, apiKey)
         SurveySDK.getInstance()
     }
+
+    // Add this method for explicit core SDK initialization
+    fun initializeCoreSDK() {
+        // This will trigger the lazy initialization
+        surveySDK.isSDKEnabled()
+        Log.d("AndroidSurveySDK", "Core SDK initialized")
+    }    
 
     override fun showSurvey() {
         throw IllegalStateException("Use showSurveyInActivity(activity) for React Native")

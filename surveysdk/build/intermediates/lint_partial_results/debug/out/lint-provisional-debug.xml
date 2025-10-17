@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 8.1.0" type="conditional_incidents">
+
+    <incident
+        id="ObsoleteSdkInt"
+        severity="warning"
+        message="Unnecessary; SDK_INT is always >= 23">
+        <fix-replace
+            description="Delete @RequiresApi"
+            replacement="">
+            <range
+                file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/AppUsageUtils.kt"
+                startOffset="1085"
+                endOffset="1120"/>
+        </fix-replace>
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/AppUsageUtils.kt"
+            line="33"
+            column="5"
+            startOffset="1085"
+            endLine="33"
+            endColumn="40"
+            endOffset="1120"/>
+        <map>
+            <condition minGE="ffffffffffc00000"/>
+        </map>
+    </incident>
+
+</incidents>

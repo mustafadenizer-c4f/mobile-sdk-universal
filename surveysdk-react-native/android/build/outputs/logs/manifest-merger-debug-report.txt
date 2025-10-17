@@ -1,0 +1,16 @@
+-- Merging decision tree log ---
+manifest
+ADDED from C:\Users\dafat\Desktop\SDK\SurveySDK_Android\surveysdk-react-native\android\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1342175298369627940.xml:2:13-83
+INJECTED from C:\Users\dafat\Desktop\SDK\SurveySDK_Android\surveysdk-react-native\android\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1342175298369627940.xml:2:13-83
+	package
+		INJECTED from C:\Users\dafat\Desktop\SDK\SurveySDK_Android\surveysdk-react-native\android\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1342175298369627940.xml
+	xmlns:android
+		ADDED from C:\Users\dafat\Desktop\SDK\SurveySDK_Android\surveysdk-react-native\android\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1342175298369627940.xml:2:23-81
+uses-sdk
+INJECTED from C:\Users\dafat\Desktop\SDK\SurveySDK_Android\surveysdk-react-native\android\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1342175298369627940.xml reason: use-sdk injection requested
+INJECTED from C:\Users\dafat\Desktop\SDK\SurveySDK_Android\surveysdk-react-native\android\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1342175298369627940.xml
+INJECTED from C:\Users\dafat\Desktop\SDK\SurveySDK_Android\surveysdk-react-native\android\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1342175298369627940.xml
+	android:targetSdkVersion
+		INJECTED from C:\Users\dafat\Desktop\SDK\SurveySDK_Android\surveysdk-react-native\android\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1342175298369627940.xml
+	android:minSdkVersion
+		INJECTED from C:\Users\dafat\Desktop\SDK\SurveySDK_Android\surveysdk-react-native\android\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1342175298369627940.xml

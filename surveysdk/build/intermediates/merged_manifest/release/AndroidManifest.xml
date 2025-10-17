@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.surveysdk" >
+
+    <uses-sdk android:minSdkVersion="21" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <application>
+
+        <!-- Survey Activities WITH THEMES -->
+        <activity
+            android:name="com.example.surveysdk.SurveyFullScreenActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name="com.example.surveysdk.SurveyDialogActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.Dialog" />
+        <activity
+            android:name="com.example.surveysdk.SurveyBottomSheetActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name="com.example.surveysdk.SurveyForegroundActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+    </application>
+
+</manifest>

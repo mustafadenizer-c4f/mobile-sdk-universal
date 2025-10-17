@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-48:/animator-v21/design_appbar_state_list_animator.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-material-1.10.0-17:/animator-v21/design_appbar_state_list_animator.xml"
+    },
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-48:/animator-v21/m3_appbar_state_list_animator.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-material-1.10.0-17:/animator-v21/m3_appbar_state_list_animator.xml"
+    }
+]

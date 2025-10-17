@@ -4,91 +4,70 @@ import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import android.app.Activity
 import android.util.Log
-import android.content.Context  // ← ADD THIS
-import com.example.surveysdk.SurveySDK  // ← ADD THIS (use main SDK directly)
-import com.example.surveysdk.UniversalSurveySDK  // ← ADD THIS
+import com.example.surveysdk.SurveySDK
 
 @ReactModule(name = "SurveySDK")
 class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     override fun getName(): String = "SurveySDK"
 
-   @ReactMethod
-fun initialize(apiKey: String, promise: Promise) {
-    try {
-        Log.d("SurveySDK", "RN: === INITIALIZATION STARTED ===")
-        Log.d("SurveySDK", "RN: API Key: ${apiKey.take(8)}...")
-        
-        val activity = currentActivity
-        Log.d("SurveySDK", "RN: Current activity for init: $activity")
-        
-        if (activity != null) {
-            Log.d("SurveySDK", "RN: Initializing UniversalSurveySDK...")
-            UniversalSurveySDK.getInstance().initializeWithActivity(activity, apiKey)
-            
-            val universalSDK = UniversalSurveySDK.getInstance()
-            Log.d("SurveySDK", "RN: UniversalSDK initialized: ${universalSDK.isInitialized()}")
-            
-            promise.resolve(true)
-        } else {
-            Log.e("SurveySDK", "RN: NO ACTIVITY FOR INITIALIZATION")
-            promise.reject("NO_ACTIVITY", "No current activity available for initialization")
-        }
-    } catch (e: Exception) {
-        Log.e("SurveySDK", "RN: Initialization failed with exception", e)
-        promise.reject("INIT_ERROR", "Initialization failed: ${e.message}")
-    }
-}
-    private fun initializeSDK(activity: Activity, apiKey: String) {
+    @ReactMethod
+    fun initialize(apiKey: String, promise: Promise) {
         try {
-            // Use reflection to avoid direct dependency
-            val sdkClass = Class.forName("com.example.surveysdk.SurveySDK")
-            val initializeMethod = sdkClass.getMethod("initialize", Context::class.java, String::class.java)
-            initializeMethod.invoke(null, activity.applicationContext, apiKey)
+            Log.d("SurveySDK", "RN: Initializing core SurveySDK...")
+            
+            val activity = currentActivity
+            if (activity != null) {
+                // Initialize core SDK directly
+                SurveySDK.initialize(activity.applicationContext, apiKey)
+                Log.d("SurveySDK", "RN: Core SDK initialized successfully")
+                promise.resolve(true)
+            } else {
+                promise.reject("NO_ACTIVITY", "No current activity available")
+            }
         } catch (e: Exception) {
-            Log.e("SurveySDK", "Reflection initialization failed", e)
-            // Fallback to direct call (will fail at runtime if main SDK not included)
-            com.example.surveysdk.SurveySDK.initialize(activity.applicationContext, apiKey)
+            Log.e("SurveySDK", "RN: Initialization failed", e)
+            promise.reject("INIT_ERROR", "Initialization failed: ${e.message}")
         }
     }
-
 
     @ReactMethod
-fun showSurvey(promise: Promise) {
-    try {
-        Log.d("SurveySDK", "RN: === SHOW SURVEY STARTED ===")
-        
-        val activity = currentActivity
-        Log.d("SurveySDK", "RN: Current activity: $activity")
-        
-        if (activity != null) {
-            Log.d("SurveySDK", "RN: Activity found, calling UniversalSurveySDK...")
+    fun showSurvey(promise: Promise) {
+        try {
+            Log.d("SurveySDK", "RN: Showing survey via core SDK...")
             
-            // Test if UniversalSurveySDK is initialized
-            val universalSDK = UniversalSurveySDK.getInstance()
-            Log.d("SurveySDK", "RN: UniversalSDK instance: $universalSDK")
-            Log.d("SurveySDK", "RN: Is UniversalSDK initialized: ${universalSDK.isInitialized()}")
-            
-            universalSDK.showSurvey(activity)
-            Log.d("SurveySDK", "RN: Survey shown successfully")
-            promise.resolve(true)
-        } else {
-            Log.e("SurveySDK", "RN: NO CURRENT ACTIVITY AVAILABLE")
-            promise.reject("NO_ACTIVITY", "No current activity available")
+            val activity = currentActivity
+            if (activity != null) {
+                // Use core SDK directly
+                val surveySDK = SurveySDK.getInstance()
+                surveySDK.showSurvey(activity)
+                Log.d("SurveySDK", "RN: Survey shown via core SDK")
+                promise.resolve(true)
+            } else {
+                promise.reject("NO_ACTIVITY", "No current activity available")
+            }
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Show survey failed", e)
+            promise.reject("SHOW_ERROR", "Failed to show survey: ${e.message}")
         }
-    } catch (e: Exception) {
-        Log.e("SurveySDK", "RN: Show survey failed with exception", e)
-        promise.reject("SHOW_ERROR", "Failed to show survey: ${e.message}")
     }
-}
 
     @ReactMethod
     fun setUserProperty(key: String, value: String, promise: Promise) {
         try {
             Log.d("SurveySDK", "RN: Setting user property: $key = $value")
             
-            UniversalSurveySDK.getInstance().setUserProperty(key, value)
-            promise.resolve(true)
+            // Store in SharedPreferences directly for React Native
+            val activity = currentActivity
+            if (activity != null) {
+                activity.getSharedPreferences("survey_sdk_data", android.content.Context.MODE_PRIVATE)
+                    .edit()
+                    .putString(key, value)
+                    .apply()
+                promise.resolve(true)
+            } else {
+                promise.reject("NO_ACTIVITY", "No current activity available")
+            }
         } catch (e: Exception) {
             Log.e("SurveySDK", "RN: Set user property failed", e)
             promise.reject("PROPERTY_ERROR", "Failed to set user property: ${e.message}")
@@ -101,7 +80,8 @@ fun showSurvey(promise: Promise) {
             val props = properties?.toHashMap() ?: emptyMap<String, Any>()
             Log.d("SurveySDK", "RN: Tracking event: $eventName with properties: $props")
             
-            UniversalSurveySDK.getInstance().trackEvent(eventName, props)
+            // Log event for React Native (can be extended to send to analytics)
+            android.util.Log.d("SurveySDK", "Event tracked: $eventName, Properties: $props")
             promise.resolve(true)
         } catch (e: Exception) {
             Log.e("SurveySDK", "RN: Track event failed", e)
@@ -112,12 +92,8 @@ fun showSurvey(promise: Promise) {
     @ReactMethod
     fun isUserExcluded(promise: Promise) {
         try {
-            val platform = UniversalSurveySDK.getInstance().getPlatform()
-            val isExcluded = if (platform is com.example.surveysdk.android.AndroidSurveySDK) {
-                platform.isUserExcluded()
-            } else {
-                false
-            }
+            val surveySDK = SurveySDK.getInstance()
+            val isExcluded = surveySDK.isUserExcluded()
             Log.d("SurveySDK", "RN: User excluded check: $isExcluded")
             promise.resolve(isExcluded)
         } catch (e: Exception) {
@@ -129,12 +105,8 @@ fun showSurvey(promise: Promise) {
     @ReactMethod
     fun getDebugStatus(promise: Promise) {
         try {
-            val platform = UniversalSurveySDK.getInstance().getPlatform()
-            val debugStatus = if (platform is com.example.surveysdk.android.AndroidSurveySDK) {
-                platform.getDebugStatus()
-            } else {
-                "SDK not properly initialized"
-            }
+            val surveySDK = SurveySDK.getInstance()
+            val debugStatus = surveySDK.debugSurveyStatus()
             Log.d("SurveySDK", "RN: Debug status requested")
             promise.resolve(debugStatus)
         } catch (e: Exception) {
@@ -148,8 +120,9 @@ fun showSurvey(promise: Promise) {
         try {
             val activity = currentActivity
             if (activity != null) {
-                Log.d("SurveySDK", "RN: Auto setup started")
-                UniversalSurveySDK.getInstance().autoSetup(activity)
+                val surveySDK = SurveySDK.getInstance()
+                surveySDK.autoSetup(activity)
+                Log.d("SurveySDK", "RN: Auto setup completed")
                 promise.resolve(true)
             } else {
                 promise.reject("NO_ACTIVITY", "No current activity available for auto setup")
@@ -157,6 +130,43 @@ fun showSurvey(promise: Promise) {
         } catch (e: Exception) {
             Log.e("SurveySDK", "RN: Auto setup failed", e)
             promise.reject("SETUP_ERROR", "Auto setup failed: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun getSessionStats(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            val sessionStats = surveySDK.getSessionStats()
+            val writableMap = Arguments.createMap()
+            sessionStats.forEach { (key, value) ->
+                writableMap.putString(key, value)
+            }
+            promise.resolve(writableMap)
+        } catch (e: Exception) {
+            promise.reject("SESSION_ERROR", "Failed to get session stats: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun setSessionData(key: String, value: String, promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            surveySDK.setSessionData(key, value)
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("SESSION_ERROR", "Failed to set session data: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun resetSessionData(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            surveySDK.resetSessionData()
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("SESSION_ERROR", "Failed to reset session data: ${e.message}")
         }
     }
 }

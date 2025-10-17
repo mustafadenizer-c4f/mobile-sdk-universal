@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 8.1.0" type="incidents">
+
+    <incident
+        id="OldTargetApi"
+        severity="warning"
+        message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the android.os.Build.VERSION_CODES javadoc for details.">
+        <fix-replace
+            description="Update targetSdkVersion to 36"
+            oldString="34"
+            replacement="36"/>
+        <location
+            file="${:surveysdk-react-native*projectDir}/build.gradle.kts"
+            line="13"
+            column="9"
+            startOffset="237"
+            endLine="13"
+            endColumn="23"
+            endOffset="251"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of com.facebook.react:react-android than 0.72.0 is available: 0.82.0">
+        <fix-replace
+            description="Change to 0.82.0"
+            family="Update versions"
+            oldString="0.72.0"
+            replacement="0.82.0"/>
+        <location
+            file="${:surveysdk-react-native*projectDir}/build.gradle.kts"
+            line="51"
+            column="18"
+            startOffset="1157"
+            endLine="51"
+            endColumn="57"
+            endOffset="1196"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of org.jetbrains.kotlin:kotlin-stdlib than 1.9.0 is available: 2.2.0">
+        <fix-replace
+            description="Change to 2.2.0"
+            family="Update versions"
+            oldString="1.9.0"
+            replacement="2.2.0"/>
+        <location
+            file="${:surveysdk-react-native*projectDir}/build.gradle.kts"
+            line="52"
+            column="21"
+            startOffset="1219"
+            endLine="52"
+            endColumn="61"
+            endOffset="1259"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.appcompat:appcompat than 1.6.1 is available: 1.7.1">
+        <fix-replace
+            description="Change to 1.7.1"
+            family="Update versions"
+            oldString="1.6.1"
+            replacement="1.7.1"/>
+        <location
+            file="${:surveysdk-react-native*projectDir}/build.gradle.kts"
+            line="56"
+            column="21"
+            startOffset="1385"
+            endLine="56"
+            endColumn="55"
+            endOffset="1419"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.core:core-ktx than 1.12.0 is available: 1.17.0">
+        <fix-replace
+            description="Change to 1.17.0"
+            family="Update versions"
+            oldString="1.12.0"
+            replacement="1.17.0"/>
+        <location
+            file="${:surveysdk-react-native*projectDir}/build.gradle.kts"
+            line="57"
+            column="21"
+            startOffset="1442"
+            endLine="57"
+            endColumn="50"
+            endOffset="1471"/>
+    </incident>
+
+</incidents>
