@@ -26,21 +26,42 @@ class UniversalSurveySDK private constructor() {
     /**
      * Initialize for React Native/Flutter (activity-based)
      */
+    /**
+ * Initialize for React Native/Flutter (activity-based)
+ */
     fun initializeWithActivity(activity: Activity, apiKey: String) {
         if (!isInitialized) {
+            Log.d("UniversalSurveySDK", "Initializing with activity and API key")
             platform = AndroidSurveySDK(activity.application as Application, apiKey)
+            
+            // FIX: Actually initialize the core SurveySDK
+            SurveySDK.initialize(activity.applicationContext, apiKey)
+            
             isInitialized = true
+            Log.d("UniversalSurveySDK", "Initialization completed - isInitialized: $isInitialized")
+        } else {
+            Log.d("UniversalSurveySDK", "Already initialized")
         }
     }
 
     /**
-     * Show survey - works for React Native
-     */
+    * Show survey - works for React Native
+    */
     fun showSurvey(activity: Activity) {
+        Log.d("UniversalSurveySDK", "showSurvey called - isInitialized: $isInitialized")
+        
         if (!isInitialized) {
             throw IllegalStateException("SurveySDK not initialized. Call initialize() first.")
         }
-        (platform as? AndroidSurveySDK)?.showSurveyInActivity(activity)
+        
+        // FIX: Use the core SurveySDK directly since we initialized it
+        try {
+            SurveySDK.getInstance().showSurvey(activity)
+            Log.d("UniversalSurveySDK", "Survey shown via core SDK")
+        } catch (e: Exception) {
+            Log.e("UniversalSurveySDK", "Error showing survey via core SDK", e)
+            throw e
+        }
     }
 
     /**
