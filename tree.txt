@@ -6,93 +6,11 @@ C:.
 -   gradle.properties
 -   gradlew
 -   gradlew.bat
--   jitpack.yml
 -   local.properties
 -   settings.gradle.kts
 -   test-build.gradle
 -   tree.txt
 -   
-+¦¦¦.gradle
--   +¦¦¦8.0
--   -   -   gc.properties
--   -   -   
--   -   +¦¦¦checksums
--   -   -       checksums.lock
--   -   -       
--   -   +¦¦¦dependencies-accessors
--   -   -   -   dependencies-accessors.lock
--   -   -   -   executionHistory.bin
--   -   -   -   gc.properties
--   -   -   -   
--   -   -   L¦¦¦191b4b0accec10f5b39b24787747a8cc6bb54603
--   -   -       +¦¦¦classes
--   -   -       -   L¦¦¦org
--   -   -       -       L¦¦¦gradle
--   -   -       -           L¦¦¦accessors
--   -   -       -               L¦¦¦dm
--   -   -       -                       LibrariesForLibs$AndroidPluginAccessors.class
--   -   -       -                       LibrariesForLibs$AndroidxActivityLibraryAccessors.class
--   -   -       -                       LibrariesForLibs$AndroidxComposeLibraryAccessors.class
--   -   -       -                       LibrariesForLibs$AndroidxCoreLibraryAccessors.class
--   -   -       -                       LibrariesForLibs$AndroidxEspressoLibraryAccessors.class
--   -   -       -                       LibrariesForLibs$AndroidxLibraryAccessors.class
--   -   -       -                       LibrariesForLibs$AndroidxLifecycleLibraryAccessors.class
--   -   -       -                       LibrariesForLibs$AndroidxLifecycleRuntimeLibraryAccessors.class
--   -   -       -                       LibrariesForLibs$AndroidxUiLibraryAccessors.class
--   -   -       -                       LibrariesForLibs$AndroidxUiTestLibraryAccessors.class
--   -   -       -                       LibrariesForLibs$AndroidxUiToolingLibraryAccessors.class
--   -   -       -                       LibrariesForLibs$BundleAccessors.class
--   -   -       -                       LibrariesForLibs$KotlinPluginAccessors.class
--   -   -       -                       LibrariesForLibs$PluginAccessors.class
--   -   -       -                       LibrariesForLibs$VersionAccessors.class
--   -   -       -                       LibrariesForLibs.class
--   -   -       -                       
--   -   -       L¦¦¦sources
--   -   -           L¦¦¦org
--   -   -               L¦¦¦gradle
--   -   -                   L¦¦¦accessors
--   -   -                       L¦¦¦dm
--   -   -                               LibrariesForLibs.java
--   -   -                               
--   -   +¦¦¦executionHistory
--   -   -       executionHistory.lock
--   -   -       
--   -   +¦¦¦fileChanges
--   -   -       last-build.bin
--   -   -       
--   -   +¦¦¦fileHashes
--   -   -       fileHashes.bin
--   -   -       fileHashes.lock
--   -   -       resourceHashesCache.bin
--   -   -       
--   -   L¦¦¦vcsMetadata
--   +¦¦¦buildOutputCleanup
--   -       buildOutputCleanup.lock
--   -       cache.properties
--   -       
--   L¦¦¦vcs-1
--           gc.properties
--           
-+¦¦¦.idea
--   -   .gitignore
--   -   .name
--   -   AndroidProjectSystem.xml
--   -   compiler.xml
--   -   deploymentTargetSelector.xml
--   -   deviceManager.xml
--   -   gradle.xml
--   -   migrations.xml
--   -   misc.xml
--   -   runConfigurations.xml
--   -   SurveySDK_Android.iml
--   -   vcs.xml
--   -   workspace.xml
--   -   
--   L¦¦¦caches
--           deviceStreaming.xml
--           
-+¦¦¦.kotlin
--   L¦¦¦sessions
 +¦¦¦gradle
 -   -   libs.versions.toml
 -   -   
@@ -101,74 +19,10 @@ C:.
 -           gradle-wrapper.properties
 -           
 +¦¦¦surveysdk
--   -   .gitignore
--   -   build.gradle
+-   -   build.gradle.kts
+-   -   lint-baseline.xml
 -   -   proguard-rules.pro
 -   -   
--   +¦¦¦example-app
--   -   -   .gitignore
--   -   -   build.gradle.kts
--   -   -   proguard-rules.pro
--   -   -   
--   -   L¦¦¦src
--   -       +¦¦¦androidTest
--   -       -   L¦¦¦java
--   -       -       L¦¦¦com
--   -       -           L¦¦¦example
--   -       -               L¦¦¦surveytestapp
--   -       -                       ExampleInstrumentedTest.kt
--   -       -                       
--   -       +¦¦¦main
--   -       -   -   AndroidManifest.xml
--   -       -   -   
--   -       -   +¦¦¦java
--   -       -   -   L¦¦¦com
--   -       -   -       L¦¦¦example
--   -       -   -           L¦¦¦surveytestapp
--   -       -   L¦¦¦res
--   -       -       +¦¦¦drawable
--   -       -       -       ic_launcher_background.xml
--   -       -       -       ic_launcher_foreground.xml
--   -       -       -       
--   -       -       +¦¦¦mipmap-anydpi-v26
--   -       -       -       ic_launcher.xml
--   -       -       -       ic_launcher_round.xml
--   -       -       -       
--   -       -       +¦¦¦mipmap-hdpi
--   -       -       -       ic_launcher.webp
--   -       -       -       ic_launcher_round.webp
--   -       -       -       
--   -       -       +¦¦¦mipmap-mdpi
--   -       -       -       ic_launcher.webp
--   -       -       -       ic_launcher_round.webp
--   -       -       -       
--   -       -       +¦¦¦mipmap-xhdpi
--   -       -       -       ic_launcher.webp
--   -       -       -       ic_launcher_round.webp
--   -       -       -       
--   -       -       +¦¦¦mipmap-xxhdpi
--   -       -       -       ic_launcher.webp
--   -       -       -       ic_launcher_round.webp
--   -       -       -       
--   -       -       +¦¦¦mipmap-xxxhdpi
--   -       -       -       ic_launcher.webp
--   -       -       -       ic_launcher_round.webp
--   -       -       -       
--   -       -       +¦¦¦values
--   -       -       -       colors.xml
--   -       -       -       strings.xml
--   -       -       -       themes.xml
--   -       -       -       
--   -       -       L¦¦¦values-night
--   -       -               themes.xml
--   -       -               
--   -       L¦¦¦test
--   -           L¦¦¦java
--   -               L¦¦¦com
--   -                   L¦¦¦example
--   -                       L¦¦¦surveytestapp
--   -                               ExampleUnitTest.kt
--   -                               
 -   L¦¦¦src
 -       +¦¦¦androidTest
 -       -   L¦¦¦java
@@ -289,11 +143,12 @@ C:.
 -               surveysdk_method_channel.dart
 -               
 L¦¦¦surveysdk-react-native
-    -   build.gradle
     -   index.js
     -   package.json
     -   
     +¦¦¦android
+    -   -   build.gradle.kts
+    -   -   
     -   L¦¦¦src
     -       L¦¦¦main
     -           L¦¦¦java
@@ -307,7 +162,11 @@ L¦¦¦surveysdk-react-native
     +¦¦¦ios
     -       SurveySDK.m
     -       
-    L¦¦¦lib
-            index.js
-            SurveySDK.js
-            
+    +¦¦¦lib
+    -       index.js
+    -       SurveySDK.js
+    -       
+    L¦¦¦src
+        L¦¦¦main
+                AndroidManifest.xml
+                

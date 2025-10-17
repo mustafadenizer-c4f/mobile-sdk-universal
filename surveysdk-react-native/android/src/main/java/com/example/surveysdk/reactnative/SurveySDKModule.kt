@@ -4,7 +4,9 @@ import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import android.app.Activity
 import android.util.Log
-import com.example.surveysdk.UniversalSurveySDK
+import android.content.Context  // ← ADD THIS
+import com.example.surveysdk.SurveySDK  // ← ADD THIS (use main SDK directly)
+import com.example.surveysdk.UniversalSurveySDK  // ← ADD THIS
 
 @ReactModule(name = "SurveySDK")
 class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -18,8 +20,8 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             
             val activity = currentActivity
             if (activity != null) {
-                UniversalSurveySDK.getInstance().initializeWithActivity(activity, apiKey)
-                Log.d("SurveySDK", "RN: SDK initialized successfully")
+                // Use reflection or direct SDK call to avoid compile-time dependency issues
+                initializeSDK(activity, apiKey)
                 promise.resolve(true)
             } else {
                 promise.reject("NO_ACTIVITY", "No current activity available")
@@ -29,6 +31,20 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             promise.reject("INIT_ERROR", "Initialization failed: ${e.message}")
         }
     }
+
+    private fun initializeSDK(activity: Activity, apiKey: String) {
+        try {
+            // Use reflection to avoid direct dependency
+            val sdkClass = Class.forName("com.example.surveysdk.SurveySDK")
+            val initializeMethod = sdkClass.getMethod("initialize", Context::class.java, String::class.java)
+            initializeMethod.invoke(null, activity.applicationContext, apiKey)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "Reflection initialization failed", e)
+            // Fallback to direct call (will fail at runtime if main SDK not included)
+            com.example.surveysdk.SurveySDK.initialize(activity.applicationContext, apiKey)
+        }
+    }
+
 
     @ReactMethod
     fun showSurvey(promise: Promise) {

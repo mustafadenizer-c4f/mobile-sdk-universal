@@ -4,13 +4,10 @@
   "description": "React Native bridge for Survey SDK",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "cd android && ./gradlew publishToMavenLocal"
   },
-  "keywords": [
-    "react-native",
-    "survey",
-    "sdk"
-  ],
+  "react-native": "index.js",
+  "keywords": ["react-native", "survey", "sdk"],
   "author": "Mustafa Denizer",
   "license": "MIT",
   "peerDependencies": {
@@ -18,7 +15,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mustafadenizer-c4f/mobile-sdk-universal",
+    "url": "https://github.com/mustafadenizer-c4f/mobile-sdk-universal.git",
     "directory": "surveysdk-react-native"
-  }
+  },
+  "files": [
+    "android",
+    "lib",
+    "index.js",
+    "README.md"
+  ]
 }
