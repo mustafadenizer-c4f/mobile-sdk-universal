@@ -13,25 +13,32 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
 
     override fun getName(): String = "SurveySDK"
 
-    @ReactMethod
-    fun initialize(apiKey: String, promise: Promise) {
-        try {
-            Log.d("SurveySDK", "RN: Initializing with API key: ${apiKey.take(8)}...")
+   @ReactMethod
+fun initialize(apiKey: String, promise: Promise) {
+    try {
+        Log.d("SurveySDK", "RN: === INITIALIZATION STARTED ===")
+        Log.d("SurveySDK", "RN: API Key: ${apiKey.take(8)}...")
+        
+        val activity = currentActivity
+        Log.d("SurveySDK", "RN: Current activity for init: $activity")
+        
+        if (activity != null) {
+            Log.d("SurveySDK", "RN: Initializing UniversalSurveySDK...")
+            UniversalSurveySDK.getInstance().initializeWithActivity(activity, apiKey)
             
-            val activity = currentActivity
-            if (activity != null) {
-                // Use reflection or direct SDK call to avoid compile-time dependency issues
-                initializeSDK(activity, apiKey)
-                promise.resolve(true)
-            } else {
-                promise.reject("NO_ACTIVITY", "No current activity available")
-            }
-        } catch (e: Exception) {
-            Log.e("SurveySDK", "RN: Initialization failed", e)
-            promise.reject("INIT_ERROR", "Initialization failed: ${e.message}")
+            val universalSDK = UniversalSurveySDK.getInstance()
+            Log.d("SurveySDK", "RN: UniversalSDK initialized: ${universalSDK.isInitialized()}")
+            
+            promise.resolve(true)
+        } else {
+            Log.e("SurveySDK", "RN: NO ACTIVITY FOR INITIALIZATION")
+            promise.reject("NO_ACTIVITY", "No current activity available for initialization")
         }
+    } catch (e: Exception) {
+        Log.e("SurveySDK", "RN: Initialization failed with exception", e)
+        promise.reject("INIT_ERROR", "Initialization failed: ${e.message}")
     }
-
+}
     private fun initializeSDK(activity: Activity, apiKey: String) {
         try {
             // Use reflection to avoid direct dependency
@@ -47,23 +54,33 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
 
 
     @ReactMethod
-    fun showSurvey(promise: Promise) {
-        try {
-            Log.d("SurveySDK", "RN: Showing survey...")
+fun showSurvey(promise: Promise) {
+    try {
+        Log.d("SurveySDK", "RN: === SHOW SURVEY STARTED ===")
+        
+        val activity = currentActivity
+        Log.d("SurveySDK", "RN: Current activity: $activity")
+        
+        if (activity != null) {
+            Log.d("SurveySDK", "RN: Activity found, calling UniversalSurveySDK...")
             
-            val activity = currentActivity
-            if (activity != null) {
-                UniversalSurveySDK.getInstance().showSurvey(activity)
-                Log.d("SurveySDK", "RN: Survey shown successfully")
-                promise.resolve(true)
-            } else {
-                promise.reject("NO_ACTIVITY", "No current activity available")
-            }
-        } catch (e: Exception) {
-            Log.e("SurveySDK", "RN: Show survey failed", e)
-            promise.reject("SHOW_ERROR", "Failed to show survey: ${e.message}")
+            // Test if UniversalSurveySDK is initialized
+            val universalSDK = UniversalSurveySDK.getInstance()
+            Log.d("SurveySDK", "RN: UniversalSDK instance: $universalSDK")
+            Log.d("SurveySDK", "RN: Is UniversalSDK initialized: ${universalSDK.isInitialized()}")
+            
+            universalSDK.showSurvey(activity)
+            Log.d("SurveySDK", "RN: Survey shown successfully")
+            promise.resolve(true)
+        } else {
+            Log.e("SurveySDK", "RN: NO CURRENT ACTIVITY AVAILABLE")
+            promise.reject("NO_ACTIVITY", "No current activity available")
         }
+    } catch (e: Exception) {
+        Log.e("SurveySDK", "RN: Show survey failed with exception", e)
+        promise.reject("SHOW_ERROR", "Failed to show survey: ${e.message}")
     }
+}
 
     @ReactMethod
     fun setUserProperty(key: String, value: String, promise: Promise) {
