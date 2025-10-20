@@ -225,7 +225,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
                 promise.resolve(true)
             } else {
                 Log.e("SurveySDK", "RN: SDK not initialized")
-                promise.reject("NOT_INITIALIZED", "SDK not initialized. Call initialize() first.")
+                promise.reject("NOT_INITIALIZED", "SDK did not initialized. Call initialize() first.")
             }
         } catch (e: Exception) {
             Log.e("SurveySDK", "RN: Reset triggers failed", e)
