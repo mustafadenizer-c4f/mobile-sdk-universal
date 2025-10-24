@@ -50,7 +50,8 @@ dependencies {
     // FIX: Use compileOnly for React Native - it will be provided by the React Native app
     compileOnly("com.facebook.react:react-android:0.72.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
-    implementation(project(":surveysdk"))
+    
+    implementation(files("libs/surveysdk-release.aar"))
     
     // Add AndroidX dependencies that React Native uses
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -63,9 +64,9 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-                groupId = "com.github.mustafadenizer-c4f"
+                groupId = project.findProperty("GROUP").toString()
                 artifactId = "surveysdk-react-native"
-                version = "1.0.0"
+                version = project.findProperty("VERSION_NAME").toString()
                 
                 pom {
                     name.set("Survey SDK React Native")

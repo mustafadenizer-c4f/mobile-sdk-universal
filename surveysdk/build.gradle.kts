@@ -80,9 +80,9 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-                groupId = "com.github.mustafadenizer-c4f"
+                groupId = project.findProperty("GROUP").toString()
                 artifactId = "surveysdk"
-                version = "1.0.0"
+                version = project.findProperty("VERSION_NAME").toString()  // ← Use from gradle.properties
             }
         }
     }

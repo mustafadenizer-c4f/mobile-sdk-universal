@@ -51,6 +51,25 @@ class SurveySDKBridge {
   async autoSetup() {
     return await SurveySDK.autoSetup();
   }
+
+  async getSessionStats() {
+    return await SurveySDK.getSessionStats();
+  }
+
+  async setSessionData(key, value) {
+    if (!key || !value) {
+      throw new Error('Key and value are required');
+    }
+    return await SurveySDK.setSessionData(key, value);
+  }
+
+  async resetSessionData() {
+    return await SurveySDK.resetSessionData();
+  }
+
+  async resetTriggers() {
+    return await SurveySDK.resetTriggers();
+  }
 }
 
 export default new SurveySDKBridge();
