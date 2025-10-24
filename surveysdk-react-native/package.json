@@ -1,6 +1,6 @@
 {
   "name": "surveysdk-react-native",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "description": "React Native Survey SDK with automatic triggers and user targeting",
   "main": "index.js",
   "types": "index.d.ts",
