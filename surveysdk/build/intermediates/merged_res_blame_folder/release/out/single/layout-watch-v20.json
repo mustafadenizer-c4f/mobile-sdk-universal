@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.example.surveysdk-merged_res-48:/layout-watch-v20/abc_alert_dialog_title_material.xml",
+        "source": "com.example.surveysdk-appcompat-1.6.1-35:/layout-watch-v20/abc_alert_dialog_title_material.xml"
+    },
+    {
+        "merged": "com.example.surveysdk-merged_res-48:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml",
+        "source": "com.example.surveysdk-appcompat-1.6.1-35:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml"
+    }
+]

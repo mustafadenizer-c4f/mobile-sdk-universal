@@ -50,7 +50,10 @@ dependencies {
     // FIX: Use compileOnly for React Native - it will be provided by the React Native app
     compileOnly("com.facebook.react:react-android:0.72.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
-    implementation(project(":surveysdk"))
+
+    // implementation(project(":surveysdk"))
+    implementation("com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:main-SNAPSHOT")
+
     
     // Add AndroidX dependencies that React Native uses
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -65,7 +68,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.mustafadenizer-c4f"
                 artifactId = "surveysdk-react-native"
-                version = "1.0.3"
+                version = "1.0.4"
                 
                 pom {
                     name.set("Survey SDK React Native")
