@@ -1,6 +1,6 @@
 {
   "name": "surveysdk-react-native",
-  "version": "1.0.5",
+  "version": "1.0.0",
   "description": "React Native Survey SDK with automatic triggers and user targeting",
   "main": "index.js",
   "types": "index.d.ts",
@@ -12,19 +12,13 @@
     "survey",
     "sdk",
     "feedback",
-    "analytics",
-    "user-feedback",
-    "mobile-surveys"
+    "analytics"
   ],
   "author": "Mustafa Denizer",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/mustafadenizer-c4f/mobile-sdk-universal"
-  },
-  "homepage": "https://github.com/mustafadenizer-c4f/mobile-sdk-universal#readme",
-  "bugs": {
-    "url": "https://github.com/mustafadenizer-c4f/mobile-sdk-universal/issues"
   },
   "peerDependencies": {
     "react-native": ">=0.60.0"
@@ -36,6 +30,8 @@
     "index.d.ts",
     "README.md",
     "react-native.config.js",
-    "ios"
-  ]
+    "ios",
+    "expo-plugin.js"
+  ],
+  "expo-plugin": "./expo-plugin.js"
 }
