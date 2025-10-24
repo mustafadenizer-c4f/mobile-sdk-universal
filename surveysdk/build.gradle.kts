@@ -27,12 +27,12 @@ android {
     }
     
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17  // ← Change to 17
+        targetCompatibility = JavaVersion.VERSION_17  // ← Change to 17
     }
     
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"  // ← Change to 17
     }
 
     // ADD LINT BASELINE
@@ -54,6 +54,11 @@ android {
             isReturnDefaultValues = true
         }
     }
+}
+
+// ADD THIS - Modern Kotlin toolchain
+kotlin {
+    jvmToolchain(17)  // ← Add this
 }
 
 dependencies {
@@ -80,9 +85,9 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-                groupId = project.findProperty("GROUP").toString()
+                groupId = "com.github.mustafadenizer-c4f"
                 artifactId = "surveysdk"
-                version = project.findProperty("VERSION_NAME").toString()  // ← Use from gradle.properties
+                version = "1.0.5"
             }
         }
     }

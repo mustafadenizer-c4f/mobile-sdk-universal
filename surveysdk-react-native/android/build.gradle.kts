@@ -26,15 +26,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17  // ← Change to 17
+        targetCompatibility = JavaVersion.VERSION_17  // ← Change to 17
     }
     
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"  // ← Change to 17 to match Java
     }
 
-    // FIX: Disable annotations processing for React Native
     lint {
         checkReleaseBuilds = false
     }
@@ -46,21 +45,19 @@ android {
     }
 }
 
+// ADD THIS - Modern Kotlin toolchain approach
+kotlin {
+    jvmToolchain(17)  // ← Add this for proper toolchain setup
+}
+
 dependencies {
-    // FIX: Use compileOnly for React Native - it will be provided by the React Native app
-    compileOnly("com.facebook.react:react-android:0.72.0")
+    api("com.facebook.react:react-android:0.72.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
-
-    // implementation(project(":surveysdk"))
     implementation("com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:main-SNAPSHOT")
-
-    
-    // Add AndroidX dependencies that React Native uses
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.12.0")
 }
 
-// FIX: Simplified publishing without React Native dependency in POM
 afterEvaluate {
     publishing {
         publications {
@@ -68,15 +65,12 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.mustafadenizer-c4f"
                 artifactId = "surveysdk-react-native"
-                version = "1.0.4"
+                version = "1.0.5"
                 
                 pom {
                     name.set("Survey SDK React Native")
                     description.set("React Native bridge for Survey SDK")
                     url.set("https://github.com/mustafadenizer-c4f/mobile-sdk-universal")
-                    
-                    // Remove React Native from dependencies in POM
-                    // It will be provided by the React Native app environment
                     
                     licenses {
                         license {
