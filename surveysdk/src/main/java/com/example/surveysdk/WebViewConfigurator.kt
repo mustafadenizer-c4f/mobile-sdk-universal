@@ -13,18 +13,21 @@ import android.widget.TextView
 
 object WebViewConfigurator {
 
-    // UPDATED METHOD SIGNATURE - Removed callback parameters
+    // UPDATED METHOD SIGNATURE - With callbacks
     fun setupSecureWebView(
         webView: WebView,
         url: String,
-        allowedDomain: String?
+        allowedDomain: String?,
+        onPageStarted: (() -> Unit)? = null,
+        onPageFinished: (() -> Unit)? = null
     ) {
         configureWebViewSettings(webView)
-        webView.webViewClient = createSafeWebViewClient(allowedDomain, webView, url)
+        webView.webViewClient = createSafeWebViewClient(allowedDomain, webView, url, onPageStarted, onPageFinished)
         webView.webChromeClient = WebChromeClient()
         webView.loadUrl(url)
     }
 
+    // ADD THIS METHOD - WebView settings configuration
     private fun configureWebViewSettings(webView: WebView) {
         with(webView.settings) {
             javaScriptEnabled = true
@@ -36,22 +39,29 @@ object WebViewConfigurator {
         }
     }
 
+    // UPDATED METHOD - With callbacks
     private fun createSafeWebViewClient(
         allowedDomain: String?,
         webView: WebView,
-        originalUrl: String
+        originalUrl: String,
+        onPageStarted: (() -> Unit)? = null,
+        onPageFinished: (() -> Unit)? = null
     ): WebViewClient {
         return object : WebViewClient() {
             private var errorOccurred = false
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
                 Log.d("WebViewConfigurator", "🚀 Starting to load: $url")
+                errorOccurred = false // ⭐⭐⭐ RESET ERROR STATE ⭐⭐⭐
+                hideErrorLayout(webView) // ⭐⭐⭐ HIDE ANY PREVIOUS ERROR ⭐⭐⭐
+                onPageStarted?.invoke()
                 super.onPageStarted(view, url, favicon)
             }
 
             override fun onPageFinished(view: WebView?, loadedUrl: String?) {
                 if (errorOccurred) return
                 hideErrorLayout(webView)
+                onPageFinished?.invoke() // Call the callback
                 Log.d("WebViewConfigurator", "✅ Page loaded successfully: $loadedUrl")
             }
 
@@ -104,85 +114,178 @@ object WebViewConfigurator {
 
     private fun showErrorLayout(webView: WebView, originalUrl: String) {
         webView.post {
-            val context = webView.context
+            try {
+                val context = webView.context
 
-            val errorLayout = LinearLayout(context).apply {
-                orientation = LinearLayout.VERTICAL
-                layoutParams = android.widget.LinearLayout.LayoutParams(
-                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT
-                )
-                setBackgroundColor(0xFFFFFFFF.toInt())
-                setPadding(50, 100, 50, 100)
-            }
-
-            val errorText = TextView(context).apply {
-                text = "Survey Loading Failed"
-                textSize = 18f
-                setTextColor(0xFF333333.toInt())
-                gravity = android.view.Gravity.CENTER
-                layoutParams = android.widget.LinearLayout.LayoutParams(
-                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    bottomMargin = 20
-                }
-            }
-
-            val errorDesc = TextView(context).apply {
-                text = "Please check your internet connection and try again."
-                textSize = 14f
-                setTextColor(0xFF666666.toInt())
-                gravity = android.view.Gravity.CENTER
-                layoutParams = android.widget.LinearLayout.LayoutParams(
-                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    bottomMargin = 30
-                }
-            }
-
-            val retryButton = Button(context).apply {
-                text = "Retry"
-                setBackgroundColor(0xFF007AFF.toInt())
-                setTextColor(0xFFFFFFFF.toInt())
-                setPadding(40, 20, 40, 20)
-                layoutParams = android.widget.LinearLayout.LayoutParams(
-                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
+                // Create error layout
+                val errorLayout = LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT
+                    )
+                    setBackgroundColor(0xFFFFFFFF.toInt())
+                    setPadding(50, 100, 50, 100)
                     gravity = android.view.Gravity.CENTER
                 }
-                setOnClickListener {
-                    hideErrorLayout(webView)
-                    webView.loadUrl(originalUrl)
+
+                // Error icon
+                val errorIcon = TextView(context).apply {
+                    text = "⚠️"
+                    textSize = 48f
+                    gravity = android.view.Gravity.CENTER
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        bottomMargin = 20
+                    }
                 }
+
+                // Error title
+                val errorText = TextView(context).apply {
+                    text = "Survey Loading Failed"
+                    textSize = 18f
+                    setTextColor(0xFF333333.toInt())
+                    gravity = android.view.Gravity.CENTER
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        bottomMargin = 10
+                    }
+                }
+
+                // Error description
+                val errorDesc = TextView(context).apply {
+                    text = "Please check your internet connection and try again."
+                    textSize = 14f
+                    setTextColor(0xFF666666.toInt())
+                    gravity = android.view.Gravity.CENTER
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        bottomMargin = 30
+                    }
+                }
+
+                // Retry button
+                val retryButton = Button(context).apply {
+                    text = "Retry Survey"
+                    setBackgroundColor(0xFF007AFF.toInt())
+                    setTextColor(0xFFFFFFFF.toInt())
+                    setPadding(40, 20, 40, 20)
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        gravity = android.view.Gravity.CENTER
+                    }
+                    setOnClickListener {
+                        Log.d("WebViewConfigurator", "🔄 Retry button clicked")
+                        hideErrorLayout(webView)
+                        webView.loadUrl(originalUrl)
+                    }
+                }
+
+                // Close button
+                val closeButton = Button(context).apply {
+                    text = "Close"
+                    setBackgroundColor(0xFF8E8E93.toInt())
+                    setTextColor(0xFFFFFFFF.toInt())
+                    setPadding(40, 20, 40, 20)
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        gravity = android.view.Gravity.CENTER
+                        topMargin = 10
+                    }
+                    setOnClickListener {
+                        Log.d("WebViewConfigurator", "❌ Close button clicked")
+                        hideErrorLayout(webView)
+                        // Dismiss the survey
+                        dismissSurvey(webView)
+                    }
+                }
+
+                // Add views to error layout
+                errorLayout.addView(errorIcon)
+                errorLayout.addView(errorText)
+                errorLayout.addView(errorDesc)
+                errorLayout.addView(retryButton)
+                errorLayout.addView(closeButton)
+
+                // Replace WebView with error layout
+                val parent = webView.parent as? android.view.ViewGroup
+                parent?.let {
+                    // Store reference to webView for later restoration
+                    webView.tag = "survey_webview"
+                    it.removeView(webView)
+                    it.addView(errorLayout)
+                    errorLayout.tag = "error_layout" // Tag for easy identification
+                }
+
+                Log.d("WebViewConfigurator", "🔄 Error layout shown with retry/close buttons")
+
+            } catch (e: Exception) {
+                Log.e("WebViewConfigurator", "❌ Error showing error layout: ${e.message}")
             }
-
-            errorLayout.addView(errorText)
-            errorLayout.addView(errorDesc)
-            errorLayout.addView(retryButton)
-
-            val parent = webView.parent as? android.view.ViewGroup
-            parent?.removeView(webView)
-            parent?.addView(errorLayout)
         }
     }
 
     private fun hideErrorLayout(webView: WebView) {
         webView.post {
-            val parent = webView.parent as? android.view.ViewGroup
-            parent?.let {
-                for (i in 0 until it.childCount) {
-                    val child = it.getChildAt(i)
-                    if (child is LinearLayout && child != webView) {
-                        it.removeView(child)
+            try {
+                val parent = webView.parent as? android.view.ViewGroup
+                parent?.let {
+                    // Remove error layout if present
+                    val errorLayout = it.findViewWithTag<LinearLayout>("error_layout")
+                    errorLayout?.let { errorView ->
+                        it.removeView(errorView)
+                        Log.d("WebViewConfigurator", "✅ Error layout removed")
+                    }
+
+                    // Restore WebView if not already present
+                    if (it.indexOfChild(webView) == -1) {
+                        it.addView(webView)
+                        Log.d("WebViewConfigurator", "✅ WebView restored")
                     }
                 }
-                if (it.indexOfChild(webView) == -1) {
-                    it.addView(webView)
+            } catch (e: Exception) {
+                Log.e("WebViewConfigurator", "❌ Error hiding error layout: ${e.message}")
+            }
+        }
+    }
+
+    // Add this method to handle survey dismissal
+    private fun dismissSurvey(webView: WebView) {
+        try {
+            val context = webView.context
+            when (context) {
+                is androidx.fragment.app.DialogFragment -> {
+                    context.dismiss()
+                    Log.d("WebViewConfigurator", "✅ DialogFragment dismissed")
+                }
+                is com.google.android.material.bottomsheet.BottomSheetDialogFragment -> {
+                    context.dismiss()
+                    Log.d("WebViewConfigurator", "✅ BottomSheetFragment dismissed")
+                }
+                is android.app.Activity -> {
+                    context.finish()
+                    Log.d("WebViewConfigurator", "✅ Activity finished")
+                }
+                else -> {
+                    Log.w("WebViewConfigurator", "⚠️ Unknown context type, cannot dismiss")
                 }
             }
+
+            // Notify SDK that survey completed (for queue system)
+            com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
+
+        } catch (e: Exception) {
+            Log.e("WebViewConfigurator", "❌ Error dismissing survey: ${e.message}")
         }
     }
 

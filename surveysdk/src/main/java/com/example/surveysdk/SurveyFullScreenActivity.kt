@@ -2,14 +2,17 @@ package com.example.surveysdk
 
 import android.os.Bundle
 import android.webkit.WebView
-import android.widget.Button
 import android.util.Log
-import android.webkit.WebChromeClient
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 class SurveyFullScreenActivity : AppCompatActivity() {
 
     private lateinit var backPressHandler: BackPressHandler
+    private lateinit var closeButton: TextView
+    private lateinit var webView: WebView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,114 +21,90 @@ class SurveyFullScreenActivity : AppCompatActivity() {
         val backgroundColor = intent.getStringExtra("BACKGROUND_COLOR") ?: "#FFFFFF"
         val animationType = intent.getStringExtra("ANIMATION_TYPE") ?: "none"
         val allowedDomain = intent.getStringExtra("ALLOWED_DOMAIN")
+        val surveyId = intent.getStringExtra("SURVEY_ID") ?: "unknown"
 
-        Log.d("SurveyFullScreen", "Loading URL: $surveyUrl")
+        Log.d("SurveyFullScreen", "Loading survey: $surveyId")
+        Log.d("SurveyFullScreen", "URL: $surveyUrl")
 
-        val layoutRes = resources.getIdentifier("activity_survey_webview", "layout", packageName)
-        if (layoutRes != 0) {
-            setContentView(layoutRes)
-        } else {
-            createFallbackLayout()
-            return
-        }
-
-        val webView = findViewById<WebView>(resources.getIdentifier("webView", "id", packageName))
-        val closeButton = findViewById<Button>(resources.getIdentifier("closeButton", "id", packageName))
-
+        removeActivityTitle()
+        createFrameLayout(backgroundColor)
         setupBackPressHandler(animationType)
         AnimationUtils.applyEnterTransition(this, animationType)
 
-        val rootLayoutId = resources.getIdentifier("rootLayout", "id", packageName)
-        if (rootLayoutId != 0) {
-            try {
-                findViewById<android.widget.LinearLayout>(rootLayoutId)
-                    .setBackgroundColor(android.graphics.Color.parseColor(backgroundColor))
-            } catch (e: Exception) {
-                // Use default background
-            }
-        }
-
         setupWebView(webView, surveyUrl, allowedDomain)
-
-        closeButton?.setOnClickListener {
-            AnimationUtils.applyExitTransition(this, animationType)
-            finish()
-        }
     }
 
-    private fun createFallbackLayout() {
-        val linearLayout = android.widget.LinearLayout(this).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
-            layoutParams = android.widget.LinearLayout.LayoutParams(
-                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                android.widget.LinearLayout.LayoutParams.MATCH_PARENT
+    private fun removeActivityTitle() {
+        try {
+            requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
+        } catch (e: Exception) {
+            // Ignore if already set
+        }
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.title = ""
+        setTitle("")
+        window.setFeatureInt(android.view.Window.FEATURE_CUSTOM_TITLE, android.view.Window.FEATURE_NO_TITLE)
+
+        // Ensure no dim background
+        window.setBackgroundDrawableResource(android.R.color.transparent)
+    }
+
+    private fun createFrameLayout(backgroundColor: String) {
+        // Create main FrameLayout
+        val mainLayout = FrameLayout(this).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
+
+        // Create WebView first (background)
+        webView = WebView(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
             )
         }
 
-        val headerLayout = android.widget.LinearLayout(this).apply {
-            orientation = android.widget.LinearLayout.HORIZONTAL
-            setPadding(50, 30, 50, 30)
-            setBackgroundColor(0xFFF0F0F0.toInt())
-            layoutParams = android.widget.LinearLayout.LayoutParams(
-                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-
-        val closeButton = Button(this).apply {
-            text = "Close Survey"
-            setBackgroundColor(0xFFFF6B6B.toInt())
-            setTextColor(0xFFFFFFFF.toInt())
-            setPadding(40, 20, 40, 20)
-            layoutParams = android.widget.LinearLayout.LayoutParams(
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-            )
+        // Create simple bold X (TextView)
+        closeButton = TextView(this).apply {
+            text = "✕"
+            setTextColor(0xFF333333.toInt())
+            textSize = 24f
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                gravity = android.view.Gravity.TOP or android.view.Gravity.END
+                topMargin = 40
+                marginEnd = 20
+            }
             setOnClickListener {
                 val animationType = intent.getStringExtra("ANIMATION_TYPE") ?: "none"
                 AnimationUtils.applyExitTransition(this@SurveyFullScreenActivity, animationType)
                 finish()
             }
+            setPadding(20, 20, 20, 20)
+
+            // Add background to close button
+            setBackgroundColor(0xCCFFFFFF.toInt())
         }
 
-        val titleText = android.widget.TextView(this).apply {
-            text = "Survey"
-            textSize = 18f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            gravity = android.view.Gravity.CENTER
-            layoutParams = android.widget.LinearLayout.LayoutParams(
-                0,
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
-            ).apply {
-                gravity = android.view.Gravity.CENTER_VERTICAL
-            }
+        // Add views to layout
+        mainLayout.addView(webView)
+        mainLayout.addView(closeButton)
+
+        // Set background color for webview only
+        try {
+            webView.setBackgroundColor(android.graphics.Color.parseColor(backgroundColor))
+        } catch (e: Exception) {
+            webView.setBackgroundColor(android.graphics.Color.WHITE)
         }
 
-        headerLayout.addView(closeButton)
-        headerLayout.addView(titleText)
-
-        val webView = WebView(this).apply {
-            layoutParams = android.widget.LinearLayout.LayoutParams(
-                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            )
-            id = android.view.View.generateViewId()
-        }
-
-        linearLayout.addView(headerLayout)
-        linearLayout.addView(webView)
-
-        setContentView(linearLayout)
-
-        val surveyUrl = intent.getStringExtra("SURVEY_URL") ?: return
-        val allowedDomain = intent.getStringExtra("ALLOWED_DOMAIN")
-        setupWebView(webView, surveyUrl, allowedDomain)
-
-        val animationType = intent.getStringExtra("ANIMATION_TYPE") ?: "none"
-        setupBackPressHandler(animationType)
-        AnimationUtils.applyEnterTransition(this, animationType)
+        setContentView(mainLayout)
+        closeButton.bringToFront()
     }
 
     private fun setupBackPressHandler(animationType: String) {
@@ -138,7 +117,6 @@ class SurveyFullScreenActivity : AppCompatActivity() {
     }
 
     private fun setupWebView(webView: WebView, url: String, allowedDomain: String?) {
-        // CORRECTED: Removed invalid parameters
         WebViewConfigurator.setupSecureWebView(
             webView = webView,
             url = url,
@@ -160,12 +138,14 @@ class SurveyFullScreenActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        // Cancel any pending delays for this specific activity
         SafeDelayExecutor.cancelDelayed("activity_${this.hashCode()}")
-
         if (::backPressHandler.isInitialized) {
             backPressHandler.disable()
         }
+
+        // Notify SDK that survey completed
+        com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
+
         super.onDestroy()
     }
 }
