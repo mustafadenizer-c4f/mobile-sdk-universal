@@ -65,7 +65,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.mustafadenizer-c4f"
                 artifactId = "surveysdk-react-native"
-                version = "1.0.6"
+                version = "1.0.7"
                 
                 pom {
                     name.set("Survey SDK React Native")
