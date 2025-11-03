@@ -1,10 +1,10 @@
 [
     {
-        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-52:/layout-watch-v20/abc_alert_dialog_title_material.xml",
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/layout-watch-v20/abc_alert_dialog_title_material.xml",
         "source": "com.example.surveysdk.reactnative.surveysdk-react-native-appcompat-1.6.1-38:/layout-watch-v20/abc_alert_dialog_title_material.xml"
     },
     {
-        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-52:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml",
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml",
         "source": "com.example.surveysdk.reactnative.surveysdk-react-native-appcompat-1.6.1-38:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml"
     }
 ]

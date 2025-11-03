@@ -1,14 +1,14 @@
 [
     {
-        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-52:/xml/backup_rules.xml",
-        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-packaged_res-55:/xml/backup_rules.xml"
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/xml/data_extraction_rules.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-surveysdk-v1.0.8-44:/xml/data_extraction_rules.xml"
     },
     {
-        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-52:/xml/data_extraction_rules.xml",
-        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-packaged_res-55:/xml/data_extraction_rules.xml"
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/xml/backup_rules.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-surveysdk-v1.0.8-44:/xml/backup_rules.xml"
     },
     {
-        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-52:/xml/rn_dev_preferences.xml",
-        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-react-android-0.72.0-release-46:/xml/rn_dev_preferences.xml"
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/xml/rn_dev_preferences.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-react-android-0.72.0-release-47:/xml/rn_dev_preferences.xml"
     }
 ]

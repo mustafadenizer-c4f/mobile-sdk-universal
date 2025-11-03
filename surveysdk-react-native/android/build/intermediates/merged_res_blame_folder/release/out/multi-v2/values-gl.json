@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-52:/values-gl/values-gl.xml",
+            "outputFile": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/values-gl/values-gl.xml",
             "map": [
                 {
                     "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\c3980e8ba577af59b65cb04262ee9b12\\transformed\\core-1.12.0\\res\\values-gl\\values-gl.xml",
@@ -76,7 +76,7 @@
             ]
         },
         {
-            "outputFile": "com.example.surveysdk.reactnative.surveysdk-react-native-mergeReleaseResources-50:/values-gl/values-gl.xml",
+            "outputFile": "com.example.surveysdk.reactnative.surveysdk-react-native-mergeReleaseResources-51:/values-gl/values-gl.xml",
             "map": [
                 {
                     "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\c3980e8ba577af59b65cb04262ee9b12\\transformed\\core-1.12.0\\res\\values-gl\\values-gl.xml",
