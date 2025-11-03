@@ -53,7 +53,8 @@ kotlin {
 dependencies {
     api("com.facebook.react:react-android:0.72.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
-    implementation("com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:main-SNAPSHOT")
+    implementation(project(":surveysdk"))
+    //implementation("com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:main-SNAPSHOT")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.12.0")
 }

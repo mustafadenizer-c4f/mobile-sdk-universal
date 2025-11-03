@@ -40,23 +40,6 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk\\surveysdk\\src\\main\\res\\values\\strings.xml",
-                    "from": {
-                        "startLines": "1",
-                        "startColumns": "4",
-                        "startOffsets": "16",
-                        "endColumns": "46",
-                        "endOffsets": "58"
-                    },
-                    "to": {
-                        "startLines": "1989",
-                        "startColumns": "4",
-                        "startOffsets": "131406",
-                        "endColumns": "46",
-                        "endOffsets": "131448"
-                    }
-                },
-                {
                     "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\010905380f4a9d9701026f292b62afc0\\transformed\\window-1.0.0\\res\\values\\values.xml",
                     "from": {
                         "startLines": "2,7,8,9,10,11,19,23,34,51",
@@ -205,23 +188,6 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk\\surveysdk\\src\\main\\res\\values\\colors.xml",
-                    "from": {
-                        "startLines": "7,2,3,4,5,6,8",
-                        "startColumns": "4,4,4,4,4,4,4",
-                        "startOffsets": "286,55,102,149,196,241,328",
-                        "endColumns": "41,46,46,46,44,44,41",
-                        "endOffsets": "323,97,144,191,236,281,365"
-                    },
-                    "to": {
-                        "startLines": "648,955,956,957,968,969,972",
-                        "startColumns": "4,4,4,4,4,4,4",
-                        "startOffsets": "33134,55994,56041,56088,56832,56877,57043",
-                        "endColumns": "41,46,46,46,44,44,41",
-                        "endOffsets": "33171,56036,56083,56130,56872,56917,57080"
-                    }
-                },
-                {
                     "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\3c11162f6b92157c72a227b577661e81\\transformed\\navigation-fragment-2.7.4\\res\\values\\values.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,9,12",
@@ -255,25 +221,6 @@
                         "startOffsets": "124400",
                         "endColumns": "53",
                         "endOffsets": "124449"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk\\surveysdk\\src\\main\\res\\values\\themes.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endLines": "6",
-                        "endColumns": "12",
-                        "endOffsets": "339"
-                    },
-                    "to": {
-                        "startLines": "6537",
-                        "startColumns": "4",
-                        "startOffsets": "458747",
-                        "endLines": "6541",
-                        "endColumns": "12",
-                        "endOffsets": "459031"
                     }
                 },
                 {
@@ -329,6 +276,23 @@
                         "endLines": "1811,1850,1887,11419,11423",
                         "endColumns": "56,64,63,24,24",
                         "endOffsets": "120615,122649,124563,719522,719671"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk-mobile\\surveysdk\\src\\main\\res\\values\\strings.xml",
+                    "from": {
+                        "startLines": "1",
+                        "startColumns": "4",
+                        "startOffsets": "16",
+                        "endColumns": "46",
+                        "endOffsets": "58"
+                    },
+                    "to": {
+                        "startLines": "1989",
+                        "startColumns": "4",
+                        "startOffsets": "131406",
+                        "endColumns": "46",
+                        "endOffsets": "131448"
                     }
                 },
                 {
@@ -437,6 +401,42 @@
                         "endLines": "109,9168,11149,11233",
                         "endColumns": "60,12,24,24",
                         "endOffsets": "5821,636458,708313,712829"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk-mobile\\surveysdk\\src\\main\\res\\values\\themes.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "6",
+                        "endColumns": "12",
+                        "endOffsets": "339"
+                    },
+                    "to": {
+                        "startLines": "6537",
+                        "startColumns": "4",
+                        "startOffsets": "458747",
+                        "endLines": "6541",
+                        "endColumns": "12",
+                        "endOffsets": "459031"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk-mobile\\surveysdk\\src\\main\\res\\values\\colors.xml",
+                    "from": {
+                        "startLines": "7,2,3,4,5,6,8",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "286,55,102,149,196,241,328",
+                        "endColumns": "41,46,46,46,44,44,41",
+                        "endOffsets": "323,97,144,191,236,281,365"
+                    },
+                    "to": {
+                        "startLines": "648,955,956,957,968,969,972",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "33134,55994,56041,56088,56832,56877,57043",
+                        "endColumns": "41,46,46,46,44,44,41",
+                        "endOffsets": "33171,56036,56083,56130,56872,56917,57080"
                     }
                 },
                 {
@@ -519,23 +519,6 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk\\surveysdk\\src\\main\\res\\values\\strings.xml",
-                    "from": {
-                        "startLines": "1",
-                        "startColumns": "4",
-                        "startOffsets": "16",
-                        "endColumns": "46",
-                        "endOffsets": "58"
-                    },
-                    "to": {
-                        "startLines": "1989",
-                        "startColumns": "4",
-                        "startOffsets": "131406",
-                        "endColumns": "46",
-                        "endOffsets": "131448"
-                    }
-                },
-                {
                     "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\010905380f4a9d9701026f292b62afc0\\transformed\\window-1.0.0\\res\\values\\values.xml",
                     "from": {
                         "startLines": "2,7,8,9,10,11,19,23,34,51",
@@ -684,23 +667,6 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk\\surveysdk\\src\\main\\res\\values\\colors.xml",
-                    "from": {
-                        "startLines": "7,2,3,4,5,6,8",
-                        "startColumns": "4,4,4,4,4,4,4",
-                        "startOffsets": "286,55,102,149,196,241,328",
-                        "endColumns": "41,46,46,46,44,44,41",
-                        "endOffsets": "323,97,144,191,236,281,365"
-                    },
-                    "to": {
-                        "startLines": "648,955,956,957,968,969,972",
-                        "startColumns": "4,4,4,4,4,4,4",
-                        "startOffsets": "33134,55994,56041,56088,56832,56877,57043",
-                        "endColumns": "41,46,46,46,44,44,41",
-                        "endOffsets": "33171,56036,56083,56130,56872,56917,57080"
-                    }
-                },
-                {
                     "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\3c11162f6b92157c72a227b577661e81\\transformed\\navigation-fragment-2.7.4\\res\\values\\values.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,9,12",
@@ -734,25 +700,6 @@
                         "startOffsets": "124400",
                         "endColumns": "53",
                         "endOffsets": "124449"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk\\surveysdk\\src\\main\\res\\values\\themes.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endLines": "6",
-                        "endColumns": "12",
-                        "endOffsets": "339"
-                    },
-                    "to": {
-                        "startLines": "6537",
-                        "startColumns": "4",
-                        "startOffsets": "458747",
-                        "endLines": "6541",
-                        "endColumns": "12",
-                        "endOffsets": "459031"
                     }
                 },
                 {
@@ -808,6 +755,23 @@
                         "endLines": "1811,1850,1887,11419,11423",
                         "endColumns": "56,64,63,24,24",
                         "endOffsets": "120615,122649,124563,719522,719671"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk-mobile\\surveysdk\\src\\main\\res\\values\\strings.xml",
+                    "from": {
+                        "startLines": "1",
+                        "startColumns": "4",
+                        "startOffsets": "16",
+                        "endColumns": "46",
+                        "endOffsets": "58"
+                    },
+                    "to": {
+                        "startLines": "1989",
+                        "startColumns": "4",
+                        "startOffsets": "131406",
+                        "endColumns": "46",
+                        "endOffsets": "131448"
                     }
                 },
                 {
@@ -916,6 +880,42 @@
                         "endLines": "109,9168,11149,11233",
                         "endColumns": "60,12,24,24",
                         "endOffsets": "5821,636458,708313,712829"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk-mobile\\surveysdk\\src\\main\\res\\values\\themes.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "6",
+                        "endColumns": "12",
+                        "endOffsets": "339"
+                    },
+                    "to": {
+                        "startLines": "6537",
+                        "startColumns": "4",
+                        "startOffsets": "458747",
+                        "endLines": "6541",
+                        "endColumns": "12",
+                        "endOffsets": "459031"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk-mobile\\surveysdk\\src\\main\\res\\values\\colors.xml",
+                    "from": {
+                        "startLines": "7,2,3,4,5,6,8",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "286,55,102,149,196,241,328",
+                        "endColumns": "41,46,46,46,44,44,41",
+                        "endOffsets": "323,97,144,191,236,281,365"
+                    },
+                    "to": {
+                        "startLines": "648,955,956,957,968,969,972",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "33134,55994,56041,56088,56832,56877,57043",
+                        "endColumns": "41,46,46,46,44,44,41",
+                        "endOffsets": "33171,56036,56083,56130,56872,56917,57080"
                     }
                 },
                 {

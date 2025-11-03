@@ -1346,4 +1346,13 @@ class SurveySDK private constructor(private val context: Context) {
             Log.e("SurveySDK", "❌ Full screen survey failed: ${e.message}")
         }
     }
+
+    fun getSurveyIds(): List<String> {
+        return if (this::config.isInitialized) {
+            config.surveys.map { it.surveyId }
+        } else {
+            emptyList()
+        }
+    }
+
 }

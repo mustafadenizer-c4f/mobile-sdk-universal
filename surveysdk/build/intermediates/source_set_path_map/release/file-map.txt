@@ -43,10 +43,10 @@ com.example.surveysdk-viewpager2-1.1.0-beta02-41 C:\Users\dafat\.gradle\caches\t
 com.example.surveysdk-activity-1.8.0-42 C:\Users\dafat\.gradle\caches\transforms-3\ebd7792d416a50f3afe5a3555f8e07d2\transformed\activity-1.8.0\res
 com.example.surveysdk-fragment-1.6.1-43 C:\Users\dafat\.gradle\caches\transforms-3\f6facdbba5800a1aabe59396a88499bc\transformed\fragment-1.6.1\res
 com.example.surveysdk-startup-runtime-1.1.1-44 C:\Users\dafat\.gradle\caches\transforms-3\fc0d755f3b64e1365e92ab5788ea8cfd\transformed\startup-runtime-1.1.1\res
-com.example.surveysdk-pngs-45 C:\Users\dafat\Desktop\SDK\surveysdk\surveysdk\build\generated\res\pngs\release
-com.example.surveysdk-resValues-46 C:\Users\dafat\Desktop\SDK\surveysdk\surveysdk\build\generated\res\resValues\release
-com.example.surveysdk-mergeReleaseResources-47 C:\Users\dafat\Desktop\SDK\surveysdk\surveysdk\build\intermediates\incremental\release\mergeReleaseResources\merged.dir
-com.example.surveysdk-mergeReleaseResources-48 C:\Users\dafat\Desktop\SDK\surveysdk\surveysdk\build\intermediates\incremental\release\mergeReleaseResources\stripped.dir
-com.example.surveysdk-merged_res-49 C:\Users\dafat\Desktop\SDK\surveysdk\surveysdk\build\intermediates\merged_res\release
-com.example.surveysdk-main-50 C:\Users\dafat\Desktop\SDK\surveysdk\surveysdk\src\main\res
-com.example.surveysdk-release-51 C:\Users\dafat\Desktop\SDK\surveysdk\surveysdk\src\release\res
+com.example.surveysdk-pngs-45 C:\Users\dafat\Desktop\SDK\surveysdk-mobile\surveysdk\build\generated\res\pngs\release
+com.example.surveysdk-resValues-46 C:\Users\dafat\Desktop\SDK\surveysdk-mobile\surveysdk\build\generated\res\resValues\release
+com.example.surveysdk-mergeReleaseResources-47 C:\Users\dafat\Desktop\SDK\surveysdk-mobile\surveysdk\build\intermediates\incremental\release\mergeReleaseResources\merged.dir
+com.example.surveysdk-mergeReleaseResources-48 C:\Users\dafat\Desktop\SDK\surveysdk-mobile\surveysdk\build\intermediates\incremental\release\mergeReleaseResources\stripped.dir
+com.example.surveysdk-merged_res-49 C:\Users\dafat\Desktop\SDK\surveysdk-mobile\surveysdk\build\intermediates\merged_res\release
+com.example.surveysdk-main-50 C:\Users\dafat\Desktop\SDK\surveysdk-mobile\surveysdk\src\main\res
+com.example.surveysdk-release-51 C:\Users\dafat\Desktop\SDK\surveysdk-mobile\surveysdk\src\release\res

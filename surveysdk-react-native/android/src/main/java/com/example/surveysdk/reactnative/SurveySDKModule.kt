@@ -54,6 +54,27 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     }
 
     @ReactMethod
+    fun showSurveyById(surveyId: String, promise: Promise) {
+        try {
+            Log.d("SurveySDK", "RN: Showing specific survey: $surveyId")
+            
+            val activity = getCurrentActivity()
+            if (activity != null) {
+                val surveySDK = SurveySDK.getInstance()
+                surveySDK.showSurveyById(activity, surveyId)
+                Log.d("SurveySDK", "RN: Specific survey shown: $surveyId")
+                promise.resolve(true)
+            } else {
+                Log.e("SurveySDK", "RN: No current activity available")
+                promise.reject("NO_ACTIVITY", "No current activity available")
+            }
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Show specific survey failed", e)
+            promise.reject("SHOW_ERROR", "Failed to show survey $surveyId: ${e.message}")
+        }
+    }
+
+    @ReactMethod
     fun setUserProperty(key: String, value: String, promise: Promise) {
         try {
             Log.d("SurveySDK", "RN: Setting user property: $key = $value")
@@ -104,6 +125,19 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     }
 
     @ReactMethod
+    fun isUserExcludedForSurvey(surveyId: String, promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            val isExcluded = surveySDK.isUserExcluded(surveyId)
+            Log.d("SurveySDK", "RN: User excluded check for $surveyId: $isExcluded")
+            promise.resolve(isExcluded)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: User excluded check failed for $surveyId", e)
+            promise.reject("EXCLUSION_ERROR", "Failed to check exclusion for survey $surveyId: ${e.message}")
+        }
+    }
+
+    @ReactMethod
     fun getDebugStatus(promise: Promise) {
         try {
             val surveySDK = SurveySDK.getInstance()
@@ -131,23 +165,6 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         } catch (e: Exception) {
             Log.e("SurveySDK", "RN: Auto setup failed", e)
             promise.reject("SETUP_ERROR", "Auto setup failed: ${e.message}")
-        }
-    }
-
-    @ReactMethod
-    fun getSessionStats(promise: Promise) {
-        try {
-            val surveySDK = SurveySDK.getInstance()
-            val sessionStats = surveySDK.getSessionStats()
-            val writableMap = Arguments.createMap()
-            sessionStats.forEach { (key, value) ->
-                writableMap.putString(key, value)
-            }
-            Log.d("SurveySDK", "RN: Session stats retrieved")
-            promise.resolve(writableMap)
-        } catch (e: Exception) {
-            Log.e("SurveySDK", "RN: Session stats failed", e)
-            promise.reject("SESSION_ERROR", "Failed to get session stats: ${e.message}")
         }
     }
 
@@ -187,6 +204,38 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         } catch (e: Exception) {
             Log.e("SurveySDK", "RN: Reset triggers failed", e)
             promise.reject("TRIGGER_ERROR", "Failed to reset triggers: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun getSurveyIds(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            val surveyIds = surveySDK.getSurveyIds()
+            
+            val writableArray = Arguments.createArray()
+            surveyIds.forEach { surveyId ->
+                writableArray.pushString(surveyId)
+            }
+            
+            Log.d("SurveySDK", "RN: Retrieved ${writableArray.size()} survey IDs")
+            promise.resolve(writableArray)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Failed to get survey IDs", e)
+            promise.reject("CONFIG_ERROR", "Failed to get survey IDs: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun isConfigurationLoaded(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            val isLoaded = surveySDK.isConfigurationLoaded()
+            Log.d("SurveySDK", "RN: Configuration loaded: $isLoaded")
+            promise.resolve(isLoaded)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Failed to check config status", e)
+            promise.reject("CONFIG_ERROR", "Failed to check configuration status: ${e.message}")
         }
     }
 }
