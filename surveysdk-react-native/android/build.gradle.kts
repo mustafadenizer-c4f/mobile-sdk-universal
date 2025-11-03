@@ -53,8 +53,9 @@ kotlin {
 dependencies {
     api("com.facebook.react:react-android:0.72.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
-    //implementation(project(":surveysdk"))
-    implementation("com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:v1.0.8")
+    implementation(project(":surveysdk"))
+    //implementation("com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:v1.0.8")
+    //implementation("com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:main-SNAPSHOT")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.12.0")
 }
@@ -66,7 +67,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.mustafadenizer-c4f"
                 artifactId = "surveysdk-react-native"
-                version = "1.0.7"
+                version = "1.0.9"
                 
                 pom {
                     name.set("Survey SDK React Native")

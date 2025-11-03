@@ -1,14 +1,14 @@
 [
     {
-        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/color-night-v8/material_timepicker_modebutton_tint.xml",
-        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-material-1.10.0-20:/color-night-v8/material_timepicker_modebutton_tint.xml"
-    },
-    {
-        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/color-night-v8/material_timepicker_button_stroke.xml",
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-52:/color-night-v8/material_timepicker_button_stroke.xml",
         "source": "com.example.surveysdk.reactnative.surveysdk-react-native-material-1.10.0-20:/color-night-v8/material_timepicker_button_stroke.xml"
     },
     {
-        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/color-night-v8/material_timepicker_clockface.xml",
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-52:/color-night-v8/material_timepicker_clockface.xml",
         "source": "com.example.surveysdk.reactnative.surveysdk-react-native-material-1.10.0-20:/color-night-v8/material_timepicker_clockface.xml"
+    },
+    {
+        "merged": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-52:/color-night-v8/material_timepicker_modebutton_tint.xml",
+        "source": "com.example.surveysdk.reactnative.surveysdk-react-native-material-1.10.0-20:/color-night-v8/material_timepicker_modebutton_tint.xml"
     }
 ]

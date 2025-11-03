@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/values-xlarge-v4/values-xlarge-v4.xml",
+            "outputFile": "com.example.surveysdk.reactnative.surveysdk-react-native-mergeReleaseResources-50:/values-xlarge-v4/values-xlarge-v4.xml",
             "map": [
                 {
                     "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\ca67d3b5ec2b09949941fc8ff34ddaa2\\transformed\\appcompat-1.6.1\\res\\values-xlarge-v4\\values-xlarge-v4.xml",
@@ -16,7 +16,7 @@
             ]
         },
         {
-            "outputFile": "com.example.surveysdk.reactnative.surveysdk-react-native-mergeReleaseResources-51:/values-xlarge-v4/values-xlarge-v4.xml",
+            "outputFile": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-52:/values-xlarge-v4/values-xlarge-v4.xml",
             "map": [
                 {
                     "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\ca67d3b5ec2b09949941fc8ff34ddaa2\\transformed\\appcompat-1.6.1\\res\\values-xlarge-v4\\values-xlarge-v4.xml",

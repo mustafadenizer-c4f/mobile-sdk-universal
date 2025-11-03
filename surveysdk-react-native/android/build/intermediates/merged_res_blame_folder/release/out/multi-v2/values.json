@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-53:/values/values.xml",
+            "outputFile": "com.example.surveysdk.reactnative.surveysdk-react-native-mergeReleaseResources-50:/values/values.xml",
             "map": [
                 {
                     "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\bc1a1ef60b78da318fcb83071739b3a5\\transformed\\recyclerview-1.3.2\\res\\values\\values.xml",
@@ -95,6 +95,25 @@
                     }
                 },
                 {
+                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk-mobile\\surveysdk\\build\\intermediates\\packaged_res\\release\\values\\values.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10",
+                        "startColumns": "4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,97,144,191,238,283,328,370,417",
+                        "endLines": "2,3,4,5,6,7,8,9,14",
+                        "endColumns": "41,46,46,46,44,44,41,46,12",
+                        "endOffsets": "92,139,186,233,278,323,365,412,701"
+                    },
+                    "to": {
+                        "startLines": "648,957,958,959,970,971,974,2010,6697",
+                        "startColumns": "4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "33134,56120,56167,56214,56958,57003,57169,132550,470145",
+                        "endLines": "648,957,958,959,970,971,974,2010,6701",
+                        "endColumns": "41,46,46,46,44,44,41,46,12",
+                        "endOffsets": "33171,56162,56209,56256,56998,57043,57206,132592,470429"
+                    }
+                },
+                {
                     "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\46acd49691a56cc53c4a75244f951ff5\\transformed\\navigation-runtime-2.7.4\\res\\values\\values.xml",
                     "from": {
                         "startLines": "2,3,10,13",
@@ -185,25 +204,6 @@
                         "endLines": "9519,9525,9535,13381,13385",
                         "endColumns": "24,24,24,24,24",
                         "endOffsets": "655278,655456,655740,795015,795142"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\d98554baae8792935d18c4248d74ed67\\transformed\\surveysdk-v1.0.8\\res\\values\\values.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10",
-                        "startColumns": "4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,97,144,191,238,283,328,370,417",
-                        "endLines": "2,3,4,5,6,7,8,9,14",
-                        "endColumns": "41,46,46,46,44,44,41,46,12",
-                        "endOffsets": "92,139,186,233,278,323,365,412,701"
-                    },
-                    "to": {
-                        "startLines": "648,957,958,959,970,971,974,2010,6697",
-                        "startColumns": "4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "33134,56120,56167,56214,56958,57003,57169,132550,470145",
-                        "endLines": "648,957,958,959,970,971,974,2010,6701",
-                        "endColumns": "41,46,46,46,44,44,41,46,12",
-                        "endOffsets": "33171,56162,56209,56256,56998,57043,57206,132592,470429"
                     }
                 },
                 {
@@ -503,7 +503,7 @@
             ]
         },
         {
-            "outputFile": "com.example.surveysdk.reactnative.surveysdk-react-native-mergeReleaseResources-51:/values/values.xml",
+            "outputFile": "com.example.surveysdk.reactnative.surveysdk-react-native-merged_res-52:/values/values.xml",
             "map": [
                 {
                     "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\bc1a1ef60b78da318fcb83071739b3a5\\transformed\\recyclerview-1.3.2\\res\\values\\values.xml",
@@ -597,6 +597,25 @@
                     }
                 },
                 {
+                    "source": "C:\\Users\\dafat\\Desktop\\SDK\\surveysdk-mobile\\surveysdk\\build\\intermediates\\packaged_res\\release\\values\\values.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10",
+                        "startColumns": "4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,97,144,191,238,283,328,370,417",
+                        "endLines": "2,3,4,5,6,7,8,9,14",
+                        "endColumns": "41,46,46,46,44,44,41,46,12",
+                        "endOffsets": "92,139,186,233,278,323,365,412,701"
+                    },
+                    "to": {
+                        "startLines": "648,957,958,959,970,971,974,2010,6697",
+                        "startColumns": "4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "33134,56120,56167,56214,56958,57003,57169,132550,470145",
+                        "endLines": "648,957,958,959,970,971,974,2010,6701",
+                        "endColumns": "41,46,46,46,44,44,41,46,12",
+                        "endOffsets": "33171,56162,56209,56256,56998,57043,57206,132592,470429"
+                    }
+                },
+                {
                     "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\46acd49691a56cc53c4a75244f951ff5\\transformed\\navigation-runtime-2.7.4\\res\\values\\values.xml",
                     "from": {
                         "startLines": "2,3,10,13",
@@ -687,25 +706,6 @@
                         "endLines": "9519,9525,9535,13381,13385",
                         "endColumns": "24,24,24,24,24",
                         "endOffsets": "655278,655456,655740,795015,795142"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\dafat\\.gradle\\caches\\transforms-3\\d98554baae8792935d18c4248d74ed67\\transformed\\surveysdk-v1.0.8\\res\\values\\values.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10",
-                        "startColumns": "4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,97,144,191,238,283,328,370,417",
-                        "endLines": "2,3,4,5,6,7,8,9,14",
-                        "endColumns": "41,46,46,46,44,44,41,46,12",
-                        "endOffsets": "92,139,186,233,278,323,365,412,701"
-                    },
-                    "to": {
-                        "startLines": "648,957,958,959,970,971,974,2010,6697",
-                        "startColumns": "4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "33134,56120,56167,56214,56958,57003,57169,132550,470145",
-                        "endLines": "648,957,958,959,970,971,974,2010,6701",
-                        "endColumns": "41,46,46,46,44,44,41,46,12",
-                        "endOffsets": "33171,56162,56209,56256,56998,57043,57206,132592,470429"
                     }
                 },
                 {
