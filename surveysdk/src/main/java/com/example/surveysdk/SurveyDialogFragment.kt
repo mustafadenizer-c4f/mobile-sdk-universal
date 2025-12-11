@@ -222,6 +222,21 @@ class SurveyDialogFragment : DialogFragment() {
         super.onDestroy()
     }
 
+    override fun onDestroyView() {
+        // Simple WebView cleanup
+        val webView = view?.findViewById<WebView>(android.R.id.content)
+        webView?.let {
+            try {
+                it.stopLoading()
+                it.clearCache(true)
+            } catch (e: Exception) {
+                // Ignore cleanup errors
+            }
+        }
+
+        super.onDestroyView()
+    }
+
     // Helper method to show the dialog
     fun show(fragmentManager: FragmentManager) {
         try {

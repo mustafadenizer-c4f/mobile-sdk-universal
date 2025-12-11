@@ -46,19 +46,21 @@ object ExclusionRuleEvaluator {
             Log.d("SurveySDK", "🔍 Rule '${rule.name}': '$actualValue' ${rule.operator} '$matchValue'")
 
             val result = when (rule.operator) {
-                ExclusionOperator.EQUALS -> compareValue == matchValue
-                ExclusionOperator.NOT_EQUALS -> compareValue != matchValue
-                ExclusionOperator.CONTAINS -> compareValue.contains(matchValue)
-                ExclusionOperator.NOT_CONTAINS -> !compareValue.contains(matchValue)
-                ExclusionOperator.STARTS_WITH -> compareValue.startsWith(matchValue)
-                ExclusionOperator.ENDS_WITH -> compareValue.endsWith(matchValue)
-                ExclusionOperator.GREATER_THAN -> compareNumericValues(actualValue, matchValue) { a, b -> a > b }
-                ExclusionOperator.LESS_THAN -> compareNumericValues(actualValue, matchValue) { a, b -> a < b }
-                ExclusionOperator.GREATER_OR_EQUAL -> compareNumericValues(actualValue, matchValue) { a, b -> a >= b }
-                ExclusionOperator.LESS_OR_EQUAL -> compareNumericValues(actualValue, matchValue) { a, b -> a <= b }
-                ExclusionOperator.IN -> isValueInList(compareValue, matchValue)
-                ExclusionOperator.NOT_IN -> !isValueInList(compareValue, matchValue)
-            }
+    ExclusionOperator.EQUALS -> compareValue == matchValue
+    ExclusionOperator.NOT_EQUALS -> compareValue != matchValue
+    ExclusionOperator.CONTAINS -> compareValue.contains(matchValue)
+    ExclusionOperator.NOT_CONTAINS -> !compareValue.contains(matchValue)
+    ExclusionOperator.STARTS_WITH -> compareValue.startsWith(matchValue)
+    ExclusionOperator.ENDS_WITH -> compareValue.endsWith(matchValue)
+    ExclusionOperator.GREATER_THAN -> compareNumericValues(actualValue, matchValue) { a, b -> a > b }
+    ExclusionOperator.LESS_THAN -> compareNumericValues(actualValue, matchValue) { a, b -> a < b }
+    ExclusionOperator.GREATER_OR_EQUAL -> compareNumericValues(actualValue, matchValue) { a, b -> a >= b }
+    ExclusionOperator.LESS_OR_EQUAL -> compareNumericValues(actualValue, matchValue) { a, b -> a <= b }
+    ExclusionOperator.IN -> isValueInList(compareValue, matchValue)
+    ExclusionOperator.NOT_IN -> !isValueInList(compareValue, matchValue)
+    ExclusionOperator.EMPTY -> actualValue.isBlank()
+    ExclusionOperator.NOT_EMPTY -> actualValue.isNotBlank()
+}
 
             Log.d("SurveySDK", "📊 Rule '${rule.name}' result: $result")
             result

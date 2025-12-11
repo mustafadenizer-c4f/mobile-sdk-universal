@@ -182,6 +182,21 @@ class SurveyBottomSheetFragment : BottomSheetDialogFragment() {
         Log.d("SurveyBottomSheet", "Bottom sheet destroyed")
     }
 
+    override fun onDestroyView() {
+        // Simple WebView cleanup
+        val webView = view?.findViewById<WebView>(android.R.id.content)
+        webView?.let {
+            try {
+                it.stopLoading()
+                it.clearCache(true)
+            } catch (e: Exception) {
+                // Ignore cleanup errors
+            }
+        }
+
+        super.onDestroyView()
+    }
+
     // Helper method to show the bottom sheet
     fun show(fragmentManager: androidx.fragment.app.FragmentManager) {
         try {

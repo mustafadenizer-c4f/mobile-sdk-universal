@@ -19,10 +19,11 @@ object WebViewConfigurator {
         url: String,
         allowedDomain: String?,
         onPageStarted: (() -> Unit)? = null,
-        onPageFinished: (() -> Unit)? = null
+        onPageFinished: (() -> Unit)? = null,
+        onSurveyClosed: (() -> Unit)? = null  // ✅ ADD THIS: Callback for when survey is closed
     ) {
         configureWebViewSettings(webView)
-        webView.webViewClient = createSafeWebViewClient(allowedDomain, webView, url, onPageStarted, onPageFinished)
+        webView.webViewClient = createSafeWebViewClient(allowedDomain, webView, url, onPageStarted, onPageFinished, onSurveyClosed)
         webView.webChromeClient = WebChromeClient()
         webView.loadUrl(url)
     }
@@ -45,7 +46,8 @@ object WebViewConfigurator {
         webView: WebView,
         originalUrl: String,
         onPageStarted: (() -> Unit)? = null,
-        onPageFinished: (() -> Unit)? = null
+        onPageFinished: (() -> Unit)? = null,
+        onSurveyClosed: (() -> Unit)? = null  // ✅ ADD THIS
     ): WebViewClient {
         return object : WebViewClient() {
             private var errorOccurred = false
@@ -76,7 +78,7 @@ object WebViewConfigurator {
                 Log.e("WebViewConfigurator", "❌ Error code: $errorCode")
                 Log.e("WebViewConfigurator", "❌ Failing URL: $failingUrl")
                 Log.e("WebViewConfigurator", "❌ Original URL: $originalUrl")
-                showErrorLayout(webView, originalUrl)
+                showErrorLayout(webView, originalUrl, onSurveyClosed)  // ✅ PASS CALLBACK
             }
 
             // Add HTTP error handling for API 21+
@@ -112,7 +114,8 @@ object WebViewConfigurator {
         }
     }
 
-    private fun showErrorLayout(webView: WebView, originalUrl: String) {
+    // ✅ UPDATED: Accept onSurveyClosed callback
+    private fun showErrorLayout(webView: WebView, originalUrl: String, onSurveyClosed: (() -> Unit)? = null) {
         webView.post {
             try {
                 val context = webView.context
@@ -205,8 +208,8 @@ object WebViewConfigurator {
                     setOnClickListener {
                         Log.d("WebViewConfigurator", "❌ Close button clicked")
                         hideErrorLayout(webView)
-                        // Dismiss the survey
-                        dismissSurvey(webView)
+                        // Dismiss the survey using callback instead of direct call
+                        onSurveyClosed?.invoke() ?: dismissSurvey(webView)
                     }
                 }
 
@@ -259,7 +262,7 @@ object WebViewConfigurator {
         }
     }
 
-    // Add this method to handle survey dismissal
+    // ✅ UPDATED: Remove the surveyCompleted() call to prevent duplicates
     private fun dismissSurvey(webView: WebView) {
         try {
             val context = webView.context
@@ -280,10 +283,7 @@ object WebViewConfigurator {
                     Log.w("WebViewConfigurator", "⚠️ Unknown context type, cannot dismiss")
                 }
             }
-
-            // Notify SDK that survey completed (for queue system)
-            com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
-
+            // ❌ REMOVED: Don't call surveyCompleted() here - let the activity handle it
         } catch (e: Exception) {
             Log.e("WebViewConfigurator", "❌ Error dismissing survey: ${e.message}")
         }

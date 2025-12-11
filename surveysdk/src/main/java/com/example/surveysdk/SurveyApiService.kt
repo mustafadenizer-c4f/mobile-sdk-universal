@@ -11,8 +11,8 @@ import javax.net.ssl.HttpsURLConnection
 class SurveyApiService(private val apiKey: String) {
 
     companion object {
-        private const val BASE_URL = "https://your-api-domain.com/api"
-        private const val CONFIG_ENDPOINT = "$BASE_URL/sdk/config"
+        private const val BASE_URL = "https://form.cloud4feed.com/api"
+        private const val CONFIG_ENDPOINT = "$BASE_URL/setting/mobilesdk-config"
         private const val TIMEOUT_MS = 10000 // Increased timeout
         private const val MAX_RETRIES = 2
     }
@@ -59,22 +59,22 @@ class SurveyApiService(private val apiKey: String) {
 
     private suspend fun fetchConfigFromNetwork(retryCount: Int = 0): Config? = withContext(Dispatchers.IO) {
         return@withContext try {
-            // Add retry delay
             if (retryCount > 0) {
                 delay(1000L * retryCount)
             }
 
-            val url = URL("$CONFIG_ENDPOINT?apiKey=${apiKey}&sdkVersion=2.0.0&timestamp=${System.currentTimeMillis()}")
+            val url = URL("$CONFIG_ENDPOINT?apiKey=$apiKey&timestamp=${System.currentTimeMillis()}&sdkVersion=${SDKConstants.SDK_VERSION}")
+            Log.d("SurveyApiService", "🔗 Making API request to: $url")
             val connection = url.openConnection() as HttpsURLConnection
 
             try {
                 connection.apply {
-                    connectTimeout = TIMEOUT_MS
-                    readTimeout = TIMEOUT_MS
+                    connectTimeout = SDKConstants.API_TIMEOUT_MS.toInt()
+                    readTimeout = SDKConstants.API_TIMEOUT_MS.toInt()
                     requestMethod = "GET"
-                    setRequestProperty("Authorization", "Bearer $apiKey")
+                    // ✅ Call setRequestProperty on connection object
                     setRequestProperty("Content-Type", "application/json")
-                    setRequestProperty("User-Agent", "SurveySDK/2.0.0")
+                    setRequestProperty("User-Agent", "${SDKConstants.SDK_NAME}/${SDKConstants.SDK_VERSION}")
                     setRequestProperty("Cache-Control", "no-cache")
 
                     // Security headers
@@ -83,21 +83,21 @@ class SurveyApiService(private val apiKey: String) {
                 }
 
                 val responseCode = connection.responseCode
-                Log.d("SurveyApiService", "API Response code: $responseCode")
+                Log.d(SDKConstants.LOG_TAG_API, "API Response code: $responseCode")
 
                 when (responseCode) {
                     HttpsURLConnection.HTTP_OK -> {
                         val inputStream = connection.inputStream
                         val responseBody = inputStream.bufferedReader().use { it.readText() }
-                        Log.d("SurveyApiService", "✅ Multi-survey config loaded from API")
+                        Log.d(SDKConstants.LOG_TAG_API, "✅ Multi-survey config loaded from API")
                         parseConfigFromJson(responseBody)
                     }
                     HttpsURLConnection.HTTP_UNAUTHORIZED -> {
-                        Log.e("SurveyApiService", "❌ API key invalid")
+                        Log.e(SDKConstants.LOG_TAG_API, "❌ API key invalid")
                         null
                     }
                     else -> {
-                        Log.e("SurveyApiService", "❌ API error: $responseCode - ${connection.responseMessage}")
+                        Log.e(SDKConstants.LOG_TAG_API, "❌ API error: $responseCode - ${connection.responseMessage}")
                         null
                     }
                 }
@@ -105,7 +105,7 @@ class SurveyApiService(private val apiKey: String) {
                 connection.disconnect()
             }
         } catch (e: Exception) {
-            Log.e("SurveyApiService", "❌ Network error - using fallback: ${e.message}")
+            Log.e(SDKConstants.LOG_TAG_API, "❌ Network error - using fallback: ${e.message}")
             null
         }
     }
@@ -119,13 +119,24 @@ class SurveyApiService(private val apiKey: String) {
 
             if (surveysArray != null) {
                 for (i in 0 until surveysArray.length()) {
-                    val surveyJson = surveysArray.getJSONObject(i)
-                    surveys.add(parseSurveyConfigFromJson(surveyJson))
+                    try {
+                        val surveyJson = surveysArray.getJSONObject(i)
+                        val survey = parseSurveyConfigFromJson(surveyJson)
+
+                        // ✅ ADD: Validate survey before adding
+                        if (survey.surveyId != null && survey.baseUrl != null) {
+                            surveys.add(survey)
+                        } else {
+                            Log.w("SurveyApiService", "⚠️ Skipping invalid survey in config")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("SurveyApiService", "❌ Error parsing survey at index $i: ${e.message}")
+                    }
                 }
             }
 
             Config(
-                sdkVersion = json.optString("sdkVersion", "2.0.0"),
+                sdkVersion = json.optString("sdkVersion", "2.0.0") ?: "2.0.0",
                 cacheDurationHours = json.optLong("cacheDurationHours", 24L),
                 surveys = surveys
             )
@@ -136,77 +147,91 @@ class SurveyApiService(private val apiKey: String) {
     }
 
     private fun parseSurveyConfigFromJson(surveyJson: JSONObject): SurveyConfig {
-        return SurveyConfig(
-            surveyId = surveyJson.getString("surveyId"),
-            surveyName = surveyJson.optString("surveyName", ""),
-            baseUrl = surveyJson.optString("baseUrl", ""),
+    return SurveyConfig(
+        surveyId = surveyJson.opt("surveyId").toString(), // Handle both string and number
+        surveyName = surveyJson.optString("surveyName", ""),
+        baseUrl = surveyJson.optString("baseUrl", ""),
+        status = surveyJson.optBoolean("status", true),
+        // Trigger Settings
+        enableButtonTrigger = surveyJson.optBoolean("enableButtonTrigger", false),
+        enableScrollTrigger = surveyJson.optBoolean("enableScrollTrigger", false),
+        enableNavigationTrigger = surveyJson.optBoolean("enableNavigationTrigger", false),
+        enableAppLaunchTrigger = surveyJson.optBoolean("enableAppLaunchTrigger", false),
+        enableExitTrigger = surveyJson.optBoolean("enableExitTrigger", false),
+        enableTabChangeTrigger = surveyJson.optBoolean("enableTabChangeTrigger", false),
 
-            // Trigger Settings
-            enableButtonTrigger = surveyJson.optBoolean("enableButtonTrigger", false),
-            enableScrollTrigger = surveyJson.optBoolean("enableScrollTrigger", false),
-            enableNavigationTrigger = surveyJson.optBoolean("enableNavigationTrigger", false),
-            enableAppLaunchTrigger = surveyJson.optBoolean("enableAppLaunchTrigger", false),
-            enableExitTrigger = surveyJson.optBoolean("enableExitTrigger", false),
-            enableTabChangeTrigger = surveyJson.optBoolean("enableTabChangeTrigger", false),
+        buttonTriggerId = surveyJson.optString("buttonTriggerId", null).takeIf { it.isNotEmpty() },
 
-            // Trigger Configuration
-            triggerScreens = surveyJson.optJSONArray("triggerScreens")?.let { array ->
-                (0 until array.length()).map { array.getString(it) }.toSet()
-            } ?: emptySet(),
-            triggerTabs = surveyJson.optJSONArray("triggerTabs")?.let { array ->
-                (0 until array.length()).map { array.getString(it) }.toSet()
-            } ?: emptySet(),
-            timeDelay = surveyJson.optLong("timeDelay", 0L),
-            scrollThreshold = surveyJson.optInt("scrollThreshold", 0),
-            triggerType = surveyJson.optString("triggerType", "instant"),
+        // Trigger Configuration
+        triggerScreens = surveyJson.optJSONArray("triggerScreens")?.let { array ->
+            (0 until array.length()).map { array.getString(it) }.toSet()
+        } ?: emptySet(),
+        triggerTabs = surveyJson.optJSONArray("triggerTabs")?.let { array ->
+            (0 until array.length()).map { array.getString(it) }.toSet()
+        } ?: emptySet(),
+        timeDelay = surveyJson.optLong("timeDelay", 0L),
+        scrollThreshold = surveyJson.optInt("scrollThreshold", 0),
+        triggerType = surveyJson.optString("triggerType", "instant"),
 
-            // Display Settings
-            modalStyle = surveyJson.optString("modalStyle", "full_screen"),
-            animationType = surveyJson.optString("animationType", "slide_up"),
-            backgroundColor = surveyJson.optString("backgroundColor", "#FFFFFF"),
+        // Display Settings
+        modalStyle = surveyJson.optString("modalStyle", "full_screen"),
+        animationType = surveyJson.optString("animationType", "slide_up"),
+        backgroundColor = surveyJson.optString("backgroundColor", "#FFFFFF"),
 
-            // Targeting & Limits
-            probability = surveyJson.optDouble("probability", 1.0),
-            maxShowsPerSession = surveyJson.optInt("maxShowsPerSession", 0),
-            cooldownPeriod = surveyJson.optLong("cooldownPeriod", 0L),
-            triggerOnce = surveyJson.optBoolean("triggerOnce", false),
-            priority = surveyJson.optInt("priority", 1),
+        // Targeting & Limits
+        probability = surveyJson.optDouble("probability", 1.0),
+        maxShowsPerSession = surveyJson.optInt("maxShowsPerSession", 0),
+        cooldownPeriod = surveyJson.optLong("cooldownPeriod", 0L),
+        triggerOnce = surveyJson.optBoolean("triggerOnce", false),
+        priority = surveyJson.optInt("priority", 1),
 
-            // Data Collection
-            collectDeviceId = surveyJson.optBoolean("collectDeviceId", false),
-            collectDeviceModel = surveyJson.optBoolean("collectDeviceModel", false),
-            collectLocation = surveyJson.optBoolean("collectLocation", false),
-            collectAppUsage = surveyJson.optBoolean("collectAppUsage", false),
+        // Data Collection
+        collectDeviceId = surveyJson.optBoolean("collectDeviceId", false),
+        collectDeviceModel = surveyJson.optBoolean("collectDeviceModel", false),
+        collectLocation = surveyJson.optBoolean("collectLocation", false),
+        collectAppUsage = surveyJson.optBoolean("collectAppUsage", false),
 
-            // Custom Params
-            customParams = parseCustomParams(surveyJson.optJSONArray("customParams")),
+        // Custom Params
+        customParams = parseCustomParams(surveyJson.optJSONArray("customParams")),
 
-            // Exclusion Rules
-            exclusionRules = parseExclusionRules(surveyJson.optJSONArray("exclusionRules"))
-        )
-    }
+        // Exclusion Rules - Handle integer operators
+        exclusionRules = parseExclusionRules(surveyJson.optJSONArray("exclusionRules"))
+    )
+}
 
-    private fun parseExclusionRules(jsonArray: JSONArray?): List<ExclusionRule> {
-        return jsonArray?.let { array ->
-            (0 until array.length()).mapNotNull { index ->
-                try {
-                    val ruleJson = array.getJSONObject(index)
-                    ExclusionRule(
-                        name = ruleJson.getString("name"),
-                        source = ExclusionSource.valueOf(ruleJson.getString("source")),
-                        key = ruleJson.optString("key", null),
-                        value = ruleJson.optString("value", null),
-                        operator = ExclusionOperator.valueOf(ruleJson.getString("operator")),
-                        matchValue = ruleJson.getString("matchValue"),
-                        caseSensitive = ruleJson.optBoolean("caseSensitive", false)
-                    )
-                } catch (e: Exception) {
-                    Log.e("SurveyApiService", "Error parsing exclusion rule: ${e.message}")
-                    null
+   private fun parseExclusionRules(jsonArray: JSONArray?): List<ExclusionRule> {
+    return jsonArray?.let { array ->
+        (0 until array.length()).mapNotNull { index ->
+            try {
+                val ruleJson = array.getJSONObject(index)
+                
+                // Handle operator as both integer and string
+                val operator = if (ruleJson.has("operator")) {
+                    when (val operatorValue = ruleJson.get("operator")) {
+                        is Int -> ExclusionOperator.fromId(operatorValue)
+                        is String -> ExclusionOperator.fromName(operatorValue)
+                        else -> ExclusionOperator.EQUALS
+                    }
+                } else {
+                    ExclusionOperator.EQUALS
                 }
+
+                ExclusionRule(
+                    name = ruleJson.optString("name", "rule_$index"),
+                    source = ExclusionSource.valueOf(ruleJson.optString("source", "STORAGE")),
+                    key = ruleJson.optString("key", null),
+                    value = ruleJson.optString("value", null),
+                    operator = operator,
+                    matchValue = ruleJson.optString("matchValue", ""),
+                    caseSensitive = ruleJson.optBoolean("caseSensitive", false)
+                )
+            } catch (e: Exception) {
+                Log.e("SurveyApiService", "Error parsing exclusion rule: ${e.message}")
+                null
             }
-        } ?: emptyList()
-    }
+        }
+    } ?: emptyList()
+}
 
     private fun parseCustomParams(jsonArray: JSONArray?): List<CustomParam> {
         return jsonArray?.let { array ->

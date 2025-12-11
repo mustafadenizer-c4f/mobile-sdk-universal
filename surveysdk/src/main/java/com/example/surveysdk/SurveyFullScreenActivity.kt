@@ -13,6 +13,7 @@ class SurveyFullScreenActivity : AppCompatActivity() {
     private lateinit var backPressHandler: BackPressHandler
     private lateinit var closeButton: TextView
     private lateinit var webView: WebView
+    private var surveyCompletedNotified = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,9 +83,7 @@ class SurveyFullScreenActivity : AppCompatActivity() {
                 marginEnd = 20
             }
             setOnClickListener {
-                val animationType = intent.getStringExtra("ANIMATION_TYPE") ?: "none"
-                AnimationUtils.applyExitTransition(this@SurveyFullScreenActivity, animationType)
-                finish()
+                handleSurveyClose()
             }
             setPadding(20, 20, 20, 20)
 
@@ -110,8 +109,7 @@ class SurveyFullScreenActivity : AppCompatActivity() {
     private fun setupBackPressHandler(animationType: String) {
         backPressHandler = BackPressHandler(this, "SurveyFullScreen") {
             Log.d("SurveyFullScreen", "Back gesture detected")
-            AnimationUtils.applyExitTransition(this@SurveyFullScreenActivity, animationType)
-            finish()
+            handleSurveyClose()
         }
         backPressHandler.enable()
     }
@@ -120,15 +118,33 @@ class SurveyFullScreenActivity : AppCompatActivity() {
         WebViewConfigurator.setupSecureWebView(
             webView = webView,
             url = url,
-            allowedDomain = allowedDomain
+            allowedDomain = allowedDomain,
+            onSurveyClosed = {
+                // This will be called when the "Close" button in error layout is clicked
+                handleSurveyClose()
+            }
         )
+    }
+
+    private fun handleSurveyClose() {
+        if (surveyCompletedNotified) {
+            return // Already notified, prevent duplicate calls
+        }
+
+        surveyCompletedNotified = true
+        Log.d("SurveyFullScreen", "Survey closed by user")
+
+        // Notify SDK that survey completed
+        com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
+
+        val animationType = intent.getStringExtra("ANIMATION_TYPE") ?: "none"
+        AnimationUtils.applyExitTransition(this, animationType)
+        finish()
     }
 
     override fun onBackPressed() {
         Log.d("SurveyFullScreen", "Physical back button pressed")
-        val animationType = intent.getStringExtra("ANIMATION_TYPE") ?: "none"
-        AnimationUtils.applyExitTransition(this, animationType)
-        super.onBackPressed()
+        handleSurveyClose()
     }
 
     override fun finish() {
@@ -139,12 +155,26 @@ class SurveyFullScreenActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         SafeDelayExecutor.cancelDelayed("activity_${this.hashCode()}")
+
         if (::backPressHandler.isInitialized) {
             backPressHandler.disable()
         }
 
-        // Notify SDK that survey completed
-        com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
+        // ✅ SIMPLEST FIX:
+        if (::webView.isInitialized) {
+            try {
+                webView.stopLoading()
+                webView.clearCache(true)
+                // Don't set webViewClient or webChromeClient - Android will handle them
+            } catch (e: Exception) {
+                Log.e("SurveyFullScreen", "Error in WebView cleanup: ${e.message}")
+            }
+        }
+
+        if (!surveyCompletedNotified && !isChangingConfigurations) {
+            Log.d("SurveyFullScreen", "Activity destroyed without proper close")
+            com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
+        }
 
         super.onDestroy()
     }

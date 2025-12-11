@@ -19,6 +19,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             
             val activity = getCurrentActivity()
             if (activity != null) {
+                // Updated to match new initialization that returns SurveySDK instance
                 SurveySDK.initialize(activity.applicationContext, apiKey)
                 Log.d("SurveySDK", "RN: Core SDK initialized successfully")
                 promise.resolve(true)
@@ -236,6 +237,125 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         } catch (e: Exception) {
             Log.e("SurveySDK", "RN: Failed to check config status", e)
             promise.reject("CONFIG_ERROR", "Failed to check configuration status: ${e.message}")
+        }
+    }
+
+    // ===== NEW METHODS FOR MULTI-SURVEY SUPPORT =====
+
+    @ReactMethod
+    fun getQueueStatus(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            val status = surveySDK.getQueueStatus()
+            Log.d("SurveySDK", "RN: Queue status requested")
+            promise.resolve(status)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Failed to get queue status", e)
+            promise.reject("QUEUE_ERROR", "Failed to get queue status: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun clearSurveyQueue(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            surveySDK.clearSurveyQueue()
+            Log.d("SurveySDK", "RN: Survey queue cleared")
+            promise.resolve(true)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Failed to clear survey queue", e)
+            promise.reject("QUEUE_ERROR", "Failed to clear survey queue: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun isShowingSurvey(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            val isShowing = surveySDK.isShowingSurvey()
+            Log.d("SurveySDK", "RN: Is showing survey: $isShowing")
+            promise.resolve(isShowing)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Failed to check survey status", e)
+            promise.reject("SURVEY_ERROR", "Failed to check if survey is showing: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun getSetupStatus(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            val status = surveySDK.getSetupStatus()
+            Log.d("SurveySDK", "RN: Setup status requested")
+            promise.resolve(status)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Failed to get setup status", e)
+            promise.reject("STATUS_ERROR", "Failed to get setup status: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun isSDKEnabled(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            val isEnabled = surveySDK.isSDKEnabled()
+            Log.d("SurveySDK", "RN: SDK enabled: $isEnabled")
+            promise.resolve(isEnabled)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Failed to check SDK status", e)
+            promise.reject("STATUS_ERROR", "Failed to check if SDK is enabled: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun isReady(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            val isReady = surveySDK.isReady()
+            Log.d("SurveySDK", "RN: SDK ready: $isReady")
+            promise.resolve(isReady)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Failed to check SDK readiness", e)
+            promise.reject("STATUS_ERROR", "Failed to check if SDK is ready: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun fetchConfiguration(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            surveySDK.fetchConfiguration()
+            Log.d("SurveySDK", "RN: Configuration fetch initiated")
+            promise.resolve(true)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Failed to fetch configuration", e)
+            promise.reject("CONFIG_ERROR", "Failed to fetch configuration: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun getConfigForDebug(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            val configDebug = surveySDK.getConfigForDebug()
+            Log.d("SurveySDK", "RN: Config debug requested")
+            promise.resolve(configDebug)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Failed to get config debug", e)
+            promise.reject("CONFIG_ERROR", "Failed to get config debug info: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun cleanup(promise: Promise) {
+        try {
+            val surveySDK = SurveySDK.getInstance()
+            surveySDK.cleanup()
+            Log.d("SurveySDK", "RN: SDK cleanup completed")
+            promise.resolve(true)
+        } catch (e: Exception) {
+            Log.e("SurveySDK", "RN: Failed to cleanup SDK", e)
+            promise.reject("CLEANUP_ERROR", "Failed to cleanup SDK: ${e.message}")
         }
     }
 }

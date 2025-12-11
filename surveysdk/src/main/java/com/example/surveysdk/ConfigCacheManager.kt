@@ -1,6 +1,9 @@
 package com.example.surveysdk
 
 import android.content.Context
+import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import android.util.Log
 import org.json.JSONObject
 import org.json.JSONArray
@@ -12,7 +15,6 @@ class ConfigCacheManager(private val context: Context) {
         private const val PREFS_NAME = "survey_config_cache"
         private const val KEY_CONFIG_JSON = "cached_config"
         private const val KEY_TIMESTAMP = "cache_timestamp"
-        private const val DEFAULT_CACHE_DURATION_HOURS = 24L
     }
 
     fun saveConfig(config: Config) {
@@ -137,7 +139,7 @@ class ConfigCacheManager(private val context: Context) {
                 ruleJson.put("source", rule.source.name)
                 ruleJson.put("key", rule.key ?: "")
                 ruleJson.put("value", rule.value ?: "")
-                ruleJson.put("operator", rule.operator.name)
+                ruleJson.put("operator", rule.operator.id) // Store as integer ID
                 ruleJson.put("matchValue", rule.matchValue)
                 ruleJson.put("caseSensitive", rule.caseSensitive)
                 exclusionRulesArray.put(ruleJson)
@@ -152,94 +154,138 @@ class ConfigCacheManager(private val context: Context) {
     }
 
     private fun jsonToConfig(jsonString: String): Config {
-        val json = JSONObject(jsonString)
+        return try {
+            val json = JSONObject(jsonString)
 
-        val surveysArray = json.optJSONArray("surveys")
-        val surveys = mutableListOf<SurveyConfig>()
+            // Get the configuration object from server response
+            val configJson = json.optJSONObject("configuration") ?: json
 
-        if (surveysArray != null) {
-            for (i in 0 until surveysArray.length()) {
-                val surveyJson = surveysArray.getJSONObject(i)
+            val surveysArray = configJson.optJSONArray("surveys")
+            val surveys = mutableListOf<SurveyConfig>()
 
-                surveys.add(SurveyConfig(
-                    surveyId = surveyJson.getString("surveyId"),
-                    surveyName = surveyJson.optString("surveyName", ""),
-                    baseUrl = surveyJson.optString("baseUrl", ""),
-
-                    // Trigger Settings
-                    enableButtonTrigger = surveyJson.optBoolean("enableButtonTrigger", false),
-                    enableScrollTrigger = surveyJson.optBoolean("enableScrollTrigger", false),
-                    enableNavigationTrigger = surveyJson.optBoolean("enableNavigationTrigger", false),
-                    enableAppLaunchTrigger = surveyJson.optBoolean("enableAppLaunchTrigger", false),
-                    enableExitTrigger = surveyJson.optBoolean("enableExitTrigger", false),
-                    enableTabChangeTrigger = surveyJson.optBoolean("enableTabChangeTrigger", false),
-
-                    // Trigger Configuration
-                    triggerScreens = surveyJson.optJSONArray("triggerScreens")?.let { array ->
-                        (0 until array.length()).map { array.getString(it) }.toSet()
-                    } ?: emptySet(),
-                    triggerTabs = surveyJson.optJSONArray("triggerTabs")?.let { array ->
-                        (0 until array.length()).map { array.getString(it) }.toSet()
-                    } ?: emptySet(),
-                    timeDelay = surveyJson.optLong("timeDelay", 0L),
-                    scrollThreshold = surveyJson.optInt("scrollThreshold", 0),
-                    triggerType = surveyJson.optString("triggerType", "instant"),
-
-                    // Display Settings
-                    modalStyle = surveyJson.optString("modalStyle", "full_screen"),
-                    animationType = surveyJson.optString("animationType", "slide_up"),
-                    backgroundColor = surveyJson.optString("backgroundColor", "#FFFFFF"),
-
-                    // Targeting & Limits
-                    probability = surveyJson.optDouble("probability", 1.0),
-                    maxShowsPerSession = surveyJson.optInt("maxShowsPerSession", 0),
-                    cooldownPeriod = surveyJson.optLong("cooldownPeriod", 0L),
-                    triggerOnce = surveyJson.optBoolean("triggerOnce", false),
-                    priority = surveyJson.optInt("priority", 1),
-
-                    // Data Collection
-                    collectDeviceId = surveyJson.optBoolean("collectDeviceId", false),
-                    collectDeviceModel = surveyJson.optBoolean("collectDeviceModel", false),
-                    collectLocation = surveyJson.optBoolean("collectLocation", false),
-                    collectAppUsage = surveyJson.optBoolean("collectAppUsage", false),
-
-                    // Custom Params
-                    customParams = surveyJson.optJSONArray("customParams")?.let { array ->
-                        (0 until array.length()).map { index ->
-                            val paramJson = array.getJSONObject(index)
-                            CustomParam(
-                                name = paramJson.getString("name"),
-                                source = ParamSource.valueOf(paramJson.getString("source")),
-                                key = paramJson.optString("key", null),
-                                value = paramJson.optString("value", null),
-                                defaultValue = paramJson.optString("defaultValue", null)
-                            )
-                        }
-                    } ?: emptyList(),
-
-                    // Exclusion Rules
-                    exclusionRules = surveyJson.optJSONArray("exclusionRules")?.let { array ->
-                        (0 until array.length()).map { index ->
-                            val ruleJson = array.getJSONObject(index)
-                            ExclusionRule(
-                                name = ruleJson.getString("name"),
-                                source = ExclusionSource.valueOf(ruleJson.getString("source")),
-                                key = ruleJson.optString("key", null),
-                                value = ruleJson.optString("value", null),
-                                operator = ExclusionOperator.valueOf(ruleJson.getString("operator")),
-                                matchValue = ruleJson.getString("matchValue"),
-                                caseSensitive = ruleJson.optBoolean("caseSensitive", false)
-                            )
-                        }
-                    } ?: emptyList()
-                ))
+            if (surveysArray != null) {
+                for (i in 0 until surveysArray.length()) {
+                    val surveyJson = surveysArray.getJSONObject(i)
+                    surveys.add(parseSurveyConfigFromJson(surveyJson))
+                }
             }
-        }
 
-        return Config(
-            sdkVersion = json.optString("sdkVersion", "2.0.0"),
-            cacheDurationHours = json.optLong("cacheDurationHours", 24L),
-            surveys = surveys
+            Config(
+                sdkVersion = configJson.optString("sdkVersion", "2.0.0"),
+                cacheDurationHours = configJson.optLong("cacheDurationHours", 24L),
+                surveys = surveys
+            )
+        } catch (e: Exception) {
+            Log.e("ConfigCacheManager", "Error parsing config JSON: ${e.message}")
+            DefaultConfig.EMPTY_CONFIG
+        }
+    }
+
+    private fun parseSurveyConfigFromJson(surveyJson: JSONObject): SurveyConfig {
+        return SurveyConfig(
+            surveyId = surveyJson.opt("surveyId").toString(), // Handle both string and number
+            surveyName = surveyJson.optString("surveyName", ""),
+            baseUrl = surveyJson.optString("baseUrl", ""),
+            status = surveyJson.optBoolean("status", true),
+            // Trigger Settings
+            enableButtonTrigger = surveyJson.optBoolean("enableButtonTrigger", false),
+            enableScrollTrigger = surveyJson.optBoolean("enableScrollTrigger", false),
+            enableNavigationTrigger = surveyJson.optBoolean("enableNavigationTrigger", false),
+            enableAppLaunchTrigger = surveyJson.optBoolean("enableAppLaunchTrigger", false),
+            enableExitTrigger = surveyJson.optBoolean("enableExitTrigger", false),
+            enableTabChangeTrigger = surveyJson.optBoolean("enableTabChangeTrigger", false),
+
+            buttonTriggerId = surveyJson.optString("buttonTriggerId", null).takeIf { it.isNotEmpty() },
+
+            // Trigger Configuration
+            triggerScreens = surveyJson.optJSONArray("triggerScreens")?.let { array ->
+                (0 until array.length()).map { array.getString(it) }.toSet()
+            } ?: emptySet(),
+            triggerTabs = surveyJson.optJSONArray("triggerTabs")?.let { array ->
+                (0 until array.length()).map { array.getString(it) }.toSet()
+            } ?: emptySet(),
+            timeDelay = surveyJson.optLong("timeDelay", 0L),
+            scrollThreshold = surveyJson.optInt("scrollThreshold", 0),
+            triggerType = surveyJson.optString("triggerType", "instant"),
+
+            // Display Settings
+            modalStyle = surveyJson.optString("modalStyle", "full_screen"),
+            animationType = surveyJson.optString("animationType", "slide_up"),
+            backgroundColor = surveyJson.optString("backgroundColor", "#FFFFFF"),
+
+            // Targeting & Limits
+            probability = surveyJson.optDouble("probability", 1.0),
+            maxShowsPerSession = surveyJson.optInt("maxShowsPerSession", 0),
+            cooldownPeriod = surveyJson.optLong("cooldownPeriod", 0L),
+            triggerOnce = surveyJson.optBoolean("triggerOnce", false),
+            priority = surveyJson.optInt("priority", 1),
+
+            // Data Collection
+            collectDeviceId = surveyJson.optBoolean("collectDeviceId", false),
+            collectDeviceModel = surveyJson.optBoolean("collectDeviceModel", false),
+            collectLocation = surveyJson.optBoolean("collectLocation", false),
+            collectAppUsage = surveyJson.optBoolean("collectAppUsage", false),
+
+            // Custom Params
+            customParams = parseCustomParams(surveyJson.optJSONArray("customParams")),
+
+            // Exclusion Rules - Handle integer operators
+            exclusionRules = parseExclusionRules(surveyJson.optJSONArray("exclusionRules"))
         )
+    }
+
+    private fun parseCustomParams(jsonArray: JSONArray?): List<CustomParam> {
+        return jsonArray?.let { array ->
+            (0 until array.length()).mapNotNull { index ->
+                try {
+                    val paramJson = array.getJSONObject(index)
+                    CustomParam(
+                        name = paramJson.getString("name"),
+                        source = ParamSource.valueOf(paramJson.getString("source")),
+                        key = paramJson.optString("key", null),
+                        value = paramJson.optString("value", null),
+                        defaultValue = paramJson.optString("defaultValue", null)
+                    )
+                } catch (e: Exception) {
+                    Log.e("ConfigCacheManager", "Error parsing custom param: ${e.message}")
+                    null
+                }
+            }
+        } ?: emptyList()
+    }
+
+    private fun parseExclusionRules(jsonArray: JSONArray?): List<ExclusionRule> {
+        return jsonArray?.let { array ->
+            (0 until array.length()).mapNotNull { index ->
+                try {
+                    val ruleJson = array.getJSONObject(index)
+
+                    // Handle operator as both integer and string
+                    val operator = if (ruleJson.has("operator")) {
+                        when (val operatorValue = ruleJson.get("operator")) {
+                            is Int -> ExclusionOperator.fromId(operatorValue)
+                            is String -> ExclusionOperator.fromName(operatorValue)
+                            else -> ExclusionOperator.EQUALS
+                        }
+                    } else {
+                        ExclusionOperator.EQUALS
+                    }
+
+                    ExclusionRule(
+                        // ✅ Make name optional - generate if not provided
+                        name = ruleJson.optString("name", "rule_$index"),
+                        source = ExclusionSource.valueOf(ruleJson.optString("source", "STORAGE")),
+                        key = ruleJson.optString("key", null),
+                        value = ruleJson.optString("value", null),
+                        operator = operator,
+                        matchValue = ruleJson.optString("matchValue", ""),
+                        caseSensitive = ruleJson.optBoolean("caseSensitive", false)
+                    )
+                } catch (e: Exception) {
+                    Log.e("SurveyApiService", "Error parsing exclusion rule: ${e.message}")
+                    null
+                }
+            }
+        } ?: emptyList()
     }
 }

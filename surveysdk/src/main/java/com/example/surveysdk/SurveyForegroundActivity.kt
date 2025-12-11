@@ -32,19 +32,51 @@ class SurveyForegroundActivity : AppCompatActivity() {
                 putExtra("BACKGROUND_COLOR", backgroundColor)
                 putExtra("ANIMATION_TYPE", animationType)
                 putExtra("ALLOWED_DOMAIN", allowedDomain)
+                // Add the original calling activity info
+                putExtra("CALLING_ACTIVITY", intent.getStringExtra("CALLING_ACTIVITY"))
             }
 
-            startActivity(surveyIntent)
-            finish() // Close this transparent activity
+            startActivityForResult(surveyIntent, REQUEST_SURVEY)
+            // Don't finish here - wait for result
 
         } catch (e: Exception) {
             Log.e("SurveyForeground", "Error starting survey: ${e.message}")
-            finish()
+            completeSurvey()
         }
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_SURVEY) {
+            Log.d("SurveyForeground", "Survey completed with result: $resultCode")
+            completeSurvey()
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        Log.d("SurveyForeground", "New intent received")
+        completeSurvey()
+    }
+
+    private fun completeSurvey() {
+        Log.d("SurveyForeground", "Completing survey foreground activity")
+        // Notify SDK that survey flow is complete
+        SurveySDK.getInstance().surveyCompleted()
         finish()
+    }
+
+    override fun onBackPressed() {
+        Log.d("SurveyForeground", "Back pressed in foreground activity")
+        completeSurvey()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("SurveyForeground", "Foreground activity destroyed")
+    }
+
+    companion object {
+        private const val REQUEST_SURVEY = 1001
     }
 }

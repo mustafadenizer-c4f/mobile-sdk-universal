@@ -1,73 +1,29 @@
 declare module 'surveysdk-react-native' {
-  /**
-   * Professional Survey SDK for React Native
-   */
   interface SurveySDKType {
-    /**
-     * Initialize the Survey SDK with your API key
-     * @param apiKey Your survey API key
-     */
+    // Core Methods
     initialize(apiKey: string): Promise<boolean>;
-    
-    /**
-     * Display a survey modal
-     */
     showSurvey(): Promise<boolean>;
     
-    /**
-     * Set user property for targeting and exclusion rules
-     * @param key Property key
-     * @param value Property value
-     */
+    // Multi-Survey Methods
+    showSurveyById(surveyId: string): Promise<boolean>;
+    getSurveyIds(): Promise<string[]>;
+    isUserExcludedForSurvey(surveyId: string): Promise<boolean>;
+    isConfigurationLoaded(): Promise<boolean>;
+    
+    // User Data & Events
     setUserProperty(key: string, value: string): Promise<boolean>;
-    
-    /**
-     * Set multiple user properties at once
-     * @param properties Key-value pairs of user properties
-     */
-    setUserProperties(properties: Record<string, any>): Promise<boolean[]>;
-    
-    /**
-     * Track custom events for survey triggers
-     * @param eventName Event name
-     * @param properties Event properties (optional)
-     */
+    setUserProperties(properties: Record<string, string>): Promise<boolean[]>;
     trackEvent(eventName: string, properties?: Record<string, any>): Promise<boolean>;
     
-    /**
-     * Check if user is excluded from surveys based on rules
-     */
-    isUserExcluded(): Promise<boolean>;
-    
-    /**
-     * Get debug status and SDK configuration
-     */
-    getDebugStatus(): Promise<string>;
-    
-    /**
-     * Auto-setup triggers (buttons, scroll, navigation, etc.)
-     */
-    autoSetup(): Promise<boolean>;
-    
-    /**
-     * Get session statistics
-     */
-    getSessionStats(): Promise<Record<string, string>>;
-    
-    /**
-     * Set custom session data for exclusion rules
-     */
+    // Session & Triggers
     setSessionData(key: string, value: string): Promise<boolean>;
-    
-    /**
-     * Reset session data
-     */
     resetSessionData(): Promise<boolean>;
-    
-    /**
-     * Reset all triggers
-     */
     resetTriggers(): Promise<boolean>;
+    
+    // Debug & Status
+    isUserExcluded(): Promise<boolean>;
+    getDebugStatus(): Promise<string>;
+    autoSetup(): Promise<boolean>;
   }
 
   const SurveySDK: SurveySDKType;
