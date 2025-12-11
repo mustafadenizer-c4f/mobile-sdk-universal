@@ -51,5 +51,4 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     //implementation 'com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:main-SNAPSHOT'
     implementation("com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:v1.1.0")
-
 }
