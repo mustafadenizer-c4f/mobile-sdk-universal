@@ -1,0 +1,1 @@
+var packageSearchIndex = [{"l":"com.example.surveysdk","url":"com/example/surveysdk/package-summary.html"}, {"l":"com.example.surveysdk.android","url":"com/example/surveysdk/android/package-summary.html"}, {"l":"com.example.surveysdk.core","url":"com/example/surveysdk/core/package-summary.html"}, {"l":"All packages","url":"index.html"}]

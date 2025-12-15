@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.example.surveysdk-merged_res-48:/mipmap-anydpi-v26/ic_launcher.xml",
+        "source": "com.example.surveysdk-main-49:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.surveysdk-merged_res-48:/mipmap-anydpi-v26/ic_launcher_round.xml",
+        "source": "com.example.surveysdk-main-49:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    }
+]

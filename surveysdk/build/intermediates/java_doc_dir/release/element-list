@@ -1,0 +1,17 @@
+$dokka.format:javadoc-v1
+$dokka.linkExtension:html
+$dokka.location:com.example.surveysdk/ConfigCacheManager.Companion///PointingToDeclaration/com/example/surveysdk/ConfigCacheManager.Companion.html
+$dokka.location:com.example.surveysdk/ExclusionOperator.Companion///PointingToDeclaration/com/example/surveysdk/ExclusionOperator.Companion.html
+$dokka.location:com.example.surveysdk/SafeDelayExecutor.Companion///PointingToDeclaration/com/example/surveysdk/SafeDelayExecutor.Companion.html
+$dokka.location:com.example.surveysdk/SurveyApiService.Companion///PointingToDeclaration/com/example/surveysdk/SurveyApiService.Companion.html
+$dokka.location:com.example.surveysdk/SurveyApiService.ConfigCallback///PointingToDeclaration/com/example/surveysdk/SurveyApiService.ConfigCallback.html
+$dokka.location:com.example.surveysdk/SurveyBottomSheetFragment.Companion///PointingToDeclaration/com/example/surveysdk/SurveyBottomSheetFragment.Companion.html
+$dokka.location:com.example.surveysdk/SurveyDialogFragment.Companion///PointingToDeclaration/com/example/surveysdk/SurveyDialogFragment.Companion.html
+$dokka.location:com.example.surveysdk/SurveyForegroundActivity.Companion///PointingToDeclaration/com/example/surveysdk/SurveyForegroundActivity.Companion.html
+$dokka.location:com.example.surveysdk/SurveySDK.Companion///PointingToDeclaration/com/example/surveysdk/SurveySDK.Companion.html
+$dokka.location:com.example.surveysdk/SurveySDK.ConfigurationCallback///PointingToDeclaration/com/example/surveysdk/SurveySDK.ConfigurationCallback.html
+$dokka.location:com.example.surveysdk/UniversalSurveySDK.Companion///PointingToDeclaration/com/example/surveysdk/UniversalSurveySDK.Companion.html
+com.example.surveysdk
+com.example.surveysdk.android
+com.example.surveysdk.core
+

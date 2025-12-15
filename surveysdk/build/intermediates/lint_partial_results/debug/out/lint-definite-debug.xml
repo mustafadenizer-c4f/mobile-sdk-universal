@@ -1,0 +1,1421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 8.1.0" type="incidents">
+
+    <incident
+        id="HardcodedText"
+        severity="warning"
+        message="Hardcoded string &quot;Close Survey&quot;, should use `@string` resource">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*resDir*0}/layout/activity_survey_webview.xml"
+            line="19"
+            column="13"
+            startOffset="666"
+            endLine="19"
+            endColumn="40"
+            endOffset="693"/>
+    </incident>
+
+    <incident
+        id="HardcodedText"
+        severity="warning"
+        message="Hardcoded string &quot;Survey&quot;, should use `@string` resource">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*resDir*0}/layout/activity_survey_webview.xml"
+            line="28"
+            column="13"
+            startOffset="979"
+            endLine="28"
+            endColumn="34"
+            endOffset="1000"/>
+    </incident>
+
+    <incident
+        id="DiscouragedApi"
+        severity="warning"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`).">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/AnimationUtils.kt"
+            line="53"
+            column="42"
+            startOffset="2236"
+            endLine="53"
+            endColumn="55"
+            endOffset="2249"/>
+    </incident>
+
+    <incident
+        id="ObsoleteSdkInt"
+        severity="warning"
+        message="Unnecessary; SDK_INT is always >= 21">
+        <fix-data conditional="true"/>
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/AppUsageUtils.kt"
+            line="23"
+            column="40"
+            startOffset="774"
+            endLine="23"
+            endColumn="93"
+            endOffset="827"/>
+    </incident>
+
+    <incident
+        id="ObsoleteSdkInt"
+        severity="warning"
+        message="Unnecessary; SDK_INT is always >= 21">
+        <fix-data conditional="true"/>
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/AppUsageUtils.kt"
+            line="44"
+            column="13"
+            startOffset="1615"
+            endLine="44"
+            endColumn="66"
+            endOffset="1668"/>
+    </incident>
+
+    <incident
+        id="HardwareIds"
+        severity="warning"
+        message="Using `getString` to get device identifiers is not recommended">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/DeviceUtils.kt"
+            line="52"
+            column="13"
+            startOffset="1773"
+            endLine="52"
+            endColumn="91"
+            endOffset="1851"/>
+    </incident>
+
+    <incident
+        id="ConstantLocale"
+        severity="warning"
+        message="Assigning `Locale.getDefault()` to a final static field is suspicious; this code will not work correctly if the user changes locale while the app is running">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/ExclusionRuleEvaluator.kt"
+            line="13"
+            column="70"
+            startOffset="405"
+            endLine="13"
+            endColumn="89"
+            endOffset="424"/>
+    </incident>
+
+    <incident
+        id="DefaultLocale"
+        severity="warning"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`.">
+        <fix-alternatives>
+            <fix-replace
+                description="Replace with `toLowerCase(Locale.ROOT)`"
+                family="Use explicit locale"
+                replacement="toLowerCase(java.util.Locale.ROOT)"
+                shortenNames="true">
+                <range
+                    file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/ExclusionRuleEvaluator.kt"
+                    startOffset="1442"
+                    endOffset="1455"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with `toLowerCase(Locale.getDefault())`"
+                family="Use explicit locale"
+                replacement="toLowerCase(java.util.Locale.getDefault())"
+                shortenNames="true">
+                <range
+                    file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/ExclusionRuleEvaluator.kt"
+                    startOffset="1442"
+                    endOffset="1455"/>
+            </fix-replace>
+        </fix-alternatives>
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/ExclusionRuleEvaluator.kt"
+            line="43"
+            column="91"
+            startOffset="1442"
+            endLine="43"
+            endColumn="102"
+            endOffset="1453"/>
+    </incident>
+
+    <incident
+        id="DefaultLocale"
+        severity="warning"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`.">
+        <fix-alternatives>
+            <fix-replace
+                description="Replace with `toLowerCase(Locale.ROOT)`"
+                family="Use explicit locale"
+                replacement="toLowerCase(java.util.Locale.ROOT)"
+                shortenNames="true">
+                <range
+                    file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/ExclusionRuleEvaluator.kt"
+                    startOffset="1540"
+                    endOffset="1553"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with `toLowerCase(Locale.getDefault())`"
+                family="Use explicit locale"
+                replacement="toLowerCase(java.util.Locale.getDefault())"
+                shortenNames="true">
+                <range
+                    file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/ExclusionRuleEvaluator.kt"
+                    startOffset="1540"
+                    endOffset="1553"/>
+            </fix-replace>
+        </fix-alternatives>
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/ExclusionRuleEvaluator.kt"
+            line="44"
+            column="85"
+            startOffset="1540"
+            endLine="44"
+            endColumn="96"
+            endOffset="1551"/>
+    </incident>
+
+    <incident
+        id="DefaultLocale"
+        severity="warning"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`.">
+        <fix-alternatives>
+            <fix-replace
+                description="Replace with `toLowerCase(Locale.ROOT)`"
+                family="Use explicit locale"
+                replacement="toLowerCase(java.util.Locale.ROOT)"
+                shortenNames="true">
+                <range
+                    file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/ExclusionRuleEvaluator.kt"
+                    startOffset="4657"
+                    endOffset="4670"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with `toLowerCase(Locale.getDefault())`"
+                family="Use explicit locale"
+                replacement="toLowerCase(java.util.Locale.getDefault())"
+                shortenNames="true">
+                <range
+                    file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/ExclusionRuleEvaluator.kt"
+                    startOffset="4657"
+                    endOffset="4670"/>
+            </fix-replace>
+        </fix-alternatives>
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/ExclusionRuleEvaluator.kt"
+            line="115"
+            column="23"
+            startOffset="4657"
+            endLine="115"
+            endColumn="34"
+            endOffset="4668"/>
+    </incident>
+
+    <incident
+        id="StaticFieldLeak"
+        severity="warning"
+        message="Do not place Android context classes in static fields (static reference to `SurveySDK` which has field `context` pointing to `Context`); this is a memory leak">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/SurveySDK.kt"
+            line="132"
+            column="9"
+            startOffset="3621"
+            endLine="133"
+            endColumn="48"
+            endOffset="3678"/>
+    </incident>
+
+    <incident
+        id="DiscouragedApi"
+        severity="warning"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`).">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/SurveySDK.kt"
+            line="979"
+            column="49"
+            startOffset="36193"
+            endLine="979"
+            endColumn="62"
+            endOffset="36206"/>
+    </incident>
+
+    <incident
+        id="DiscouragedApi"
+        severity="warning"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`).">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/SurveySDK.kt"
+            line="1015"
+            column="53"
+            startOffset="37995"
+            endLine="1015"
+            endColumn="66"
+            endOffset="38008"/>
+    </incident>
+
+    <incident
+        id="DefaultLocale"
+        severity="warning"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`.">
+        <fix-alternatives>
+            <fix-replace
+                description="Replace with `toLowerCase(Locale.ROOT)`"
+                family="Use explicit locale"
+                replacement="toLowerCase(java.util.Locale.ROOT)"
+                shortenNames="true">
+                <range
+                    file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/SurveySDK.kt"
+                    startOffset="52257"
+                    endOffset="52270"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with `toLowerCase(Locale.getDefault())`"
+                family="Use explicit locale"
+                replacement="toLowerCase(java.util.Locale.getDefault())"
+                shortenNames="true">
+                <range
+                    file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/SurveySDK.kt"
+                    startOffset="52257"
+                    endOffset="52270"/>
+            </fix-replace>
+        </fix-alternatives>
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/SurveySDK.kt"
+            line="1349"
+            column="69"
+            startOffset="52257"
+            endLine="1349"
+            endColumn="80"
+            endOffset="52268"/>
+    </incident>
+
+    <incident
+        id="SetJavaScriptEnabled"
+        severity="warning"
+        message="Using `setJavaScriptEnabled` can introduce XSS vulnerabilities into your application, review carefully">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/WebViewConfigurator.kt"
+            line="34"
+            column="13"
+            startOffset="1168"
+            endLine="34"
+            endColumn="37"
+            endOffset="1192"/>
+    </incident>
+
+    <incident
+        id="ObsoleteSdkInt"
+        severity="warning"
+        message="Unnecessary; SDK_INT is always >= 21">
+        <fix-data conditional="true"/>
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/WebViewConfigurator.kt"
+            line="90"
+            column="21"
+            startOffset="3565"
+            endLine="90"
+            endColumn="96"
+            endOffset="3640"/>
+    </incident>
+
+    <incident
+        id="SetTextI18n"
+        severity="warning"
+        message="String literal in `setText` can not be translated. Use Android resources instead.">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/WebViewConfigurator.kt"
+            line="150"
+            column="29"
+            startOffset="6103"
+            endLine="150"
+            endColumn="50"
+            endOffset="6124"/>
+    </incident>
+
+    <incident
+        id="SetTextI18n"
+        severity="warning"
+        message="String literal in `setText` can not be translated. Use Android resources instead.">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/WebViewConfigurator.kt"
+            line="164"
+            column="29"
+            startOffset="6742"
+            endLine="164"
+            endColumn="81"
+            endOffset="6794"/>
+    </incident>
+
+    <incident
+        id="SetTextI18n"
+        severity="warning"
+        message="String literal in `setText` can not be translated. Use Android resources instead.">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/WebViewConfigurator.kt"
+            line="178"
+            column="29"
+            startOffset="7407"
+            endLine="178"
+            endColumn="41"
+            endOffset="7419"/>
+    </incident>
+
+    <incident
+        id="SetTextI18n"
+        severity="warning"
+        message="String literal in `setText` can not be translated. Use Android resources instead.">
+        <location
+            file="${:surveysdk*debug*sourceProvider*0*javaDir*0}/com/example/surveysdk/WebViewConfigurator.kt"
+            line="197"
+            column="29"
+            startOffset="8310"
+            endLine="197"
+            endColumn="34"
+            endOffset="8315"/>
+    </incident>
+
+    <incident
+        id="OldTargetApi"
+        severity="warning"
+        message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the android.os.Build.VERSION_CODES javadoc for details.">
+        <fix-replace
+            description="Update targetSdkVersion to 36"
+            oldString="34"
+            replacement="36"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="13"
+            column="9"
+            startOffset="225"
+            endLine="13"
+            endColumn="23"
+            endOffset="239"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead (androidx.core:core-ktx is already available as `androidx-core-ktx`, but using version 1.17.0 instead)">
+        <fix-alternatives>
+            <fix-composite
+                description="Replace with new library catalog declaration for core-ktx-1_12_0"
+                robot="true"
+                independent="true">
+                <fix-replace
+                    description="Replace with androidx-coreKtx = &quot;1.12.0&quot;..."
+                    robot="true"
+                    independent="true"
+                    oldString="_lint_insert_begin_"
+                    replacement="androidx-coreKtx = &quot;1.12.0&quot;&#xA;">
+                    <range
+                        file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                        startOffset="26"
+                        endOffset="26"/>
+                </fix-replace>
+                <fix-replace
+                    description="Replace with core-ktx-1_12_0 = { module = &quot;androidx.core:core-ktx&quot;, version.ref = &quot;androidx-coreKtx&quot; }..."
+                    robot="true"
+                    independent="true"
+                    oldString="_lint_insert_begin_"
+                    replacement="core-ktx-1_12_0 = { module = &quot;androidx.core:core-ktx&quot;, version.ref = &quot;androidx-coreKtx&quot; }&#xA;">
+                    <range
+                        file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                        startOffset="354"
+                        endOffset="354"/>
+                </fix-replace>
+                <fix-replace
+                    description="Replace with libs.core.ktx.1_12_0"
+                    robot="true"
+                    independent="true"
+                    replacement="libs.core.ktx.1_12_0">
+                    <range
+                        file="${:surveysdk*projectDir}/build.gradle.kts"
+                        startOffset="1376"
+                        endOffset="1407"/>
+                </fix-replace>
+            </fix-composite>
+            <fix-replace
+                description="Replace with existing version catalog reference `androidx-core-ktx`"
+                replacement="libs.androidx.core.ktx">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="1376"
+                    endOffset="1407"/>
+            </fix-replace>
+        </fix-alternatives>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="65"
+            column="21"
+            startOffset="1377"
+            endLine="65"
+            endColumn="50"
+            endOffset="1406"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead (androidx.appcompat:appcompat is already available as `androidx-appcompat`, but using version 1.7.1 instead)">
+        <fix-alternatives>
+            <fix-composite
+                description="Replace with new library catalog declaration for appcompat-1_6_1"
+                robot="true"
+                independent="true">
+                <fix-replace
+                    description="Replace with androidx-appcompat = &quot;1.6.1&quot;..."
+                    robot="true"
+                    independent="true"
+                    oldString="_lint_insert_begin_"
+                    replacement="androidx-appcompat = &quot;1.6.1&quot;&#xA;">
+                    <range
+                        file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                        startOffset="26"
+                        endOffset="26"/>
+                </fix-replace>
+                <fix-replace
+                    description="Replace with appcompat-1_6_1 = { module = &quot;androidx.appcompat:appcompat&quot;, version.ref = &quot;androidx-appcompat&quot; }..."
+                    robot="true"
+                    independent="true"
+                    oldString="_lint_insert_begin_"
+                    replacement="appcompat-1_6_1 = { module = &quot;androidx.appcompat:appcompat&quot;, version.ref = &quot;androidx-appcompat&quot; }&#xA;">
+                    <range
+                        file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                        startOffset="354"
+                        endOffset="354"/>
+                </fix-replace>
+                <fix-replace
+                    description="Replace with libs.appcompat.1_6_1"
+                    robot="true"
+                    independent="true"
+                    replacement="libs.appcompat.1_6_1">
+                    <range
+                        file="${:surveysdk*projectDir}/build.gradle.kts"
+                        startOffset="1428"
+                        endOffset="1464"/>
+                </fix-replace>
+            </fix-composite>
+            <fix-replace
+                description="Replace with existing version catalog reference `androidx-appcompat`"
+                replacement="libs.androidx.appcompat">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="1428"
+                    endOffset="1464"/>
+            </fix-replace>
+        </fix-alternatives>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="66"
+            column="21"
+            startOffset="1429"
+            endLine="66"
+            endColumn="55"
+            endOffset="1463"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for jetbrains-kotlin-stdlib"
+            robot="true">
+            <fix-replace
+                description="Replace with jetbrains-kotlinStdlib = &quot;1.9.0&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="jetbrains-kotlinStdlib = &quot;1.9.0&quot;&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="26"
+                    endOffset="26"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with jetbrains-kotlin-stdlib = { module = &quot;org.jetbrains.kotlin:kotlin-stdlib&quot;, version.ref = &quot;jetbrains-kotlinStdlib&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="jetbrains-kotlin-stdlib = { module = &quot;org.jetbrains.kotlin:kotlin-stdlib&quot;, version.ref = &quot;jetbrains-kotlinStdlib&quot; }&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="354"
+                    endOffset="354"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.jetbrains.kotlin.stdlib"
+                robot="true"
+                replacement="libs.jetbrains.kotlin.stdlib">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="1485"
+                    endOffset="1527"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="67"
+            column="21"
+            startOffset="1486"
+            endLine="67"
+            endColumn="61"
+            endOffset="1526"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for security-crypto"
+            robot="true">
+            <fix-replace
+                description="Replace with androidx-securityCrypto = &quot;1.1.0-alpha06&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="androidx-securityCrypto = &quot;1.1.0-alpha06&quot;&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="26"
+                    endOffset="26"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with security-crypto = { module = &quot;androidx.security:security-crypto&quot;, version.ref = &quot;androidx-securityCrypto&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="security-crypto = { module = &quot;androidx.security:security-crypto&quot;, version.ref = &quot;androidx-securityCrypto&quot; }&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="1756"
+                    endOffset="1756"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.security.crypto"
+                robot="true"
+                replacement="libs.security.crypto">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="1548"
+                    endOffset="1597"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="68"
+            column="21"
+            startOffset="1549"
+            endLine="68"
+            endColumn="68"
+            endOffset="1596"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead (com.google.android.material:material is already available as `material`, but using version 1.13.0 instead)">
+        <fix-alternatives>
+            <fix-composite
+                description="Replace with new library catalog declaration for google-material-1_10_0"
+                robot="true"
+                independent="true">
+                <fix-replace
+                    description="Replace with google-material = &quot;1.10.0&quot;..."
+                    robot="true"
+                    independent="true"
+                    oldString="_lint_insert_begin_"
+                    replacement="google-material = &quot;1.10.0&quot;&#xA;">
+                    <range
+                        file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                        startOffset="26"
+                        endOffset="26"/>
+                </fix-replace>
+                <fix-replace
+                    description="Replace with google-material-1_10_0 = { module = &quot;com.google.android.material:material&quot;, version.ref = &quot;google-material&quot; }..."
+                    robot="true"
+                    independent="true"
+                    oldString="_lint_insert_begin_"
+                    replacement="google-material-1_10_0 = { module = &quot;com.google.android.material:material&quot;, version.ref = &quot;google-material&quot; }&#xA;">
+                    <range
+                        file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                        startOffset="354"
+                        endOffset="354"/>
+                </fix-replace>
+                <fix-replace
+                    description="Replace with libs.google.material.1_10_0"
+                    robot="true"
+                    independent="true"
+                    replacement="libs.google.material.1_10_0">
+                    <range
+                        file="${:surveysdk*projectDir}/build.gradle.kts"
+                        startOffset="1618"
+                        endOffset="1663"/>
+                </fix-replace>
+            </fix-composite>
+            <fix-replace
+                description="Replace with existing version catalog reference `material`"
+                replacement="libs.material">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="1618"
+                    endOffset="1663"/>
+            </fix-replace>
+        </fix-alternatives>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="69"
+            column="21"
+            startOffset="1619"
+            endLine="69"
+            endColumn="64"
+            endOffset="1662"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for navigation-fragment-ktx"
+            robot="true">
+            <fix-replace
+                description="Replace with androidx-navigationFragmentKtx = &quot;2.7.4&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="androidx-navigationFragmentKtx = &quot;2.7.4&quot;&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="26"
+                    endOffset="26"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with navigation-fragment-ktx = { module = &quot;androidx.navigation:navigation-fragment-ktx&quot;, version.ref = &quot;androidx-navigationFragmentKtx&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="navigation-fragment-ktx = { module = &quot;androidx.navigation:navigation-fragment-ktx&quot;, version.ref = &quot;androidx-navigationFragmentKtx&quot; }&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="1756"
+                    endOffset="1756"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.navigation.fragment.ktx"
+                robot="true"
+                replacement="libs.navigation.fragment.ktx">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="1684"
+                    endOffset="1735"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="70"
+            column="21"
+            startOffset="1685"
+            endLine="70"
+            endColumn="70"
+            endOffset="1734"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for navigation-ui-ktx"
+            robot="true">
+            <fix-replace
+                description="Replace with androidx-navigationUiKtx = &quot;2.7.4&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="androidx-navigationUiKtx = &quot;2.7.4&quot;&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="26"
+                    endOffset="26"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with navigation-ui-ktx = { module = &quot;androidx.navigation:navigation-ui-ktx&quot;, version.ref = &quot;androidx-navigationUiKtx&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="navigation-ui-ktx = { module = &quot;androidx.navigation:navigation-ui-ktx&quot;, version.ref = &quot;androidx-navigationUiKtx&quot; }&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="1756"
+                    endOffset="1756"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.navigation.ui.ktx"
+                robot="true"
+                replacement="libs.navigation.ui.ktx">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="1756"
+                    endOffset="1801"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="71"
+            column="21"
+            startOffset="1757"
+            endLine="71"
+            endColumn="64"
+            endOffset="1800"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for recyclerview"
+            robot="true">
+            <fix-replace
+                description="Replace with androidx-recyclerview = &quot;1.3.2&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="androidx-recyclerview = &quot;1.3.2&quot;&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="26"
+                    endOffset="26"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with recyclerview = { module = &quot;androidx.recyclerview:recyclerview&quot;, version.ref = &quot;androidx-recyclerview&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="recyclerview = { module = &quot;androidx.recyclerview:recyclerview&quot;, version.ref = &quot;androidx-recyclerview&quot; }&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="1756"
+                    endOffset="1756"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.recyclerview"
+                robot="true"
+                replacement="libs.recyclerview">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="1822"
+                    endOffset="1864"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="72"
+            column="21"
+            startOffset="1823"
+            endLine="72"
+            endColumn="61"
+            endOffset="1863"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for constraintlayout"
+            robot="true">
+            <fix-replace
+                description="Replace with androidx-constraintlayout = &quot;2.1.4&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="androidx-constraintlayout = &quot;2.1.4&quot;&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="26"
+                    endOffset="26"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with constraintlayout = { module = &quot;androidx.constraintlayout:constraintlayout&quot;, version.ref = &quot;androidx-constraintlayout&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="constraintlayout = { module = &quot;androidx.constraintlayout:constraintlayout&quot;, version.ref = &quot;androidx-constraintlayout&quot; }&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="354"
+                    endOffset="354"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.constraintlayout"
+                robot="true"
+                replacement="libs.constraintlayout">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="1885"
+                    endOffset="1935"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="73"
+            column="21"
+            startOffset="1886"
+            endLine="73"
+            endColumn="69"
+            endOffset="1934"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for jetbrains-kotlinx-coroutines-android"
+            robot="true">
+            <fix-replace
+                description="Replace with jetbrains-kotlinxCoroutinesAndroid = &quot;1.7.3&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="jetbrains-kotlinxCoroutinesAndroid = &quot;1.7.3&quot;&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="26"
+                    endOffset="26"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with jetbrains-kotlinx-coroutines-android = { module = &quot;org.jetbrains.kotlinx:kotlinx-coroutines-android&quot;, version.ref = &quot;jetbrains-kotlinxCoroutinesAndroid&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="jetbrains-kotlinx-coroutines-android = { module = &quot;org.jetbrains.kotlinx:kotlinx-coroutines-android&quot;, version.ref = &quot;jetbrains-kotlinxCoroutinesAndroid&quot; }&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="354"
+                    endOffset="354"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.jetbrains.kotlinx.coroutines.android"
+                robot="true"
+                replacement="libs.jetbrains.kotlinx.coroutines.android">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="1956"
+                    endOffset="2012"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="74"
+            column="21"
+            startOffset="1957"
+            endLine="74"
+            endColumn="75"
+            endOffset="2011"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for lifecycle-process"
+            robot="true">
+            <fix-replace
+                description="Replace with androidx-lifecycleProcess = &quot;2.7.0&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="androidx-lifecycleProcess = &quot;2.7.0&quot;&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="26"
+                    endOffset="26"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with lifecycle-process = { module = &quot;androidx.lifecycle:lifecycle-process&quot;, version.ref = &quot;androidx-lifecycleProcess&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="lifecycle-process = { module = &quot;androidx.lifecycle:lifecycle-process&quot;, version.ref = &quot;androidx-lifecycleProcess&quot; }&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="733"
+                    endOffset="733"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.lifecycle.process"
+                robot="true"
+                replacement="libs.lifecycle.process">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="2033"
+                    endOffset="2077"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="75"
+            column="21"
+            startOffset="2034"
+            endLine="75"
+            endColumn="63"
+            endOffset="2076"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for activity-ktx"
+            robot="true">
+            <fix-replace
+                description="Replace with androidx-activityKtx = &quot;1.8.0&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="androidx-activityKtx = &quot;1.8.0&quot;&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="26"
+                    endOffset="26"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with activity-ktx = { module = &quot;androidx.activity:activity-ktx&quot;, version.ref = &quot;androidx-activityKtx&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="activity-ktx = { module = &quot;androidx.activity:activity-ktx&quot;, version.ref = &quot;androidx-activityKtx&quot; }&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="262"
+                    endOffset="262"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.activity.ktx"
+                robot="true"
+                replacement="libs.activity.ktx">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="2098"
+                    endOffset="2136"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="76"
+            column="21"
+            startOffset="2099"
+            endLine="76"
+            endColumn="57"
+            endOffset="2135"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for fragment-ktx"
+            robot="true">
+            <fix-replace
+                description="Replace with androidx-fragmentKtx = &quot;1.6.1&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="androidx-fragmentKtx = &quot;1.6.1&quot;&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="26"
+                    endOffset="26"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with fragment-ktx = { module = &quot;androidx.fragment:fragment-ktx&quot;, version.ref = &quot;androidx-fragmentKtx&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="fragment-ktx = { module = &quot;androidx.fragment:fragment-ktx&quot;, version.ref = &quot;androidx-fragmentKtx&quot; }&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="354"
+                    endOffset="354"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.fragment.ktx"
+                robot="true"
+                replacement="libs.fragment.ktx">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="2157"
+                    endOffset="2195"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="77"
+            column="21"
+            startOffset="2158"
+            endLine="77"
+            endColumn="57"
+            endOffset="2194"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use the existing version catalog reference (`libs.junit`) instead">
+        <fix-replace
+            description="Replace with existing version catalog reference `junit`"
+            robot="true"
+            independent="true"
+            replacement="libs.junit">
+            <range
+                file="${:surveysdk*projectDir}/build.gradle.kts"
+                startOffset="2221"
+                endOffset="2241"/>
+        </fix-replace>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="79"
+            column="25"
+            startOffset="2222"
+            endLine="79"
+            endColumn="43"
+            endOffset="2240"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for jetbrains-kotlin-test-junit"
+            robot="true">
+            <fix-replace
+                description="Replace with jetbrains-kotlinTestJunit = &quot;1.9.0&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="jetbrains-kotlinTestJunit = &quot;1.9.0&quot;&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="26"
+                    endOffset="26"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with jetbrains-kotlin-test-junit = { module = &quot;org.jetbrains.kotlin:kotlin-test-junit&quot;, version.ref = &quot;jetbrains-kotlinTestJunit&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="jetbrains-kotlin-test-junit = { module = &quot;org.jetbrains.kotlin:kotlin-test-junit&quot;, version.ref = &quot;jetbrains-kotlinTestJunit&quot; }&#xA;">
+                <range
+                    file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+                    startOffset="354"
+                    endOffset="354"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.jetbrains.kotlin.test.junit"
+                robot="true"
+                replacement="libs.jetbrains.kotlin.test.junit">
+                <range
+                    file="${:surveysdk*projectDir}/build.gradle.kts"
+                    startOffset="2266"
+                    endOffset="2312"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="80"
+            column="25"
+            startOffset="2267"
+            endLine="80"
+            endColumn="69"
+            endOffset="2311"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.9.4 is available: 2.10.0">
+        <fix-replace
+            description="Change to 2.10.0"
+            family="Update versions"
+            oldString="2.9.4"
+            replacement="2.10.0"/>
+        <location
+            file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+            line="10"
+            column="23"
+            startOffset="188"
+            endLine="10"
+            endColumn="30"
+            endOffset="195"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.activity:activity-compose than 1.11.0 is available: 1.12.1">
+        <fix-replace
+            description="Change to 1.12.1"
+            family="Update versions"
+            oldString="1.11.0"
+            replacement="1.12.1"/>
+        <location
+            file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+            line="11"
+            column="19"
+            startOffset="214"
+            endLine="11"
+            endColumn="27"
+            endOffset="222"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.compose:compose-bom than 2024.09.00 is available: 2025.12.00">
+        <fix-replace
+            description="Change to 2025.12.00"
+            family="Update versions"
+            oldString="2024.09.00"
+            replacement="2025.12.00"/>
+        <location
+            file="$HOME/Desktop/SDK/surveysdk-mobile/gradle/libs.versions.toml"
+            line="12"
+            column="14"
+            startOffset="236"
+            endLine="12"
+            endColumn="26"
+            endOffset="248"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.core:core-ktx than 1.12.0 is available: 1.17.0">
+        <fix-replace
+            description="Change to 1.17.0"
+            family="Update versions"
+            oldString="1.12.0"
+            replacement="1.17.0"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="65"
+            column="21"
+            startOffset="1377"
+            endLine="65"
+            endColumn="50"
+            endOffset="1406"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.appcompat:appcompat than 1.6.1 is available: 1.7.1">
+        <fix-replace
+            description="Change to 1.7.1"
+            family="Update versions"
+            oldString="1.6.1"
+            replacement="1.7.1"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="66"
+            column="21"
+            startOffset="1429"
+            endLine="66"
+            endColumn="55"
+            endOffset="1463"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of org.jetbrains.kotlin:kotlin-stdlib than 1.9.0 is available: 2.2.0">
+        <fix-replace
+            description="Change to 2.2.0"
+            family="Update versions"
+            oldString="1.9.0"
+            replacement="2.2.0"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="67"
+            column="21"
+            startOffset="1486"
+            endLine="67"
+            endColumn="61"
+            endOffset="1526"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.security:security-crypto than 1.1.0-alpha06 is available: 1.1.0">
+        <fix-replace
+            description="Change to 1.1.0"
+            family="Update versions"
+            oldString="1.1.0-alpha06"
+            replacement="1.1.0"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="68"
+            column="21"
+            startOffset="1549"
+            endLine="68"
+            endColumn="68"
+            endOffset="1596"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of com.google.android.material:material than 1.10.0 is available: 1.13.0">
+        <fix-replace
+            description="Change to 1.13.0"
+            family="Update versions"
+            oldString="1.10.0"
+            replacement="1.13.0"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="69"
+            column="21"
+            startOffset="1619"
+            endLine="69"
+            endColumn="64"
+            endOffset="1662"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.navigation:navigation-fragment-ktx than 2.7.4 is available: 2.9.6">
+        <fix-replace
+            description="Change to 2.9.6"
+            family="Update versions"
+            oldString="2.7.4"
+            replacement="2.9.6"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="70"
+            column="21"
+            startOffset="1685"
+            endLine="70"
+            endColumn="70"
+            endOffset="1734"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.navigation:navigation-ui-ktx than 2.7.4 is available: 2.9.6">
+        <fix-replace
+            description="Change to 2.9.6"
+            family="Update versions"
+            oldString="2.7.4"
+            replacement="2.9.6"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="71"
+            column="21"
+            startOffset="1757"
+            endLine="71"
+            endColumn="64"
+            endOffset="1800"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.recyclerview:recyclerview than 1.3.2 is available: 1.4.0">
+        <fix-replace
+            description="Change to 1.4.0"
+            family="Update versions"
+            oldString="1.3.2"
+            replacement="1.4.0"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="72"
+            column="21"
+            startOffset="1823"
+            endLine="72"
+            endColumn="61"
+            endOffset="1863"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.constraintlayout:constraintlayout than 2.1.4 is available: 2.2.1">
+        <fix-replace
+            description="Change to 2.2.1"
+            family="Update versions"
+            oldString="2.1.4"
+            replacement="2.2.1"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="73"
+            column="21"
+            startOffset="1886"
+            endLine="73"
+            endColumn="69"
+            endOffset="1934"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-android than 1.7.3 is available: 1.9.0">
+        <fix-replace
+            description="Change to 1.9.0"
+            family="Update versions"
+            oldString="1.7.3"
+            replacement="1.9.0"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="74"
+            column="21"
+            startOffset="1957"
+            endLine="74"
+            endColumn="75"
+            endOffset="2011"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.lifecycle:lifecycle-process than 2.7.0 is available: 2.10.0">
+        <fix-replace
+            description="Change to 2.10.0"
+            family="Update versions"
+            oldString="2.7.0"
+            replacement="2.10.0"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="75"
+            column="21"
+            startOffset="2034"
+            endLine="75"
+            endColumn="63"
+            endOffset="2076"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.activity:activity-ktx than 1.8.0 is available: 1.12.1">
+        <fix-replace
+            description="Change to 1.12.1"
+            family="Update versions"
+            oldString="1.8.0"
+            replacement="1.12.1"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="76"
+            column="21"
+            startOffset="2099"
+            endLine="76"
+            endColumn="57"
+            endOffset="2135"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.fragment:fragment-ktx than 1.6.1 is available: 1.8.9">
+        <fix-replace
+            description="Change to 1.8.9"
+            family="Update versions"
+            oldString="1.6.1"
+            replacement="1.8.9"/>
+        <location
+            file="${:surveysdk*projectDir}/build.gradle.kts"
+            line="77"
+            column="21"
+            startOffset="2158"
+            endLine="77"
+            endColumn="57"
+            endOffset="2194"/>
+    </incident>
+
+</incidents>
