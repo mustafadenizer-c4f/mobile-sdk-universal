@@ -17,9 +17,8 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         try {
             Log.d("SurveySDK", "RN: Initializing core SurveySDK...")
             
-            val activity = getCurrentActivity()
+            val activity = currentActivity
             if (activity != null) {
-                // Updated to match new initialization that returns SurveySDK instance
                 SurveySDK.initialize(activity.applicationContext, apiKey)
                 Log.d("SurveySDK", "RN: Core SDK initialized successfully")
                 promise.resolve(true)
@@ -38,7 +37,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         try {
             Log.d("SurveySDK", "RN: Showing survey via core SDK...")
             
-            val activity = getCurrentActivity()
+            val activity = currentActivity
             if (activity != null) {
                 val surveySDK = SurveySDK.getInstance()
                 surveySDK.showSurvey(activity)
@@ -59,7 +58,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         try {
             Log.d("SurveySDK", "RN: Showing specific survey: $surveyId")
             
-            val activity = getCurrentActivity()
+            val activity = currentActivity
             if (activity != null) {
                 val surveySDK = SurveySDK.getInstance()
                 surveySDK.showSurveyById(activity, surveyId)
@@ -80,7 +79,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         try {
             Log.d("SurveySDK", "RN: Setting user property: $key = $value")
             
-            val activity = getCurrentActivity()
+            val activity = currentActivity
             if (activity != null) {
                 activity.getSharedPreferences("survey_sdk_data", Context.MODE_PRIVATE)
                     .edit()
@@ -95,20 +94,6 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         } catch (e: Exception) {
             Log.e("SurveySDK", "RN: Set user property failed", e)
             promise.reject("PROPERTY_ERROR", "Failed to set user property: ${e.message}")
-        }
-    }
-
-    @ReactMethod
-    fun trackEvent(eventName: String, properties: ReadableMap?, promise: Promise) {
-        try {
-            val props = properties?.toHashMap() ?: emptyMap<String, Any>()
-            Log.d("SurveySDK", "RN: Tracking event: $eventName with properties: $props")
-            
-            Log.d("SurveySDK", "Event tracked: $eventName, Properties: $props")
-            promise.resolve(true)
-        } catch (e: Exception) {
-            Log.e("SurveySDK", "RN: Track event failed", e)
-            promise.reject("TRACK_ERROR", "Failed to track event: ${e.message}")
         }
     }
 
@@ -154,7 +139,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun autoSetup(promise: Promise) {
         try {
-            val activity = getCurrentActivity()
+            val activity = currentActivity
             if (activity != null) {
                 val surveySDK = SurveySDK.getInstance()
                 surveySDK.autoSetup(activity)
@@ -240,7 +225,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         }
     }
 
-    // ===== NEW METHODS FOR MULTI-SURVEY SUPPORT =====
+    // ===== NEW MULTI-SURVEY METHODS =====
 
     @ReactMethod
     fun getQueueStatus(promise: Promise) {
@@ -282,19 +267,6 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     }
 
     @ReactMethod
-    fun getSetupStatus(promise: Promise) {
-        try {
-            val surveySDK = SurveySDK.getInstance()
-            val status = surveySDK.getSetupStatus()
-            Log.d("SurveySDK", "RN: Setup status requested")
-            promise.resolve(status)
-        } catch (e: Exception) {
-            Log.e("SurveySDK", "RN: Failed to get setup status", e)
-            promise.reject("STATUS_ERROR", "Failed to get setup status: ${e.message}")
-        }
-    }
-
-    @ReactMethod
     fun isSDKEnabled(promise: Promise) {
         try {
             val surveySDK = SurveySDK.getInstance()
@@ -304,19 +276,6 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         } catch (e: Exception) {
             Log.e("SurveySDK", "RN: Failed to check SDK status", e)
             promise.reject("STATUS_ERROR", "Failed to check if SDK is enabled: ${e.message}")
-        }
-    }
-
-    @ReactMethod
-    fun isReady(promise: Promise) {
-        try {
-            val surveySDK = SurveySDK.getInstance()
-            val isReady = surveySDK.isReady()
-            Log.d("SurveySDK", "RN: SDK ready: $isReady")
-            promise.resolve(isReady)
-        } catch (e: Exception) {
-            Log.e("SurveySDK", "RN: Failed to check SDK readiness", e)
-            promise.reject("STATUS_ERROR", "Failed to check if SDK is ready: ${e.message}")
         }
     }
 

@@ -67,6 +67,7 @@ class SurveyForegroundActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        super.onBackPressed()
         Log.d("SurveyForeground", "Back pressed in foreground activity")
         completeSurvey()
     }

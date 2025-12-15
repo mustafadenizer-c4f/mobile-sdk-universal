@@ -20,7 +20,7 @@ import android.os.Looper
 // ===== PUBLIC CONFIGURATION DATA CLASSES =====
 data class Config(
     val baseUrl: String = "",
-    val sdkVersion: String = "1.0.0",
+    val sdkVersion: String = "1.1.5",
     val enableButtonTrigger: Boolean = false,
     val enableScrollTrigger: Boolean = false,
     val enableNavigationTrigger: Boolean = false,

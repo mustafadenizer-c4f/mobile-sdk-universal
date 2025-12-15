@@ -143,6 +143,7 @@ class SurveyFullScreenActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        super.onBackPressed()
         Log.d("SurveyFullScreen", "Physical back button pressed")
         handleSurveyClose()
     }

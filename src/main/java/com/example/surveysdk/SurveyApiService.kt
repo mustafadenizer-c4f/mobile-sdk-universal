@@ -58,7 +58,7 @@ class SurveyApiService(private val apiKey: String) {
                     requestMethod = "GET"
                     setRequestProperty("Authorization", "Bearer $apiKey")
                     setRequestProperty("Content-Type", "application/json")
-                    setRequestProperty("User-Agent", "SurveySDK/1.0.0")
+                    setRequestProperty("User-Agent", "SurveySDK/1.1.5")
                 }
 
                 val responseCode = connection.responseCode
@@ -88,7 +88,7 @@ class SurveyApiService(private val apiKey: String) {
 
         return Config(
             baseUrl = json.optString("baseUrl", ""),
-            sdkVersion = json.optString("sdkVersion", "1.0.0"),
+            sdkVersion = json.optString("sdkVersion", "1.1.5"),
             enableButtonTrigger = json.optBoolean("enableButtonTrigger", false),
             enableScrollTrigger = json.optBoolean("enableScrollTrigger", false),
             enableNavigationTrigger = json.optBoolean("enableNavigationTrigger", false),

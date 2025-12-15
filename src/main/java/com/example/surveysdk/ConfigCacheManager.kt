@@ -113,7 +113,7 @@ class ConfigCacheManager(private val context: Context) {
 
         return Config(
             baseUrl = json.optString("baseUrl", ""),
-            sdkVersion = json.optString("sdkVersion", "1.0.0"),
+            sdkVersion = json.optString("sdkVersion", "1.1.5"),
             enableButtonTrigger = json.optBoolean("enableButtonTrigger", true),
             enableScrollTrigger = json.optBoolean("enableScrollTrigger", false),
             enableNavigationTrigger = json.optBoolean("enableNavigationTrigger", false),

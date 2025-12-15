@@ -21,7 +21,7 @@ object DefaultConfig {
         */
         // ===== BASIC SETTINGS FOR TEST PURPOSES ONLY, PROD WILL USE EMPTY =====
         baseUrl = "https://jsonplaceholder.typicode.com/posts/1?a=1",
-        sdkVersion = "1.0.0",
+        sdkVersion = "1.1.5",
 
         // ===== TRIGGER CONFIGURATION =====
         enableButtonTrigger = true,

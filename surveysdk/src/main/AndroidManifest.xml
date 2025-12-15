@@ -7,8 +7,6 @@
 	<application>
 		<!-- Survey Activities WITH THEMES -->
 		<activity android:name=".SurveyFullScreenActivity" android:exported="false" android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-		<activity android:name=".SurveyDialogActivity" android:exported="false" android:theme="@style/Theme.AppCompat.Light.Dialog" />
-		<activity android:name=".SurveyBottomSheetActivity" android:exported="false" android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 		<activity android:name=".SurveyForegroundActivity" android:exported="false" android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 	</application>
 </manifest>

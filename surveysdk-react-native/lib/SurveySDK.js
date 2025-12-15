@@ -28,13 +28,6 @@ class SurveySDKBridge {
     return await SurveySDK.setUserProperty(key, value);
   }
 
-  async trackEvent(eventName, properties = {}) {
-    if (!eventName) {
-      throw new Error('Event name is required');
-    }
-    return await SurveySDK.trackEvent(eventName, properties);
-  }
-
   async setUserProperties(properties) {
     if (!properties || typeof properties !== 'object') {
       throw new Error('Properties must be an object');
@@ -89,7 +82,7 @@ class SurveySDKBridge {
     return await SurveySDK.resetTriggers();
   }
 
-  // ===== NEW METHODS FOR MULTI-SURVEY SUPPORT =====
+  // ===== NEW MULTI-SURVEY METHODS =====
 
   async getQueueStatus() {
     return await SurveySDK.getQueueStatus();
@@ -103,16 +96,8 @@ class SurveySDKBridge {
     return await SurveySDK.isShowingSurvey();
   }
 
-  async getSetupStatus() {
-    return await SurveySDK.getSetupStatus();
-  }
-
   async isSDKEnabled() {
     return await SurveySDK.isSDKEnabled();
-  }
-
-  async isReady() {
-    return await SurveySDK.isReady();
   }
 
   async fetchConfiguration() {
@@ -156,23 +141,6 @@ class SurveySDKBridge {
     }
     
     throw new Error('No available surveys to show');
-  }
-
-  /**
-   * Wait for SDK to be ready with timeout
-   */
-  async waitForReady(timeoutMs = 10000) {
-    const startTime = Date.now();
-    
-    while (Date.now() - startTime < timeoutMs) {
-      const isReady = await this.isReady();
-      if (isReady) return true;
-      
-      // Wait 500ms before checking again
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-    
-    throw new Error(`SDK not ready after ${timeoutMs}ms`);
   }
 }
 
