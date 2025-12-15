@@ -5,7 +5,6 @@ object DefaultConfig {
     // ===== TEST CONFIGURATION =====
     // Use this when you want to test with real surveys
     val TEST_CONFIG = Config(
-
         /*
         // DEFAULT EMPTY CONFIG
            baseUrl = "", // ← Empty URL = no survey
