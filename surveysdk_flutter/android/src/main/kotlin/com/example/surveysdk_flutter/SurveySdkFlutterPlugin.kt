@@ -59,8 +59,6 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     val surveyId = call.argument<String>("surveyId")
     if (activity != null && surveyId != null) {
         try {
-            checkAndUnlockQueue()
-            
             val surveySDK = SurveySDK.getInstance()            
             surveySDK.showSurveyById(activity!!, surveyId)
             Log.d("SurveySDKFlutter", "✅ Showing survey: $surveyId")
@@ -71,16 +69,6 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     } else {
         result.error("NO_ACTIVITY", "Activity or survey ID missing", null)
-    }
-}
-      
-private fun checkAndUnlockQueue() {
-    try {
-        // This will force queue processing if stuck
-        val surveySDK = SurveySDK.getInstance()
-        surveySDK.cleanup() // This clears everything including queue
-    } catch (e: Exception) {
-        Log.e("SurveySDKFlutter", "Queue unlock failed: ${e.message}")
     }
 }
 

@@ -180,7 +180,7 @@ class SurveyBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onDestroy() {
     super.onDestroy()
     Log.d("SurveyBottomSheet", "🔄 Calling surveyCompleted()")
-    SurveySDK.getInstance().surveyCompleted()
+    com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
 }
 
     override fun onDestroyView() {

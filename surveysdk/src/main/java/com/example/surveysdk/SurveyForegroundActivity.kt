@@ -62,7 +62,7 @@ class SurveyForegroundActivity : AppCompatActivity() {
     private fun completeSurvey() {
         Log.d("SurveyForeground", "Completing survey foreground activity")
         // Notify SDK that survey flow is complete
-        SurveySDK.getInstance().surveyCompleted()
+        com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
         finish()
     }
 
@@ -75,7 +75,7 @@ class SurveyForegroundActivity : AppCompatActivity() {
     override fun onDestroy() {
     super.onDestroy()
     Log.d("SurveyForeground", "🔄 Calling surveyCompleted()")
-    SurveySDK.getInstance().surveyCompleted()
+    com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
     }
 
     companion object {

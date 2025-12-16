@@ -220,7 +220,7 @@ class SurveyDialogFragment : DialogFragment() {
     override fun onDestroy() {
     super.onDestroy()
     Log.d("SurveyDialog", "🔄 Calling surveyCompleted()")
-    SurveySDK.getInstance().surveyCompleted()
+    com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
 }
 
     override fun onDestroyView() {
