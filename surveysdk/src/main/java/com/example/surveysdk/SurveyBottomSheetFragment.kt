@@ -178,9 +178,10 @@ class SurveyBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-        Log.d("SurveyBottomSheet", "Bottom sheet destroyed")
-    }
+    super.onDestroy()
+    Log.d("SurveyBottomSheet", "🔄 Calling surveyCompleted()")
+    SurveySDK.getInstance().surveyCompleted()
+}
 
     override fun onDestroyView() {
         // Simple WebView cleanup

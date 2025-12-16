@@ -218,9 +218,10 @@ class SurveyDialogFragment : DialogFragment() {
     }
 
     override fun onDestroy() {
-        Log.d("SurveyDialog", "=== Dialog onDestroy ===")
-        super.onDestroy()
-    }
+    super.onDestroy()
+    Log.d("SurveyDialog", "🔄 Calling surveyCompleted()")
+    SurveySDK.getInstance().surveyCompleted()
+}
 
     override fun onDestroyView() {
         // Simple WebView cleanup

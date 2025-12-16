@@ -647,6 +647,16 @@ class SurveySDK private constructor(private val context: Context) {
                 surveyQueue.sortByDescending { it.second.priority }
                 Log.d("SurveySDK", "📋 Survey queued: ${survey.surveyName} (Priority: ${survey.priority})")
                 Log.d("SurveySDK", "📋 Queue size: ${surveyQueue.size}")
+                // AUTO-UNLOCK TIMEOUT - ADD THIS
+                Handler(Looper.getMainLooper()).postDelayed({
+                    synchronized(queueLock) {
+                        if (isShowingSurvey) {
+                            Log.w("SurveySDK", "⚠️ Auto-unlocking queue after timeout")
+                            isShowingSurvey = false
+                            processNextInQueue()
+                        }
+                    }
+                }, 10000) // 10 second timeout
                 return
             }
             isShowingSurvey = true

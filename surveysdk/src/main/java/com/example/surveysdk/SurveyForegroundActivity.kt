@@ -71,10 +71,11 @@ class SurveyForegroundActivity : AppCompatActivity() {
         Log.d("SurveyForeground", "Back pressed in foreground activity")
         completeSurvey()
     }
-
+    
     override fun onDestroy() {
-        super.onDestroy()
-        Log.d("SurveyForeground", "Foreground activity destroyed")
+    super.onDestroy()
+    Log.d("SurveyForeground", "🔄 Calling surveyCompleted()")
+    SurveySDK.getInstance().surveyCompleted()
     }
 
     companion object {

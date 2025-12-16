@@ -31,7 +31,7 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             Log.d("SurveySDKFlutter", "SDK initialized successfully")
             result.success(true)
           } catch (e: Exception) {
-            Log.e("SurveySDKFlutter", "Initialization failed: ${e.message}")
+            Log.e("SurveySDKFlu tter", "Initialization failed: ${e.message}")
             result.error("INIT_ERROR", "Initialization failed", e.message)
           }
         } else {
@@ -59,14 +59,9 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     val surveyId = call.argument<String>("surveyId")
     if (activity != null && surveyId != null) {
         try {
-            val surveySDK = SurveySDK.getInstance()
+            checkAndUnlockQueue()
             
-            // SET COMPLETION CALLBACK
-            SurveySDK.setSurveyCompletionCallback {
-                Log.d("SurveySDKFlutter", "📞 Survey completion callback received")
-                // You could send event to Flutter if needed
-            }
-            
+            val surveySDK = SurveySDK.getInstance()            
             surveySDK.showSurveyById(activity!!, surveyId)
             Log.d("SurveySDKFlutter", "✅ Showing survey: $surveyId")
             result.success(true)
@@ -79,6 +74,16 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 }
       
+private fun checkAndUnlockQueue() {
+    try {
+        // This will force queue processing if stuck
+        val surveySDK = SurveySDK.getInstance()
+        surveySDK.cleanup() // This clears everything including queue
+    } catch (e: Exception) {
+        Log.e("SurveySDKFlutter", "Queue unlock failed: ${e.message}")
+    }
+}
+
       "autoSetup" -> {
         if (activity != null) {
           try {
