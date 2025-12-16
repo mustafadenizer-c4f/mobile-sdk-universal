@@ -1,3 +1,14 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.example.surveysdk_flutter">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <application>
+        <!-- Survey Activities -->
+        <activity android:name="com.example.surveysdk.SurveyFullScreenActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name="com.example.surveysdk.SurveyForegroundActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <!-- Add other survey activities if needed -->
+    </application>
 </manifest>

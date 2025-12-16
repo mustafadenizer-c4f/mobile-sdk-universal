@@ -178,5 +178,7 @@ class SurveyFullScreenActivity : AppCompatActivity() {
         }
 
         super.onDestroy()
+        Log.d("SurveySDK", "🔄 Notifying SDK of survey completion")
+    SurveySDK.getInstance().surveyCompleted()
     }
 }

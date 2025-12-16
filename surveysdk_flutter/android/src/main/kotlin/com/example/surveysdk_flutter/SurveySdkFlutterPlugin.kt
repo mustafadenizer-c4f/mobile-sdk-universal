@@ -56,21 +56,28 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       }
       
       "showSurveyById" -> {
-        val surveyId = call.argument<String>("surveyId")
-        if (activity != null && surveyId != null) {
-          try {
+    val surveyId = call.argument<String>("surveyId")
+    if (activity != null && surveyId != null) {
+        try {
             val surveySDK = SurveySDK.getInstance()
+            
+            // SET COMPLETION CALLBACK
+            SurveySDK.setSurveyCompletionCallback {
+                Log.d("SurveySDKFlutter", "📞 Survey completion callback received")
+                // You could send event to Flutter if needed
+            }
+            
             surveySDK.showSurveyById(activity!!, surveyId)
-            Log.d("SurveySDKFlutter", "Showing specific survey: $surveyId")
+            Log.d("SurveySDKFlutter", "✅ Showing survey: $surveyId")
             result.success(true)
-          } catch (e: Exception) {
-            Log.e("SurveySDKFlutter", "Show survey by ID failed: ${e.message}")
-            result.error("SHOW_ERROR", "Failed to show survey $surveyId", e.message)
-          }
-        } else {
-          result.error("INVALID_ARGS", "Survey ID or activity missing", null)
+        } catch (e: Exception) {
+            Log.e("SurveySDKFlutter", "❌ Error: ${e.message}")
+            result.error("SHOW_ERROR", "Failed", e.message)
         }
-      }
+    } else {
+        result.error("NO_ACTIVITY", "Activity or survey ID missing", null)
+    }
+}
       
       "autoSetup" -> {
         if (activity != null) {
@@ -327,9 +334,11 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     activity = binding.activity
+    Log.d("SurveySDKFlutter", "✅ Activity attached: ${activity?.javaClass?.simpleName}")
   }
 
   override fun onDetachedFromActivity() {
+    Log.d("SurveySDKFlutter", "⚠️ Activity detached")
     activity = null
   }
 

@@ -688,12 +688,24 @@ class SurveySDK private constructor(private val context: Context) {
         }
     }
 
+    private var surveyCompletionCallback: (() -> Unit)? = null
+    
+    fun setSurveyCompletionCallback(callback: () -> Unit) {
+        surveyCompletionCallback = callback
+    }
+    
+    fun notifySurveyCompleted() {
+        surveyCompletionCallback?.invoke()
+        surveyCompletionCallback = null
+    }
+
     fun surveyCompleted() {
         synchronized(queueLock) {
             isShowingSurvey = false
-            Log.d("SurveySDK", "✅ Survey completed")
+            Log.d("SurveySDK", "✅ Survey completed, queue unlocked")
         }
         processNextInQueue()
+        notifySurveyCompleted()
     }
 
     private fun processNextInQueue() {
