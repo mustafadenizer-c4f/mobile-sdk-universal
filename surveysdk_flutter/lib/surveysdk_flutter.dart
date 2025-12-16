@@ -144,4 +144,126 @@ class SurveySdkFlutter {
       throw Exception('Failed to reset triggers: ${e.message}');
     }
   }
+
+  // ===== NEW MULTI-SURVEY METHODS =====
+
+  static Future<String> getQueueStatus() async {
+    try {
+      final String result = await _channel.invokeMethod('getQueueStatus');
+      return result;
+    } on PlatformException catch (e) {
+      throw Exception('Failed to get queue status: ${e.message}');
+    }
+  }
+
+  static Future<bool> clearSurveyQueue() async {
+    try {
+      final bool result = await _channel.invokeMethod('clearSurveyQueue');
+      return result;
+    } on PlatformException catch (e) {
+      throw Exception('Failed to clear survey queue: ${e.message}');
+    }
+  }
+
+  static Future<bool> isShowingSurvey() async {
+    try {
+      final bool result = await _channel.invokeMethod('isShowingSurvey');
+      return result;
+    } on PlatformException catch (e) {
+      throw Exception('Failed to check if survey is showing: ${e.message}');
+    }
+  }
+
+  static Future<bool> isSDKEnabled() async {
+    try {
+      final bool result = await _channel.invokeMethod('isSDKEnabled');
+      return result;
+    } on PlatformException catch (e) {
+      throw Exception('Failed to check if SDK is enabled: ${e.message}');
+    }
+  }
+
+  static Future<bool> fetchConfiguration() async {
+    try {
+      final bool result = await _channel.invokeMethod('fetchConfiguration');
+      return result;
+    } on PlatformException catch (e) {
+      throw Exception('Failed to fetch configuration: ${e.message}');
+    }
+  }
+
+  static Future<String> getConfigForDebug() async {
+    try {
+      final String result = await _channel.invokeMethod('getConfigForDebug');
+      return result;
+    } on PlatformException catch (e) {
+      throw Exception('Failed to get config debug info: ${e.message}');
+    }
+  }
+
+  static Future<bool> cleanup() async {
+    try {
+      final bool result = await _channel.invokeMethod('cleanup');
+      return result;
+    } on PlatformException catch (e) {
+      throw Exception('Failed to cleanup SDK: ${e.message}');
+    }
+  }
+
+  // ===== CONVENIENCE METHODS =====
+
+  /// Get all surveys with their exclusion status
+  static Future<Map<String, bool>> getAllSurveysStatus() async {
+    try {
+      final List<dynamic> surveyIds = await getSurveyIds();
+      final Map<String, bool> statusMap = {};
+      
+      for (var surveyId in surveyIds) {
+        try {
+          final isExcluded = await isUserExcludedForSurvey(surveyId.toString());
+          statusMap[surveyId.toString()] = isExcluded;
+        } catch (e) {
+          statusMap[surveyId.toString()] = false;
+        }
+      }
+      
+      return statusMap;
+    } catch (e) {
+      throw Exception('Failed to get all surveys status');
+    }
+  }
+
+  /// Show the first available survey
+  static Future<bool> showFirstAvailableSurvey() async {
+    try {
+      final List<dynamic> surveyIds = await getSurveyIds();
+      
+      for (var surveyId in surveyIds) {
+        final isExcluded = await isUserExcludedForSurvey(surveyId.toString());
+        if (!isExcluded) {
+          return await showSurveyById(surveyId.toString());
+        }
+      }
+      
+      throw Exception('No available surveys to show');
+    } catch (e) {
+      throw Exception('Failed to show first available survey');
+    }
+  }
+
+  /// Set multiple user properties at once
+  static Future<bool> setUserProperties(Map<String, String> properties) async {
+    try {
+      final List<Future<bool>> futures = [];
+      
+      properties.forEach((key, value) {
+        futures.add(setUserProperty(key, value));
+      });
+      
+      final results = await Future.wait(futures);
+      return results.every((result) => result == true);
+    } catch (e) {
+      throw Exception('Failed to set user properties');
+    }
+  }
 }

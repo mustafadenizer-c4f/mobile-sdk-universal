@@ -230,6 +230,90 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           result.error("TRIGGER_ERROR", "Failed to reset triggers", e.message)
         }
       }
+
+            "getQueueStatus" -> {
+        try {
+          val surveySDK = SurveySDK.getInstance()
+          val status = surveySDK.getQueueStatus()
+          Log.d("SurveySDKFlutter", "Queue status: $status")
+          result.success(status)
+        } catch (e: Exception) {
+          Log.e("SurveySDKFlutter", "Get queue status failed: ${e.message}")
+          result.error("QUEUE_ERROR", "Failed to get queue status", e.message)
+        }
+      }
+      
+      "clearSurveyQueue" -> {
+        try {
+          val surveySDK = SurveySDK.getInstance()
+          surveySDK.clearSurveyQueue()
+          Log.d("SurveySDKFlutter", "Survey queue cleared")
+          result.success(true)
+        } catch (e: Exception) {
+          Log.e("SurveySDKFlutter", "Clear queue failed: ${e.message}")
+          result.error("QUEUE_ERROR", "Failed to clear survey queue", e.message)
+        }
+      }
+      
+      "isShowingSurvey" -> {
+        try {
+          val surveySDK = SurveySDK.getInstance()
+          val isShowing = surveySDK.isShowingSurvey()
+          Log.d("SurveySDKFlutter", "Is showing survey: $isShowing")
+          result.success(isShowing)
+        } catch (e: Exception) {
+          Log.e("SurveySDKFlutter", "Check survey status failed: ${e.message}")
+          result.error("SURVEY_ERROR", "Failed to check if survey is showing", e.message)
+        }
+      }
+      
+      "isSDKEnabled" -> {
+        try {
+          val surveySDK = SurveySDK.getInstance()
+          val isEnabled = surveySDK.isSDKEnabled()
+          Log.d("SurveySDKFlutter", "SDK enabled: $isEnabled")
+          result.success(isEnabled)
+        } catch (e: Exception) {
+          Log.e("SurveySDKFlutter", "Check SDK status failed: ${e.message}")
+          result.error("STATUS_ERROR", "Failed to check if SDK is enabled", e.message)
+        }
+      }
+      
+      "fetchConfiguration" -> {
+        try {
+          val surveySDK = SurveySDK.getInstance()
+          surveySDK.fetchConfiguration()
+          Log.d("SurveySDKFlutter", "Configuration fetch initiated")
+          result.success(true)
+        } catch (e: Exception) {
+          Log.e("SurveySDKFlutter", "Fetch configuration failed: ${e.message}")
+          result.error("CONFIG_ERROR", "Failed to fetch configuration", e.message)
+        }
+      }
+      
+      "getConfigForDebug" -> {
+        try {
+          val surveySDK = SurveySDK.getInstance()
+          val configDebug = surveySDK.getConfigForDebug()
+          Log.d("SurveySDKFlutter", "Config debug retrieved")
+          result.success(configDebug)
+        } catch (e: Exception) {
+          Log.e("SurveySDKFlutter", "Get config debug failed: ${e.message}")
+          result.error("CONFIG_ERROR", "Failed to get config debug info", e.message)
+        }
+      }
+      
+      "cleanup" -> {
+        try {
+          val surveySDK = SurveySDK.getInstance()
+          surveySDK.cleanup()
+          Log.d("SurveySDKFlutter", "SDK cleanup completed")
+          result.success(true)
+        } catch (e: Exception) {
+          Log.e("SurveySDKFlutter", "Cleanup failed: ${e.message}")
+          result.error("CLEANUP_ERROR", "Failed to cleanup SDK", e.message)
+        }
+      }
       
       else -> {
         result.notImplemented()
