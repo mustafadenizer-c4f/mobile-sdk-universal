@@ -17,7 +17,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         try {
             Log.d("SurveySDK", "RN: Initializing core SurveySDK...")
             
-            val activity = currentActivity
+            val activity = getCurrentActivity()
             if (activity != null) {
                 SurveySDK.initialize(activity.applicationContext, apiKey)
                 Log.d("SurveySDK", "RN: Core SDK initialized successfully")
@@ -37,7 +37,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         try {
             Log.d("SurveySDK", "RN: Showing survey via core SDK...")
             
-            val activity = currentActivity
+            val activity = getCurrentActivity()
             if (activity != null) {
                 val surveySDK = SurveySDK.getInstance()
                 surveySDK.showSurvey(activity)
@@ -58,7 +58,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         try {
             Log.d("SurveySDK", "RN: Showing specific survey: $surveyId")
             
-            val activity = currentActivity
+            val activity = getCurrentActivity()
             if (activity != null) {
                 val surveySDK = SurveySDK.getInstance()
                 surveySDK.showSurveyById(activity, surveyId)
@@ -79,7 +79,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         try {
             Log.d("SurveySDK", "RN: Setting user property: $key = $value")
             
-            val activity = currentActivity
+            val activity = getCurrentActivity()
             if (activity != null) {
                 activity.getSharedPreferences("survey_sdk_data", Context.MODE_PRIVATE)
                     .edit()
@@ -139,7 +139,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun autoSetup(promise: Promise) {
         try {
-            val activity = currentActivity
+            val activity = getCurrentActivity()
             if (activity != null) {
                 val surveySDK = SurveySDK.getInstance()
                 surveySDK.autoSetup(activity)
@@ -224,8 +224,6 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             promise.reject("CONFIG_ERROR", "Failed to check configuration status: ${e.message}")
         }
     }
-
-    // ===== NEW MULTI-SURVEY METHODS =====
 
     @ReactMethod
     fun getQueueStatus(promise: Promise) {

@@ -87,7 +87,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.mustafadenizer-c4f"
                 artifactId = "surveysdk"
-                version = "1.2.1"
+                version = "1.2.2"
             }
         }
     }
