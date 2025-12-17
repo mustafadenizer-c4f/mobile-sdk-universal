@@ -16,7 +16,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 
 class SurveyDialogFragment : DialogFragment() {
-
     private var surveyUrl: String = ""
     private var backgroundColor: String = "#FFFFFF"
     private var animationType: String = "fade"
@@ -32,17 +31,17 @@ class SurveyDialogFragment : DialogFragment() {
             surveyUrl: String,
             backgroundColor: String = "#FFFFFF",
             animationType: String = "fade",
-            allowedDomain: String? = null
-        ): SurveyDialogFragment {
-            return SurveyDialogFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_SURVEY_URL, surveyUrl)
-                    putString(ARG_BACKGROUND_COLOR, backgroundColor)
-                    putString(ARG_ANIMATION_TYPE, animationType)
-                    putString(ARG_ALLOWED_DOMAIN, allowedDomain)
-                }
+            allowedDomain: String? = null,
+        ): SurveyDialogFragment =
+            SurveyDialogFragment().apply {
+                arguments =
+                    Bundle().apply {
+                        putString(ARG_SURVEY_URL, surveyUrl)
+                        putString(ARG_BACKGROUND_COLOR, backgroundColor)
+                        putString(ARG_ANIMATION_TYPE, animationType)
+                        putString(ARG_ALLOWED_DOMAIN, allowedDomain)
+                    }
             }
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,43 +98,50 @@ class SurveyDialogFragment : DialogFragment() {
 
         try {
             // Create container
-            val container = FrameLayout(requireContext()).apply {
-                layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
-                )
-                setBackgroundColor(Color.TRANSPARENT) // Transparent container
-            }
+            val container =
+                FrameLayout(requireContext()).apply {
+                    layoutParams =
+                        FrameLayout.LayoutParams(
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                        )
+                    setBackgroundColor(Color.TRANSPARENT) // Transparent container
+                }
 
             // Create WebView
-            val webView = WebView(requireContext()).apply {
-                layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
-                )
-            }
+            val webView =
+                WebView(requireContext()).apply {
+                    layoutParams =
+                        FrameLayout.LayoutParams(
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                        )
+                }
 
             // Create close button
-            val closeButton = TextView(requireContext()).apply {
-                text = "✕"
-                setTextColor(Color.BLACK)
-                textSize = 24f
-                setTypeface(typeface, android.graphics.Typeface.BOLD)
-                layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    gravity = Gravity.TOP or Gravity.END
-                    topMargin = 20
-                    marginEnd = 20
+            val closeButton =
+                TextView(requireContext()).apply {
+                    text = "✕"
+                    setTextColor(Color.BLACK)
+                    textSize = 24f
+                    setTypeface(typeface, android.graphics.Typeface.BOLD)
+                    layoutParams =
+                        FrameLayout
+                            .LayoutParams(
+                                FrameLayout.LayoutParams.WRAP_CONTENT,
+                                FrameLayout.LayoutParams.WRAP_CONTENT,
+                            ).apply {
+                                gravity = Gravity.TOP or Gravity.END
+                                topMargin = 20
+                                marginEnd = 20
+                            }
+                    setOnClickListener {
+                        Log.d("SurveyDialog", "Close button clicked")
+                        dismiss()
+                    }
+                    setPadding(20, 20, 20, 20)
+                    setBackgroundColor(0xEEFFFFFF.toInt()) // Semi-transparent white background
                 }
-                setOnClickListener {
-                    Log.d("SurveyDialog", "Close button clicked")
-                    dismiss()
-                }
-                setPadding(20, 20, 20, 20)
-                setBackgroundColor(0xEEFFFFFF.toInt()) // Semi-transparent white background
-            }
 
             container.addView(webView)
             container.addView(closeButton)
@@ -168,13 +174,29 @@ class SurveyDialogFragment : DialogFragment() {
             closeButton.bringToFront()
 
             Log.d("SurveyDialog", "✅ Transparent dialog fragment created successfully")
-
         } catch (e: Exception) {
             Log.e("SurveyDialog", "❌ Error creating dialog: ${e.message}")
             e.printStackTrace()
         }
 
         return dialog
+    }
+
+    // In SurveyDialogFragment.kt, add this helper method
+    fun showFromFlutter(fragmentManager: FragmentManager) {
+        try {
+            if (!isAdded && fragmentManager.findFragmentByTag("SurveyDialogFragment") == null) {
+                // For Flutter, use show() with commitNow to ensure immediate display
+                show(fragmentManager, "SurveyDialogFragment")
+                fragmentManager.executePendingTransactions()
+                Log.d("SurveyDialog", "✅ Dialog shown from Flutter")
+            } else {
+                Log.w("SurveyDialog", "⚠️ Dialog already shown or fragment already added")
+            }
+        } catch (e: Exception) {
+            Log.e("SurveyDialog", "❌ Failed to show dialog from Flutter: ${e.message}")
+            e.printStackTrace()
+        }
     }
 
     override fun onStart() {
@@ -198,17 +220,23 @@ class SurveyDialogFragment : DialogFragment() {
 
         // Notify SDK that survey completed
         activity?.let {
-            com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
+            com.example.surveysdk.SurveySDK
+                .getInstance()
+                .surveyCompleted()
         }
     }
 
-    private fun setupWebView(webView: WebView, url: String, allowedDomain: String?) {
+    private fun setupWebView(
+        webView: WebView,
+        url: String,
+        allowedDomain: String?,
+    ) {
         Log.d("SurveyDialog", "Setting up WebView")
         try {
             WebViewConfigurator.setupSecureWebView(
                 webView = webView,
                 url = url,
-                allowedDomain = allowedDomain
+                allowedDomain = allowedDomain,
             )
             Log.d("SurveyDialog", "✅ WebView configured successfully")
         } catch (e: Exception) {
@@ -218,10 +246,12 @@ class SurveyDialogFragment : DialogFragment() {
     }
 
     override fun onDestroy() {
-    super.onDestroy()
-    Log.d("SurveyDialog", "🔄 Calling surveyCompleted()")
-    com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
-}
+        super.onDestroy()
+        Log.d("SurveyDialog", "🔄 Calling surveyCompleted()")
+        com.example.surveysdk.SurveySDK
+            .getInstance()
+            .surveyCompleted()
+    }
 
     override fun onDestroyView() {
         // Simple WebView cleanup

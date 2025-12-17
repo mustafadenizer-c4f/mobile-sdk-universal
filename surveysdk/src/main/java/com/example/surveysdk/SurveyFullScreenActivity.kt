@@ -114,18 +114,6 @@ class SurveyFullScreenActivity : AppCompatActivity() {
         backPressHandler.enable()
     }
 
-    private fun setupWebView(webView: WebView, url: String, allowedDomain: String?) {
-        WebViewConfigurator.setupSecureWebView(
-            webView = webView,
-            url = url,
-            allowedDomain = allowedDomain,
-            onSurveyClosed = {
-                // This will be called when the "Close" button in error layout is clicked
-                handleSurveyClose()
-            }
-        )
-    }
-
     private fun handleSurveyClose() {
         if (surveyCompletedNotified) {
             return // Already notified, prevent duplicate calls
@@ -142,43 +130,54 @@ class SurveyFullScreenActivity : AppCompatActivity() {
         finish()
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        Log.d("SurveyFullScreen", "Physical back button pressed")
-        handleSurveyClose()
-    }
-
     override fun finish() {
         val animationType = intent.getStringExtra("ANIMATION_TYPE") ?: "none"
         AnimationUtils.applyExitTransition(this, animationType)
         super.finish()
     }
 
-    override fun onDestroy() {
-        SafeDelayExecutor.cancelDelayed("activity_${this.hashCode()}")
-
-        if (::backPressHandler.isInitialized) {
-            backPressHandler.disable()
+     private fun setupWebView(webView: WebView, url: String, allowedDomain: String?) {
+        Log.d("SurveyFullScreen", "Setting up WebView with URL: $url")
+        try {
+            WebViewConfigurator.setupSecureWebView(
+                webView = webView,
+                url = url,
+                allowedDomain = allowedDomain,
+                onSurveyClosed = {
+                    // Callback when survey is closed via WebView
+                    Log.d("SurveyFullScreen", "Survey closed via WebView callback")
+                    finish()
+                }
+            )
+        } catch (e: Exception) {
+            Log.e("SurveyFullScreen", "WebView setup failed: ${e.message}")
         }
+    }
 
-        // ✅ SIMPLEST FIX:
-        if (::webView.isInitialized) {
+    override fun onBackPressed() {
+        Log.d("SurveyFullScreen", "Back pressed in full screen activity")
+        super.onBackPressed()  // MUST BE FIRST
+        SurveySDK.getInstance().surveyCompleted()  // ✅ ADD THIS LINE
+        finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("SurveyFullScreen", "Full screen activity destroyed")
+        // Clean up WebView
+        webView?.let {
             try {
-                webView.stopLoading()
-                webView.clearCache(true)
-                // Don't set webViewClient or webChromeClient - Android will handle them
+                it.stopLoading()
+                it.destroy()
             } catch (e: Exception) {
-                Log.e("SurveyFullScreen", "Error in WebView cleanup: ${e.message}")
+                // Ignore cleanup errors
             }
         }
+        SurveySDK.getInstance().surveyCompleted()  // ✅ ADD THIS LINE
+    }
 
-        if (!surveyCompletedNotified && !isChangingConfigurations) {
-            Log.d("SurveyFullScreen", "Activity destroyed without proper close")
-            com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
-        }
-
-        super.onDestroy()
-        Log.d("SurveySDK", "🔄 Notifying SDK of survey completion")
-        com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
+    private fun handleBackPress() {
+        Log.d("SurveyFullScreen", "Handling back press")
+        finish()
     }
 }

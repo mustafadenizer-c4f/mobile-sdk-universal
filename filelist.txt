@@ -1,0 +1,199 @@
+Folder PATH listing
+Volume serial number is 345D-5334
+C:.
+-   .gitignore
+-   build.gradle.kts
+-   filelist.txt
+-   filetree.txt
+-   gradle.properties
+-   gradlew
+-   gradlew.bat
+-   lint-baseline.xml
+-   local.properties
+-   proguard-rules.pro
+-   settings.gradle.kts
+-   
++¦¦¦gradle
+-   -   libs.versions.toml
+-   -   
+-   L¦¦¦wrapper
+-           gradle-wrapper.jar
+-           gradle-wrapper.properties
+-           
++¦¦¦surveysdk
+-   -   build.gradle.kts
+-   -   lint-baseline.xml
+-   -   proguard-rules.pro
+-   -   
+-   L¦¦¦src
+-       L¦¦¦main
+-           -   AndroidManifest.xml
+-           -   
+-           +¦¦¦java
+-           -   L¦¦¦com
+-           -       L¦¦¦example
+-           -           L¦¦¦surveysdk
+-           -               -   AnimationUtils.kt
+-           -               -   AppUsageUtils.kt
+-           -               -   BackPressHandler.kt
+-           -               -   ConfigCacheManager.kt
+-           -               -   DefaultConfig.kt
+-           -               -   DeviceUtils.kt
+-           -               -   ExclusionRuleEvaluator.kt
+-           -               -   SafeDelayExecutor.kt
+-           -               -   SDKConstants.kt
+-           -               -   StorageUtils.kt
+-           -               -   SurveyApiService.kt
+-           -               -   SurveyBottomSheetFragment.kt
+-           -               -   SurveyDialogFragment.kt
+-           -               -   SurveyForegroundActivity.kt
+-           -               -   SurveyFullScreenActivity.kt
+-           -               -   SurveySDK.kt
+-           -               -   UniversalSurveySDK.kt
+-           -               -   WebViewConfigurator.kt
+-           -               -   
+-           -               +¦¦¦android
+-           -               -       AndroidSurveySDK.kt
+-           -               -       
+-           -               L¦¦¦core
+-           -                       SurveyPlatform.kt
+-           -                       
+-           L¦¦¦res
+-               +¦¦¦anim
+-               -       fade_in.xml
+-               -       fade_out.xml
+-               -       slide_in_bottom.xml
+-               -       slide_out_bottom.xml
+-               -       
+-               +¦¦¦drawable
+-               -       ic_launcher_background.xml
+-               -       ic_launcher_foreground.xml
+-               -       
+-               +¦¦¦layout
+-               -       activity_survey_webview.xml
+-               -       
+-               +¦¦¦mipmap-anydpi-v26
+-               -       ic_launcher.xml
+-               -       ic_launcher_round.xml
+-               -       
+-               +¦¦¦mipmap-hdpi
+-               -       ic_launcher.webp
+-               -       ic_launcher_round.webp
+-               -       
+-               +¦¦¦mipmap-mdpi
+-               -       ic_launcher.webp
+-               -       ic_launcher_round.webp
+-               -       
+-               +¦¦¦mipmap-xhdpi
+-               -       ic_launcher.webp
+-               -       ic_launcher_round.webp
+-               -       
+-               +¦¦¦mipmap-xxhdpi
+-               -       ic_launcher.webp
+-               -       ic_launcher_round.webp
+-               -       
+-               +¦¦¦mipmap-xxxhdpi
+-               -       ic_launcher.webp
+-               -       ic_launcher_round.webp
+-               -       
+-               +¦¦¦values
+-               -       colors.xml
+-               -       strings.xml
+-               -       themes.xml
+-               -       
+-               +¦¦¦values-night
+-               L¦¦¦xml
+-                       backup_rules.xml
+-                       data_extraction_rules.xml
+-                       
++¦¦¦surveysdk-react-native
+-   -   expo-plugin.js
+-   -   index.d.ts
+-   -   index.js
+-   -   package.json
+-   -   react-native.config.js
+-   -   README.md
+-   -   
+-   +¦¦¦android
+-   -   -   build.gradle.kts
+-   -   -   
+-   -   +¦¦¦libs
+-   -   -       surveysdk-release.aar
+-   -   -       
+-   -   L¦¦¦src
+-   -       L¦¦¦main
+-   -           L¦¦¦java
+-   -               L¦¦¦com
+-   -                   L¦¦¦example
+-   -                       L¦¦¦surveysdk
+-   -                           L¦¦¦reactnative
+-   -                                   SurveySDKModule.kt
+-   -                                   SurveySDKPackage.kt
+-   -                                   
+-   +¦¦¦ios
+-   -       .gitkeep
+-   -       
+-   +¦¦¦lib
+-   -       SurveySDK.js
+-   -       
+-   L¦¦¦src
+-       L¦¦¦main
+-               AndroidManifest.xml
+-               
+L¦¦¦surveysdk_flutter
+    -   .gitignore
+    -   .metadata
+    -   analysis_options.yaml
+    -   CHANGELOG.md
+    -   LICENSE
+    -   pubspec.lock
+    -   pubspec.yaml
+    -   README.md
+    -   surveysdk_flutter.iml
+    -   
+    +¦¦¦android
+    -   -   .gitignore
+    -   -   build.gradle
+    -   -   local.properties
+    -   -   settings.gradle
+    -   -   surveysdk_flutter_android.iml
+    -   -   
+    -   L¦¦¦src
+    -       +¦¦¦main
+    -       -   -   AndroidManifest.xml
+    -       -   -   
+    -       -   L¦¦¦kotlin
+    -       -       L¦¦¦com
+    -       -           L¦¦¦example
+    -       -               L¦¦¦surveysdk_flutter
+    -       -                       SurveySdkFlutterPlugin.kt
+    -       -                       
+    -       L¦¦¦test
+    -           L¦¦¦kotlin
+    -               L¦¦¦com
+    -                   L¦¦¦example
+    -                       L¦¦¦surveysdk_flutter
+    -                               SurveysdkFlutterPluginTest.kt
+    -                               
+    +¦¦¦example
+    -   -   .flutter-plugins-dependencies
+    -   -   pubspec.lock
+    -   -   pubspec.yaml
+    -   -   
+    -   +¦¦¦.dart_tool
+    -   -   -   package_config.json
+    -   -   -   package_graph.json
+    -   -   -   version
+    -   -   -   
+    -   -   L¦¦¦extension_discovery
+    -   -           vs_code.json
+    -   -           
+    -   L¦¦¦lib
+    -           main.dart
+    -           
+    +¦¦¦lib
+    -       surveysdk_flutter.dart
+    -       
+    L¦¦¦test
+            surveysdk_flutter_test.dart
+            

@@ -62,20 +62,21 @@ class SurveyForegroundActivity : AppCompatActivity() {
     private fun completeSurvey() {
         Log.d("SurveyForeground", "Completing survey foreground activity")
         // Notify SDK that survey flow is complete
-        com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
+        SurveySDK.getInstance().surveyCompleted()  // ✅ THIS LINE MUST EXIST
         finish()
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
         Log.d("SurveyForeground", "Back pressed in foreground activity")
+        super.onBackPressed()  // MUST BE FIRST
         completeSurvey()
     }
-    
+
     override fun onDestroy() {
-    super.onDestroy()
-    Log.d("SurveyForeground", "🔄 Calling surveyCompleted()")
-    com.example.surveysdk.SurveySDK.getInstance().surveyCompleted()
+        super.onDestroy()
+        Log.d("SurveyForeground", "Foreground activity destroyed")
+        // Ensure surveyCompleted is called even if activity is destroyed
+        SurveySDK.getInstance().surveyCompleted()  // ✅ ADD THIS LINE TOO
     }
 
     companion object {

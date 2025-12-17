@@ -1,14 +1,21 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.surveysdk_flutter">
+    
     <uses-permission android:name="android.permission.INTERNET" />
     
     <application>
-        <!-- Survey Activities -->
-        <activity android:name="com.example.surveysdk.SurveyFullScreenActivity"
+        <!-- Only include activities that actually exist -->
+        <activity
+            android:name="com.example.surveysdk.SurveyFullScreenActivity"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity android:name="com.example.surveysdk.SurveyForegroundActivity"
+        
+        <activity
+            android:name="com.example.surveysdk.SurveyForegroundActivity"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <!-- Add other survey activities if needed -->
+            
+        <!-- NO SurveyDialogActivity - it doesn't exist -->
     </application>
 </manifest>
