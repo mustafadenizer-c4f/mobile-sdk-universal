@@ -112,6 +112,32 @@ class SurveySDKBridge {
     return await SurveySDK.cleanup();
   }
 
+  async triggerButtonSurvey(buttonId) {
+    if (!buttonId) {
+      throw new Error('Button ID is required');
+    }
+    return await SurveySDK.triggerButtonSurvey(buttonId);
+  }
+
+  /**
+   * Manually trigger a scroll event.
+   * Useful to call inside onScroll props if auto-detection misses it.
+   */
+  async triggerScrollSurvey() {
+    return await SurveySDK.triggerScrollSurvey();
+  }
+
+  /**
+   * Manually trigger a navigation event.
+   * Call this when your screen changes.
+   */
+  async triggerNavigationSurvey(screenName) {
+    if (!screenName) {
+      throw new Error('Screen name is required');
+    }
+    return await SurveySDK.triggerNavigationSurvey(screenName);
+  }
+  
   // ===== CONVENIENCE METHODS =====
 
   /**

@@ -7,6 +7,7 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.ScrollView
 import androidx.core.widget.NestedScrollView
 import androidx.navigation.NavController
@@ -168,6 +169,15 @@ class SurveySDK private constructor(private val context: Context) {
     private var activityLifecycleCallbacks: Application.ActivityLifecycleCallbacks? = null
     private val delayExecutors = mutableMapOf<String, ActivitySafeExecutor>()
     private var initialized = false
+    private val processedViews = java.util.WeakHashMap<View, Boolean>()
+
+    // Scroll anketlerinin üst üste binmesini önlemek için zaman damgası
+    private var lastScrollTriggerTime: Long = 0 
+    private val SCROLL_COOLDOWN_MS = 3000L // 3 Saniye bekleme süresi
+
+    // Navigasyon tıklamalarının üst üste binmesini önlemek için
+    private var lastNavClickTime: Long = 0
+    private val NAV_COOLDOWN_MS = 1000L // 1 saniye bekletme
 
     // ===== SURVEY QUEUE SYSTEM =====
     private val surveyQueue = mutableListOf<Pair<Activity, SurveyConfig>>()
@@ -187,7 +197,7 @@ class SurveySDK private constructor(private val context: Context) {
     fun autoSetup(activity: Activity): SurveySDK {
         Log.d("SurveySDK", "🚀 Starting autoSetup on ${activity::class.simpleName}")
 
-        // Initialize tracking for each survey
+        // 1. Initialize tracking for each survey (Keep existing logic)
         config.surveys.forEach { survey ->
             surveyShownCount[survey.surveyId] = 0
             lastSurveyTime[survey.surveyId] = 0
@@ -196,13 +206,27 @@ class SurveySDK private constructor(private val context: Context) {
             triggeredExits[survey.surveyId] = mutableSetOf()
         }
 
-        // Setup immediately - don't wait for UI
+        // 2. Setup immediately - don't wait for UI
         trackAppStart(activity)
 
-        // Wait for UI to be ready before setting up view-dependent triggers
+        // 3. Wait for UI to be ready before setting up triggers
         activity.window.decorView.post {
             if (!activity.isFinishing && !activity.isDestroyed) {
+                
+                // ============================================================
+                // 🆕 NEW: Start "Zero-Code" Magic Scanning for React Native
+                // This looks for 'nativeID' tags in the view tree dynamically
+                // ============================================================
+                startGlobalViewScanning(activity)
+
+                // ============================================================
+                // 🏗️ EXISTING: Standard Native Detection 
+                // We keep this! It handles standard Android IDs (R.id.xxx)
+                // This makes your SDK "Hybrid" (Works for both Native & RN)
+                // ============================================================
                 setupSmartButtonDetection(activity)
+                
+                // Existing Triggers
                 setupScrollTrigger(activity)
                 setupAppLaunchTrigger(activity)
 
@@ -476,6 +500,62 @@ class SurveySDK private constructor(private val context: Context) {
     fun trackScreenView(activity: Activity) {
         ExclusionRuleEvaluator.trackScreenView(activity)
         Log.d("SurveySDK", "Screen view tracked")
+    }
+
+   fun trackScreenView(screenName: String, activity: Activity) {
+        Log.d("SurveySDK", "📱 Navigation Event Detected: $screenName")
+
+        // İsteğe bağlı: Sayfa sayacını artır (eski fonksiyonu çağırarak)
+        trackScreenView(activity)
+
+        // CONFIG KONTROLÜ (Düzeltilmiş Mantık)
+        val surveyToTrigger = config.surveys.find { survey ->
+            
+            // Durum 1: Navigasyon anketi mi? Ve ekran listesinde var mı?
+            val isNavTrigger = survey.enableNavigationTrigger && 
+                               survey.triggerScreens.any { it.equals(screenName, ignoreCase = true) }
+            
+            // Durum 2: Tab anketi mi? Ve tab listesinde var mı?
+            val isTabTrigger = survey.enableTabChangeTrigger && 
+                               survey.triggerTabs.any { it.equals(screenName, ignoreCase = true) }
+
+            isNavTrigger || isTabTrigger
+        }
+
+        if (surveyToTrigger != null) {
+            Log.d("SurveySDK", "🚀 Navigation/Tab Trigger Match! Launching survey...")
+            
+            // Navigasyon anketlerinde genelde gecikme (timeDelay) olur.
+            // Config'deki 'timeDelay' süresi kadar bekleyip açalım.
+            val delay = surveyToTrigger.timeDelay
+            if (delay > 0) {
+                Log.d("SurveySDK", "⏳ Waiting ${delay}ms before showing survey (Configured delay)")
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    if (!activity.isFinishing) {
+                        triggerSurvey(surveyToTrigger, activity)
+                    }
+                }, delay)
+            } else {
+                triggerSurvey(surveyToTrigger, activity)
+            }
+        }
+    }
+    
+
+    private fun findClickableParent(view: View): View {
+        var currentView = view
+        var parent = currentView.parent
+        var depth = 0
+        while (parent is View && depth < 5) {
+            val parentView = parent as View
+            if (parentView.isClickable || parentView.hasOnClickListeners() || parentView.accessibilityDelegate != null) {
+                return parentView
+            }
+            currentView = parentView
+            parent = currentView.parent
+            depth++
+        }
+        return view
     }
 
     fun resetSessionData() {
@@ -1717,4 +1797,283 @@ class SurveySDK private constructor(private val context: Context) {
             Log.e("SurveySDK", "❌ Full screen survey failed: ${e.message}")
         }
     }
+
+    
+    /**
+     * React Native Bridge için Özel Tetikleyici.
+     * Bu fonksiyon fiziksel View (findViewById) aramaz.
+     * Doğrudan String ID üzerinden Config taraması yapar.
+     */
+    fun triggerButtonByStringId(incomingButtonId: String, activity: Activity) {
+        // Log ile gelen isteği görelim
+        Log.d("SurveySDK", "RN: Bridge trigger request for ID: '$incomingButtonId'")
+
+        // ---------------------------------------------------------
+        // SENARYO 1: SPECIFIC ID (Özel Tanımlı ID)
+        // ---------------------------------------------------------
+        // Config içinde buttonTriggerId'si, gelen ID ile BİREBİR AYNI olan var mı?
+        val specificSurveys = config.surveys.filter {
+            it.enableButtonTrigger && it.buttonTriggerId == incomingButtonId
+        }
+
+        if (specificSurveys.isNotEmpty()) {
+            // Varsa en yüksek öncelikli olanı seç
+            val survey = specificSurveys.maxByOrNull { it.priority }!!
+            Log.d("SurveySDK", "RN: ✅ Found specific survey match: ${survey.surveyId}")
+
+            if (canShowSurvey(survey)) {
+                showSingleSurvey(activity, survey)
+            } else {
+                Log.d("SurveySDK", "RN: ⚠️ Survey matched but rules (frequency/cool-down) prevented showing.")
+            }
+            // Özel eşleşme bulunduysa fonksiyondan çık, genel aramaya geçme.
+            return 
+        }
+
+        // ---------------------------------------------------------
+        // SENARYO 2: PREDEFINED ID (Genel Tanımlı ID)
+        // ---------------------------------------------------------
+        // Eğer özel eşleşme yoksa ve gelen ID senin 'sabit listenin' içindeyse:
+        if (SDKConstants.PREDEFINED_BUTTON_IDS.contains(incomingButtonId)) {
+            Log.d("SurveySDK", "RN: ID matches Predefined list. Looking for generic survey...")
+
+            // buttonTriggerId'si BOŞ (null veya empty) olan genel anketleri bul
+            val genericSurveys = config.surveys.filter {
+                it.enableButtonTrigger && it.buttonTriggerId.isNullOrEmpty()
+            }
+
+            if (genericSurveys.isNotEmpty()) {
+                val bestSurvey = findHighestPrioritySurvey(genericSurveys)
+                Log.d("SurveySDK", "RN: ✅ Found generic survey: ${bestSurvey.surveyId}")
+                
+                if (canShowSurvey(bestSurvey)) {
+                    showSingleSurvey(activity, bestSurvey)
+                }
+            } else {
+                Log.w("SurveySDK", "RN: Predefined ID match, but no Generic Survey configured.")
+            }
+        } else {
+            Log.w("SurveySDK", "RN: No match found for ID: '$incomingButtonId' (Neither specific nor predefined)")
+        }
+    }
+
+    fun triggerScrollManual(activity: Activity, scrollY: Int = 500) {
+        Log.d("SurveySDK", "RN: Manual scroll trigger check (y=$scrollY)")
+        
+        val matchingSurveys = config.surveys.filter { survey ->
+            // Eşik kontrolü: Eğer scrollY config'deki threshold'dan büyükse
+            val meetsThreshold = scrollY >= survey.scrollThreshold
+            val canShow = canShowSurvey(survey)
+
+            survey.enableScrollTrigger && meetsThreshold && canShow
+        }
+
+        if (matchingSurveys.isNotEmpty()) {
+            val bestSurvey = findHighestPrioritySurvey(matchingSurveys)
+            Log.d("SurveySDK", "RN: Triggering scroll survey: ${bestSurvey.surveyId}")
+            showSingleSurvey(activity, bestSurvey)
+        }
+    }
+
+    private fun startGlobalViewScanning(activity: Activity) {
+        val rootView = activity.window.decorView.rootView
+        
+        // Initial scan
+        scanAndAttachListeners(rootView, activity)
+
+        // Continuous scan for dynamic content (React Native changes views often)
+        rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            try {
+                scanAndAttachListeners(rootView, activity)
+            } catch (e: Exception) {
+                // Handle potential concurrent modification exceptions
+            }
+        }
+    }
+
+    private fun scanAndAttachListeners(view: View, activity: Activity) {
+        if (processedViews.containsKey(view)) return
+
+        // ---------------------------------------------------------
+        // 1. BUTON KONTROLÜ (Sadece enableButtonTrigger ve buttonTriggerId)
+        // ---------------------------------------------------------
+        val tag = view.tag?.toString()
+        val contentDesc = view.contentDescription?.toString()
+        val viewId = tag ?: contentDesc
+
+        if (viewId != null) {
+            // Sadece enableButtonTrigger = true olan anketlerde ID eşleşmesi ara
+            val isButtonMatch = config.surveys.any { 
+                it.enableButtonTrigger && it.buttonTriggerId == viewId 
+            }
+            
+            if (isButtonMatch || SDKConstants.PREDEFINED_BUTTON_IDS.contains(viewId)) {
+                attachPassiveTouchListener(view, viewId, activity, isNavigation = false)
+                processedViews[view] = true
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 2. METİN KONTROLÜ (Sadece Navigation ve Tab Listeleri)
+        // ---------------------------------------------------------
+        if (view is TextView && !view.text.isNullOrEmpty()) {
+            val textContent = view.text.toString().trim()
+            
+            // Filtre: Çok uzun yazıları geç (Cümleleri ele)
+            if (textContent.length > 25) return 
+
+            // Navigasyon veya Tab kuralı var mı?
+            val navMatch = config.surveys.find { survey ->
+                
+                // KURAL A: Navigasyon Açık mı? -> triggerScreens listesine bak
+                val isNavMatch = survey.enableNavigationTrigger && 
+                                 survey.triggerScreens.any { it.equals(textContent, ignoreCase = true) }
+
+                // KURAL B: Tab Değişimi Açık mı? -> triggerTabs listesine bak
+                val isTabMatch = survey.enableTabChangeTrigger && 
+                                 survey.triggerTabs.any { it.equals(textContent, ignoreCase = true) }
+
+                isNavMatch || isTabMatch
+            }
+
+            if (navMatch != null) {
+                // Tıklanabilir ebeveyni bul
+                val clickableParent = findClickableParent(view)
+                
+                val isInteractive = clickableParent.isClickable || 
+                                    clickableParent.hasOnClickListeners() || 
+                                    clickableParent.accessibilityDelegate != null ||
+                                    (clickableParent is ViewGroup && clickableParent.importantForAccessibility != View.IMPORTANT_FOR_ACCESSIBILITY_NO)
+
+                if (isInteractive) {
+                    Log.d("SurveySDK", "🧭 NAV/TAB MATCH FOUND: '$textContent'")
+                    
+                    // isNavigation = true olarak gönderiyoruz
+                    attachPassiveTouchListener(clickableParent, textContent, activity, isNavigation = true)
+                    
+                    processedViews[view] = true
+                    processedViews[clickableParent] = true
+                }
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 3. Alt Görünümleri (Children) Gez
+        // ---------------------------------------------------------
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                scanAndAttachListeners(view.getChildAt(i), activity)
+            }
+        }
+    }
+
+    private fun attachPassiveTouchListener(view: View, identifier: String, activity: Activity, isNavigation: Boolean) {
+        val listenerType = if (isNavigation) "NAVIGATION" else "BUTTON"
+        
+        val originalDelegate = view.accessibilityDelegate
+
+        view.accessibilityDelegate = object : View.AccessibilityDelegate() {
+            override fun sendAccessibilityEvent(host: View, eventType: Int) {
+                if (eventType == android.view.accessibility.AccessibilityEvent.TYPE_VIEW_CLICKED) {
+                    Log.d("SurveySDK", "👆 Detected Click ($listenerType): $identifier")
+                    
+                    if (isNavigation) {
+                        trackScreenView(identifier, activity)
+                    } else {
+                        triggerButtonByStringId(identifier, activity)
+                    }
+                }
+                originalDelegate?.sendAccessibilityEvent(host, eventType) ?: super.sendAccessibilityEvent(host, eventType)
+            }
+        }
+
+        // Touch Listener yedeği
+        view.setOnTouchListener { _, event ->
+            if (event.action == android.view.MotionEvent.ACTION_UP) {
+                 if (isNavigation) trackScreenView(identifier, activity)
+                 else triggerButtonByStringId(identifier, activity)
+            }
+            false 
+        }
+    }
+
+   private fun triggerSurvey(survey: SurveyConfig, activity: Activity) {
+        // Not: Parametre tipini 'Survey' yerine 'SurveyConfig' yaptım, 
+        // eğer senin sınıfının adı 'Survey' ise onu değiştirmene gerek yok.
+        
+        Log.d("SurveySDK", "🚀 Attempting to trigger survey: ${survey.surveyId} with style: ${survey.modalStyle}")
+
+        // 1. Exclusion Kuralları
+        /*
+        if (ExclusionRuleEvaluator.shouldExcludeSurvey(activity, survey.exclusionRules)) {
+            Log.d("SurveySDK", "⛔ Survey suppressed by exclusion rules")
+            return
+        }
+        */
+
+        val fragmentManager = (activity as? androidx.fragment.app.FragmentActivity)?.supportFragmentManager
+
+        // 3. Stile Göre Açılış Mantığı
+        when (survey.modalStyle) {
+            "bottom_sheet" -> {
+                if (fragmentManager != null) {
+                    try {
+                        val bottomSheet = SurveyBottomSheetFragment.newInstance(
+                            surveyUrl = survey.baseUrl, 
+                            backgroundColor = survey.backgroundColor ?: "#FFFFFF",
+                            allowedDomain = null
+                        )
+                        
+                        if (fragmentManager.findFragmentByTag("SurveyBottomSheetFragment") == null) {
+                            bottomSheet.show(fragmentManager, "SurveyBottomSheetFragment")
+                            Log.d("SurveySDK", "✅ Survey opened as BottomSheet")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("SurveySDK", "❌ Failed to open BottomSheet", e)
+                    }
+                } else {
+                    Log.e("SurveySDK", "❌ Cannot open BottomSheet: Activity is not FragmentActivity")
+                }
+            }
+
+            "full_screen" -> {
+                try {
+                    val intent = android.content.Intent(activity, SurveyFullScreenActivity::class.java).apply {
+                        // DÜZELTME BURADA: survey.surveyUrl -> survey.baseUrl
+                        putExtra("SURVEY_URL", survey.baseUrl)
+                        putExtra("BACKGROUND_COLOR", survey.backgroundColor ?: "#FFFFFF")
+                        putExtra("ANIMATION_TYPE", survey.animationType ?: "fade")
+                        putExtra("SURVEY_ID", survey.surveyId)
+                    }
+                    activity.startActivity(intent)
+                    Log.d("SurveySDK", "✅ Survey opened as FullScreen Activity")
+                } catch (e: Exception) {
+                    Log.e("SurveySDK", "❌ Failed to open FullScreen Activity", e)
+                }
+            }
+
+            else -> { // "dialog"
+                if (fragmentManager != null) {
+                    try {
+                        val dialogFragment = SurveyDialogFragment.newInstance(
+                            surveyUrl = survey.baseUrl,
+                            backgroundColor = survey.backgroundColor ?: "#FFFFFF",
+                            animationType = survey.animationType ?: "fade",
+                            allowedDomain = null
+                        )
+                        
+                        if (fragmentManager.findFragmentByTag("SurveySDK_Dialog") == null) {
+                            dialogFragment.show(fragmentManager, "SurveySDK_Dialog")
+                            Log.d("SurveySDK", "✅ Survey opened as Dialog")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("SurveySDK", "❌ Failed to open Dialog", e)
+                    }
+                } else {
+                    Log.e("SurveySDK", "❌ Cannot open Dialog: Activity is not FragmentActivity")
+                }
+            }
+        }
+    }
+
 }

@@ -5,17 +5,17 @@
     <uses-permission android:name="android.permission.INTERNET" />
     
     <application>
-        <!-- Only include activities that actually exist -->
+        <!-- Flutter wrapper activities -->
         <activity
-            android:name="com.example.surveysdk.SurveyFullScreenActivity"
+            android:name=".FlutterDialogActivity"
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        
-        <activity
-            android:name="com.example.surveysdk.SurveyForegroundActivity"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.Dialog" />
             
-        <!-- NO SurveyDialogActivity - it doesn't exist -->
+        <activity
+            android:name=".FlutterBottomSheetActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.Dialog" />
+            
+        <!-- Existing SDK activities (they should already be accessible) -->
     </application>
 </manifest>

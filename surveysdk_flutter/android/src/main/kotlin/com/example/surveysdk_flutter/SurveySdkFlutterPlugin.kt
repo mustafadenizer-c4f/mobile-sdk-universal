@@ -1,7 +1,6 @@
 package com.example.surveysdk_flutter
 
 import androidx.annotation.NonNull
-import androidx.fragment.app.FragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -10,13 +9,12 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import android.app.Activity
+import android.content.Intent
 import android.util.Log
-import com.example.surveysdk.SurveySDK
 
 class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel : MethodChannel
     private var activity: Activity? = null
-    private var fragmentActivity: FragmentActivity? = null
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "surveysdk_flutter")
@@ -32,9 +30,9 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 val apiKey = call.argument<String>("apiKey")
                 if (apiKey != null && activity != null) {
                     try {
-                        // ✅ Use regular SurveySDK for Flutter
-                        SurveySDK.initialize(activity!!.applicationContext, apiKey)
-                        Log.d("SurveySDKFlutter", "✅ SDK initialized with API key: $apiKey")
+                        // Use the existing SDK
+                        com.example.surveysdk.SurveySDK.initialize(activity!!.applicationContext, apiKey)
+                        Log.d("SurveySDKFlutter", "✅ SDK initialized")
                         result.success(true)
                     } catch (e: Exception) {
                         Log.e("SurveySDKFlutter", "❌ Initialization failed: ${e.message}")
@@ -46,22 +44,11 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             }
             
             "showSurvey" -> {
-                if (fragmentActivity != null) {
+                if (activity != null) {
                     try {
-                        val surveySDK = SurveySDK.getInstance()
-                        surveySDK.showSurvey(fragmentActivity!!)
-                        Log.d("SurveySDKFlutter", "✅ Showing auto-selected survey via FragmentActivity")
-                        result.success(true)
-                    } catch (e: Exception) {
-                        Log.e("SurveySDKFlutter", "❌ Show survey failed: ${e.message}")
-                        result.error("SHOW_ERROR", "Failed to show survey", e.message)
-                    }
-                } else if (activity != null) {
-                    // Fallback to regular Activity
-                    try {
-                        val surveySDK = SurveySDK.getInstance()
-                        surveySDK.showSurvey(activity!!)
-                        Log.d("SurveySDKFlutter", "⚠️ Showing survey via Activity (no FragmentActivity)")
+                        // Use the existing SDK's auto-selection
+                        com.example.surveysdk.SurveySDK.getInstance().showSurvey(activity!!)
+                        Log.d("SurveySDKFlutter", "✅ Showing auto survey")
                         result.success(true)
                     } catch (e: Exception) {
                         Log.e("SurveySDKFlutter", "❌ Show survey failed: ${e.message}")
@@ -74,22 +61,40 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             
             "showSurveyById" -> {
                 val surveyId = call.argument<String>("surveyId")
-                if (fragmentActivity != null && surveyId != null) {
+                if (activity != null && surveyId != null) {
                     try {
-                        val surveySDK = SurveySDK.getInstance()
-                        surveySDK.showSurveyById(fragmentActivity!!, surveyId)
-                        Log.d("SurveySDKFlutter", "✅ Showing survey via FragmentActivity: $surveyId")
-                        result.success(true)
-                    } catch (e: Exception) {
-                        Log.e("SurveySDKFlutter", "❌ Error: ${e.message}")
-                        result.error("SHOW_ERROR", "Failed", e.message)
-                    }
-                } else if (activity != null && surveyId != null) {
-                    // Fallback to regular Activity
-                    try {
-                        val surveySDK = SurveySDK.getInstance()
-                        surveySDK.showSurveyById(activity!!, surveyId)
-                        Log.d("SurveySDKFlutter", "⚠️ Showing survey via Activity (no FragmentActivity): $surveyId")
+                        // Determine which wrapper to use based on surveyId
+                        when (surveyId) {
+                            "button_trigger_survey" -> {
+                                // Show as dialog
+                                val intent = Intent(activity, FlutterDialogActivity::class.java).apply {
+                                    putExtra(FlutterDialogActivity.EXTRA_SURVEY_URL, 
+                                        "https://cx.cloud4feed.com/?c=7S1X-MDAwMTIy-MDAx-kdnh")
+                                    putExtra(FlutterDialogActivity.EXTRA_BACKGROUND_COLOR, "#FFFFFF")
+                                    putExtra(FlutterDialogActivity.EXTRA_ANIMATION_TYPE, "slide_up")
+                                }
+                                activity!!.startActivity(intent)
+                                Log.d("SurveySDKFlutter", "✅ Launching dialog for: $surveyId")
+                            }
+                            
+                            "scroll_trigger_survey" -> {
+                                // Show as bottom sheet
+                                val intent = Intent(activity, FlutterBottomSheetActivity::class.java).apply {
+                                    putExtra(FlutterBottomSheetActivity.EXTRA_SURVEY_URL,
+                                        "https://cx.cloud4feed.com/?c=PTzb-MDAwMDAy-MDEx-0zMC")
+                                    putExtra(FlutterBottomSheetActivity.EXTRA_BACKGROUND_COLOR, "#F8F9FA")
+                                }
+                                activity!!.startActivity(intent)
+                                Log.d("SurveySDKFlutter", "✅ Launching bottom sheet for: $surveyId")
+                            }
+                            
+                            else -> {
+                                // Use full screen from existing SDK
+                                com.example.surveysdk.SurveySDK.getInstance().showSurveyById(activity!!, surveyId)
+                                Log.d("SurveySDKFlutter", "✅ Using SDK full screen for: $surveyId")
+                            }
+                        }
+                        
                         result.success(true)
                     } catch (e: Exception) {
                         Log.e("SurveySDKFlutter", "❌ Error: ${e.message}")
@@ -99,23 +104,12 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("NO_ACTIVITY", "Activity or survey ID missing", null)
                 }
             }
-
+            
             "autoSetup" -> {
-                if (fragmentActivity != null) {
+                if (activity != null) {
                     try {
-                        val surveySDK = SurveySDK.getInstance()
-                        surveySDK.autoSetup(fragmentActivity!!)
-                        Log.d("SurveySDKFlutter", "✅ Auto setup completed with FragmentActivity")
-                        result.success(true)
-                    } catch (e: Exception) {
-                        Log.e("SurveySDKFlutter", "❌ Auto setup failed: ${e.message}")
-                        result.error("SETUP_ERROR", "Auto setup failed", e.message)
-                    }
-                } else if (activity != null) {
-                    try {
-                        val surveySDK = SurveySDK.getInstance()
-                        surveySDK.autoSetup(activity!!)
-                        Log.d("SurveySDKFlutter", "⚠️ Auto setup with Activity (no FragmentActivity)")
+                        com.example.surveysdk.SurveySDK.getInstance().autoSetup(activity!!)
+                        Log.d("SurveySDKFlutter", "✅ Auto setup completed")
                         result.success(true)
                     } catch (e: Exception) {
                         Log.e("SurveySDKFlutter", "❌ Auto setup failed: ${e.message}")
@@ -125,11 +119,10 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("NO_ACTIVITY", "No activity available", null)
                 }
             }
-
+            
             "isUserExcluded" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    val isExcluded = surveySDK.isUserExcluded()
+                    val isExcluded = com.example.surveysdk.SurveySDK.getInstance().isUserExcluded()
                     Log.d("SurveySDKFlutter", "User excluded check: $isExcluded")
                     result.success(isExcluded)
                 } catch (e: Exception) {
@@ -137,13 +130,12 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("EXCLUSION_ERROR", "Failed to check exclusion", e.message)
                 }
             }
-
+            
             "isUserExcludedForSurvey" -> {
                 val surveyId = call.argument<String>("surveyId")
                 if (surveyId != null) {
                     try {
-                        val surveySDK = SurveySDK.getInstance()
-                        val isExcluded = surveySDK.isUserExcluded(surveyId)
+                        val isExcluded = com.example.surveysdk.SurveySDK.getInstance().isUserExcluded(surveyId)
                         Log.d("SurveySDKFlutter", "User excluded check for $surveyId: $isExcluded")
                         result.success(isExcluded)
                     } catch (e: Exception) {
@@ -154,11 +146,10 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("INVALID_ARGS", "Survey ID missing", null)
                 }
             }
-
+            
             "getDebugStatus" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    val debugStatus = surveySDK.debugSurveyStatus()
+                    val debugStatus = com.example.surveysdk.SurveySDK.getInstance().debugSurveyStatus()
                     Log.d("SurveySDKFlutter", "Debug status retrieved")
                     result.success(debugStatus)
                 } catch (e: Exception) {
@@ -166,11 +157,10 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("DEBUG_ERROR", "Failed to get debug status", e.message)
                 }
             }
-
+            
             "getSurveyIds" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    val surveyIds = surveySDK.getSurveyIds()
+                    val surveyIds = com.example.surveysdk.SurveySDK.getInstance().getSurveyIds()
                     Log.d("SurveySDKFlutter", "Retrieved ${surveyIds.size} survey IDs")
                     result.success(surveyIds)
                 } catch (e: Exception) {
@@ -178,11 +168,10 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("CONFIG_ERROR", "Failed to get survey IDs", e.message)
                 }
             }
-
+            
             "isConfigurationLoaded" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    val isLoaded = surveySDK.isConfigurationLoaded()
+                    val isLoaded = com.example.surveysdk.SurveySDK.getInstance().isConfigurationLoaded()
                     Log.d("SurveySDKFlutter", "Configuration loaded: $isLoaded")
                     result.success(isLoaded)
                 } catch (e: Exception) {
@@ -190,14 +179,13 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("CONFIG_ERROR", "Failed to check config status", e.message)
                 }
             }
-
+            
             "setUserProperty" -> {
                 val key = call.argument<String>("key")
                 val value = call.argument<String>("value")
                 if (key != null && value != null && activity != null) {
                     try {
-                        activity!!
-                            .getSharedPreferences("survey_sdk_data", android.content.Context.MODE_PRIVATE)
+                        activity!!.getSharedPreferences("survey_sdk_data", android.content.Context.MODE_PRIVATE)
                             .edit()
                             .putString(key, value)
                             .apply()
@@ -211,7 +199,7 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("INVALID_ARGS", "Key, value or activity missing", null)
                 }
             }
-
+            
             "trackEvent" -> {
                 val eventName = call.argument<String>("eventName")
                 val properties = call.argument<Map<String, Any>>("properties")
@@ -227,14 +215,13 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("INVALID_ARGS", "Event name missing", null)
                 }
             }
-
+            
             "setSessionData" -> {
                 val key = call.argument<String>("key")
                 val value = call.argument<String>("value")
                 if (key != null && value != null) {
                     try {
-                        val surveySDK = SurveySDK.getInstance()
-                        surveySDK.setSessionData(key, value)
+                        com.example.surveysdk.SurveySDK.getInstance().setSessionData(key, value)
                         Log.d("SurveySDKFlutter", "Session data set: $key = $value")
                         result.success(true)
                     } catch (e: Exception) {
@@ -245,11 +232,10 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("INVALID_ARGS", "Key or value missing", null)
                 }
             }
-
+            
             "resetSessionData" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    surveySDK.resetSessionData()
+                    com.example.surveysdk.SurveySDK.getInstance().resetSessionData()
                     Log.d("SurveySDKFlutter", "Session data reset")
                     result.success(true)
                 } catch (e: Exception) {
@@ -257,11 +243,10 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("SESSION_ERROR", "Failed to reset session data", e.message)
                 }
             }
-
+            
             "resetTriggers" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    surveySDK.resetTriggers()
+                    com.example.surveysdk.SurveySDK.getInstance().resetTriggers()
                     Log.d("SurveySDKFlutter", "Triggers reset")
                     result.success(true)
                 } catch (e: Exception) {
@@ -272,8 +257,7 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
             "getQueueStatus" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    val status = surveySDK.getQueueStatus()
+                    val status = com.example.surveysdk.SurveySDK.getInstance().getQueueStatus()
                     Log.d("SurveySDKFlutter", "Queue status: $status")
                     result.success(status)
                 } catch (e: Exception) {
@@ -281,11 +265,10 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("QUEUE_ERROR", "Failed to get queue status", e.message)
                 }
             }
-
+            
             "clearSurveyQueue" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    surveySDK.clearSurveyQueue()
+                    com.example.surveysdk.SurveySDK.getInstance().clearSurveyQueue()
                     Log.d("SurveySDKFlutter", "Survey queue cleared")
                     result.success(true)
                 } catch (e: Exception) {
@@ -293,11 +276,10 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("QUEUE_ERROR", "Failed to clear survey queue", e.message)
                 }
             }
-
+            
             "isShowingSurvey" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    val isShowing = surveySDK.isShowingSurvey()
+                    val isShowing = com.example.surveysdk.SurveySDK.getInstance().isShowingSurvey()
                     Log.d("SurveySDKFlutter", "Is showing survey: $isShowing")
                     result.success(isShowing)
                 } catch (e: Exception) {
@@ -305,11 +287,10 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("SURVEY_ERROR", "Failed to check if survey is showing", e.message)
                 }
             }
-
+            
             "isSDKEnabled" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    val isEnabled = surveySDK.isSDKEnabled()
+                    val isEnabled = com.example.surveysdk.SurveySDK.getInstance().isSDKEnabled()
                     Log.d("SurveySDKFlutter", "SDK enabled: $isEnabled")
                     result.success(isEnabled)
                 } catch (e: Exception) {
@@ -317,11 +298,10 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("STATUS_ERROR", "Failed to check if SDK is enabled", e.message)
                 }
             }
-
+            
             "fetchConfiguration" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    surveySDK.fetchConfiguration()
+                    com.example.surveysdk.SurveySDK.getInstance().fetchConfiguration()
                     Log.d("SurveySDKFlutter", "Configuration fetch initiated")
                     result.success(true)
                 } catch (e: Exception) {
@@ -329,11 +309,10 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("CONFIG_ERROR", "Failed to fetch configuration", e.message)
                 }
             }
-
+            
             "getConfigForDebug" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    val configDebug = surveySDK.getConfigForDebug()
+                    val configDebug = com.example.surveysdk.SurveySDK.getInstance().getConfigForDebug()
                     Log.d("SurveySDKFlutter", "Config debug retrieved")
                     result.success(configDebug)
                 } catch (e: Exception) {
@@ -341,11 +320,10 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("CONFIG_ERROR", "Failed to get config debug info", e.message)
                 }
             }
-
+            
             "cleanup" -> {
                 try {
-                    val surveySDK = SurveySDK.getInstance()
-                    surveySDK.cleanup()
+                    com.example.surveysdk.SurveySDK.getInstance().cleanup()
                     Log.d("SurveySDKFlutter", "SDK cleanup completed")
                     result.success(true)
                 } catch (e: Exception) {
@@ -353,52 +331,35 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("CLEANUP_ERROR", "Failed to cleanup SDK", e.message)
                 }
             }
-
+            
             else -> {
                 result.notImplemented()
             }
         }
     }
 
-   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
         Log.d("SurveySDKFlutter", "Plugin detached from engine")
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activity = binding.activity
-        
-        // ✅ Try to cast to FragmentActivity
-        if (binding.activity is FragmentActivity) {
-            fragmentActivity = binding.activity as FragmentActivity
-            Log.d("SurveySDKFlutter", "✅ FragmentActivity attached: ${fragmentActivity?.javaClass?.simpleName}")
-        } else {
-            Log.w("SurveySDKFlutter", "⚠️ Activity is not FragmentActivity: ${activity?.javaClass?.simpleName}")
-        }
-        
-        Log.d("SurveySDKFlutter", "Activity attached: ${activity?.javaClass?.simpleName}")
+        Log.d("SurveySDKFlutter", "✅ Activity attached: ${activity?.javaClass?.simpleName}")
     }
 
     override fun onDetachedFromActivity() {
         Log.d("SurveySDKFlutter", "⚠️ Activity detached")
         activity = null
-        fragmentActivity = null
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
         activity = binding.activity
-        
-        if (binding.activity is FragmentActivity) {
-            fragmentActivity = binding.activity as FragmentActivity
-            Log.d("SurveySDKFlutter", "✅ FragmentActivity reattached")
-        }
-        
-        Log.d("SurveySDKFlutter", "Activity reattached for config changes")
+        Log.d("SurveySDKFlutter", "✅ Activity reattached for config changes")
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
         Log.d("SurveySDKFlutter", "⚠️ Activity detached for config changes")
         activity = null
-        fragmentActivity = null
     }
 }

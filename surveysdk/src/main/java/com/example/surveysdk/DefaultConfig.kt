@@ -73,7 +73,7 @@ object DefaultConfig {
                 surveyId = "scroll_trigger_survey",
                 surveyName = "Scroll Trigger Survey",
                 baseUrl = "https://cx.cloud4feed.com/?c=PTzb-MDAwMDAy-MDEx-0zMC",
-                status = false,
+                status = true,
                 // ===== TRIGGER SETTINGS =====
                 enableButtonTrigger = true,
                 enableScrollTrigger = true,
