@@ -176,8 +176,9 @@ class SurveySDK private constructor(private val context: Context) {
     private val SCROLL_COOLDOWN_MS = 3000L // 3 Saniye bekleme süresi
 
     // Navigasyon tıklamalarının üst üste binmesini önlemek için
-    private var lastNavClickTime: Long = 0
-    private val NAV_COOLDOWN_MS = 1000L // 1 saniye bekletme
+    private var lastNavigationTriggerTime: Long = 0
+    private val NAVIGATION_TRIGGER_DEBOUNCE_MS = 1000L // 1 second debounce
+    private val navigationListenersSet = mutableSetOf<String>() // Track which activities have listeners
 
     // ===== SURVEY QUEUE SYSTEM =====
     private val surveyQueue = mutableListOf<Pair<Activity, SurveyConfig>>()
@@ -283,6 +284,8 @@ class SurveySDK private constructor(private val context: Context) {
         screenTimers.clear()
         SafeDelayExecutor.cancelAll()
         delayExecutors.clear()
+        navigationListenersSet.clear()
+        lastNavigationTriggerTime = 0
     }
 
     fun cleanup() {
@@ -299,6 +302,10 @@ class SurveySDK private constructor(private val context: Context) {
         triggeredTabs.clear()
         triggeredExits.clear()
         screenTimers.clear()
+
+        // Clear navigation tracking
+        navigationListenersSet.clear()
+        lastNavigationTriggerTime = 0
 
         // Clear queue
         synchronized(queueLock) {
@@ -426,40 +433,67 @@ class SurveySDK private constructor(private val context: Context) {
     }
 
     fun triggerByNavigation(screenName: String, activity: Activity) {
+        val currentTime = System.currentTimeMillis()
+        val debounced = currentTime - lastNavigationTriggerTime < NAVIGATION_TRIGGER_DEBOUNCE_MS
+        
         if (activity == null || activity.isFinishing) {
             Log.e("SurveySDK", "❌ Activity is null or finishing in triggerByNavigation")
             return
         }
+        
+        // DEBOUNCE CHECK: Prevent rapid repeated triggers
+        if (debounced) {
+            Log.d("SurveySDK", "⚠️ Navigation trigger debounced for: $screenName")
+            return
+        }
+        
+        lastNavigationTriggerTime = currentTime
+        
+        val safeScreenName = screenName ?: "unknown"
+        screenTimers[safeScreenName] = System.currentTimeMillis()
 
         val matchingSurveys = config.surveys.filter { survey ->
             survey.enableNavigationTrigger &&
                     (survey.triggerScreens.isEmpty() || survey.triggerScreens.any {
-                        screenName.contains(
-                            it,
-                            ignoreCase = true
-                        )
+                        screenName.contains(it, ignoreCase = true)
                     }) &&
                     !(survey.triggerOnce && triggeredScreens[survey.surveyId]?.contains(screenName) == true)
         }
 
-        if (matchingSurveys.isEmpty()) return
-        val safeScreenName = screenName ?: "unknown"
-        screenTimers[safeScreenName] = System.currentTimeMillis()
+        if (matchingSurveys.isEmpty()) {
+            Log.d("SurveySDK", "📭 No matching navigation surveys for: $screenName")
+            return
+        }
+        
+        Log.d("SurveySDK", "🎯 Found ${matchingSurveys.size} navigation surveys for: $screenName")
 
         matchingSurveys.forEach { survey ->
             if (survey.triggerType == "delayed" && survey.timeDelay > 0) {
+                Log.d("SurveySDK", "⏰ Setting up delayed navigation trigger for ${survey.surveyId}")
                 setupScreenTimeTrigger(safeScreenName, activity, survey)
             } else {
                 if (canShowSurvey(survey)) {
+                    Log.d("SurveySDK", "🚀 Immediately showing navigation survey: ${survey.surveyId}")
                     triggeredScreens[survey.surveyId]?.add(safeScreenName)
                     showSingleSurvey(activity, survey)
+                } else {
+                    Log.d("SurveySDK", "❌ Cannot show navigation survey ${survey.surveyId}")
                 }
             }
         }
     }
 
     fun triggerByTabChange(tabName: String, activity: Activity) {
-        Log.d("SurveySDK", "📍 Tab change triggered: $tabName")
+        val currentTime = System.currentTimeMillis()
+        val debounced = currentTime - lastNavigationTriggerTime < NAVIGATION_TRIGGER_DEBOUNCE_MS
+        
+        Log.d("SurveySDK", "📍 Tab change triggered: $tabName (debounced: $debounced)")
+
+        // DEBOUNCE CHECK
+        if (debounced) {
+            Log.d("SurveySDK", "⚠️ Tab change trigger debounced for: $tabName")
+            return
+        }
 
         val matchingSurveys = config.surveys.filter { survey ->
             survey.enableTabChangeTrigger &&
@@ -472,6 +506,8 @@ class SurveySDK private constructor(private val context: Context) {
         Log.d("SurveySDK", "📊 Found ${matchingSurveys.size} matching surveys for tab: $tabName")
 
         if (matchingSurveys.isEmpty()) return
+        
+        lastNavigationTriggerTime = currentTime
 
         screenTimers[tabName] = System.currentTimeMillis()
 
@@ -503,7 +539,16 @@ class SurveySDK private constructor(private val context: Context) {
     }
 
    fun trackScreenView(screenName: String, activity: Activity) {
-        Log.d("SurveySDK", "📱 Navigation Event Detected: $screenName")
+        val currentTime = System.currentTimeMillis()
+        val debounced = currentTime - lastNavigationTriggerTime < NAVIGATION_TRIGGER_DEBOUNCE_MS
+        
+        Log.d("SurveySDK", "📱 Navigation Event Detected: $screenName (debounced: $debounced)")
+
+        // DEBOUNCE CHECK - This is safe for RN bridge
+        if (debounced) {
+            Log.d("SurveySDK", "⚠️ trackScreenView debounced for: $screenName")
+            return
+        }
 
         // İsteğe bağlı: Sayfa sayacını artır (eski fonksiyonu çağırarak)
         trackScreenView(activity)
@@ -524,6 +569,8 @@ class SurveySDK private constructor(private val context: Context) {
 
         if (surveyToTrigger != null) {
             Log.d("SurveySDK", "🚀 Navigation/Tab Trigger Match! Launching survey...")
+            
+            lastNavigationTriggerTime = currentTime
             
             // Navigasyon anketlerinde genelde gecikme (timeDelay) olur.
             // Config'deki 'timeDelay' süresi kadar bekleyip açalım.
@@ -1415,6 +1462,15 @@ class SurveySDK private constructor(private val context: Context) {
         try {
             Log.d("SurveySDK", "🔄 Starting auto navigation detection...")
 
+            // Check if we've already set up listeners for this activity
+            val activityKey = activity.javaClass.simpleName
+            if (navigationListenersSet.contains(activityKey)) {
+                Log.d("SurveySDK", "⚠️ Navigation listeners already set up for $activityKey")
+                return
+            }
+            
+            navigationListenersSet.add(activityKey)
+
             // Method 1: Try BottomNavigationView detection
             val bottomNavView = findBottomNavigationView(activity)
             if (bottomNavView != null) {
@@ -1442,6 +1498,9 @@ class SurveySDK private constructor(private val context: Context) {
 
             // Cast to BottomNavigationView directly
             if (navView is com.google.android.material.bottomnavigation.BottomNavigationView) {
+                // Clear any existing listener to prevent duplicates
+                navView.setOnNavigationItemSelectedListener(null)
+                
                 navView.setOnNavigationItemSelectedListener { menuItem ->
                     val screenName = when (menuItem.itemId) {
                         // Common BottomNavigationView IDs
@@ -1456,7 +1515,7 @@ class SurveySDK private constructor(private val context: Context) {
 
                     Log.d("SurveySDK", "📍 BottomNavigationView: $screenName clicked")
 
-                    // Trigger both navigation and tab change
+                    // Trigger both navigation and tab change WITH DEBOUNCE
                     triggerByNavigation(screenName, activity)
                     triggerByTabChange(screenName, activity)
 
@@ -1473,6 +1532,13 @@ class SurveySDK private constructor(private val context: Context) {
     private fun setupNavigationComponentDetection(activity: Activity) {
         try {
             if (activity is androidx.fragment.app.FragmentActivity) {
+                // Check if already set up
+                val activityKey = activity.javaClass.simpleName
+                if (navigationListenersSet.contains("${activityKey}_nav_component")) {
+                    Log.d("SurveySDK", "⚠️ Navigation component already set up for $activityKey")
+                    return
+                }
+                
                 // Look for NavHostFragment
                 val navHostFragment = activity.supportFragmentManager.fragments.find {
                     it is androidx.navigation.fragment.NavHostFragment
@@ -1481,14 +1547,17 @@ class SurveySDK private constructor(private val context: Context) {
                 navHostFragment?.let { navHost ->
                     val navController = navHost.navController
                     Log.d("SurveySDK", "✅ Found Navigation Component")
-
+                    
                     navController.addOnDestinationChangedListener { _, destination, _ ->
                         val screenName = destination.label?.toString() ?: "screen_${destination.id}"
                         Log.d("SurveySDK", "📍 Navigation Component: $screenName")
 
+                        // Trigger with debounce protection
                         triggerByNavigation(screenName, activity)
                         triggerByTabChange(screenName, activity)
                     }
+                    
+                    navigationListenersSet.add("${activityKey}_nav_component")
                 }
             }
         } catch (e: Exception) {

@@ -9,8 +9,9 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import android.app.Activity
-import android.content.Intent
+import android.content.Context
 import android.util.Log
+import com.example.surveysdk.SurveySDK // Core SDK Import
 
 class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel : MethodChannel
@@ -19,347 +20,305 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "surveysdk_flutter")
         channel.setMethodCallHandler(this)
-        Log.d("SurveySDKFlutter", "Plugin attached to engine")
+        Log.d("SurveySDKFlutter", "🔌 Plugin attached via MethodChannel")
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        Log.d("SurveySDKFlutter", "Method called: ${call.method}")
         
         when (call.method) {
+            // =====================================================================
+            // 🚀 1. INITIALIZATION & SETUP
+            // =====================================================================
             "initialize" -> {
                 val apiKey = call.argument<String>("apiKey")
                 if (apiKey != null && activity != null) {
                     try {
-                        // Use the existing SDK
-                        com.example.surveysdk.SurveySDK.initialize(activity!!.applicationContext, apiKey)
+                        SurveySDK.initialize(activity!!.applicationContext, apiKey)
                         Log.d("SurveySDKFlutter", "✅ SDK initialized")
                         result.success(true)
                     } catch (e: Exception) {
-                        Log.e("SurveySDKFlutter", "❌ Initialization failed: ${e.message}")
-                        result.error("INIT_ERROR", "Initialization failed", e.message)
+                        Log.e("SurveySDKFlutter", "❌ Init failed", e)
+                        result.error("INIT_ERROR", e.message, null)
                     }
                 } else {
                     result.error("INVALID_ARGS", "API key or activity missing", null)
                 }
             }
             
-            "showSurvey" -> {
+            "autoSetup" -> {
                 if (activity != null) {
                     try {
-                        // Use the existing SDK's auto-selection
-                        com.example.surveysdk.SurveySDK.getInstance().showSurvey(activity!!)
-                        Log.d("SurveySDKFlutter", "✅ Showing auto survey")
+                        // Flutter için sadece Lifecycle (App Launch) takibi yapar.
+                        // Buton taraması Flutter tarafında Widget ile yapılır.
+                        SurveySDK.getInstance().autoSetup(activity!!)
+                        Log.d("SurveySDKFlutter", "✅ Lifecycle Auto-Setup completed")
                         result.success(true)
                     } catch (e: Exception) {
-                        Log.e("SurveySDKFlutter", "❌ Show survey failed: ${e.message}")
-                        result.error("SHOW_ERROR", "Failed to show survey", e.message)
+                        result.error("SETUP_ERROR", e.message, null)
                     }
                 } else {
-                    result.error("NO_ACTIVITY", "No activity available", null)
+                    result.error("NO_ACTIVITY", "No activity", null)
+                }
+            }
+
+            // =====================================================================
+            // 🔗 2. TRIGGERS (Flutter'dan Gelen Sinyaller)
+            // =====================================================================
+            
+            "triggerButton" -> {
+                val buttonId = call.argument<String>("buttonId")
+                if (activity != null && buttonId != null) {
+                    // Core SDK'daki String ID eşleştiriciyi kullanır
+                    SurveySDK.getInstance().triggerButtonByStringId(buttonId, activity!!)
+                    result.success(true)
+                } else {
+                    result.success(false)
+                }
+            }
+
+            "triggerNavigation" -> {
+                val screenName = call.argument<String>("screenName")
+                if (activity != null && screenName != null) {
+                    // Core SDK'ya navigasyon bilgisi ver
+                    SurveySDK.getInstance().triggerByNavigation(screenName, activity!!)
+                    // Tab değişimi de olabilir, onu da kontrol et
+                    SurveySDK.getInstance().triggerByTabChange(screenName, activity!!)
+                    result.success(true)
+                } else {
+                    result.success(false)
+                }
+            }
+
+            "triggerScroll" -> {
+                if (activity != null) {
+                    val scrollY = call.argument<Int>("scrollY") ?: 500
+                    SurveySDK.getInstance().triggerScrollManual(activity!!, scrollY)
+                    result.success(true)
+                } else {
+                    result.success(false)
+                }
+            }
+
+            // =====================================================================
+            // 🛠️ 3. SHOW & DISPLAY METHODS
+            // =====================================================================
+
+            "showSurvey" -> {
+                if (activity != null) {
+                    SurveySDK.getInstance().showSurvey(activity!!)
+                    result.success(true)
+                } else {
+                    result.error("NO_ACTIVITY", "No activity", null)
                 }
             }
             
             "showSurveyById" -> {
                 val surveyId = call.argument<String>("surveyId")
                 if (activity != null && surveyId != null) {
-                    try {
-                        // Determine which wrapper to use based on surveyId
-                        when (surveyId) {
-                            "button_trigger_survey" -> {
-                                // Show as dialog
-                                val intent = Intent(activity, FlutterDialogActivity::class.java).apply {
-                                    putExtra(FlutterDialogActivity.EXTRA_SURVEY_URL, 
-                                        "https://cx.cloud4feed.com/?c=7S1X-MDAwMTIy-MDAx-kdnh")
-                                    putExtra(FlutterDialogActivity.EXTRA_BACKGROUND_COLOR, "#FFFFFF")
-                                    putExtra(FlutterDialogActivity.EXTRA_ANIMATION_TYPE, "slide_up")
-                                }
-                                activity!!.startActivity(intent)
-                                Log.d("SurveySDKFlutter", "✅ Launching dialog for: $surveyId")
-                            }
-                            
-                            "scroll_trigger_survey" -> {
-                                // Show as bottom sheet
-                                val intent = Intent(activity, FlutterBottomSheetActivity::class.java).apply {
-                                    putExtra(FlutterBottomSheetActivity.EXTRA_SURVEY_URL,
-                                        "https://cx.cloud4feed.com/?c=PTzb-MDAwMDAy-MDEx-0zMC")
-                                    putExtra(FlutterBottomSheetActivity.EXTRA_BACKGROUND_COLOR, "#F8F9FA")
-                                }
-                                activity!!.startActivity(intent)
-                                Log.d("SurveySDKFlutter", "✅ Launching bottom sheet for: $surveyId")
-                            }
-                            
-                            else -> {
-                                // Use full screen from existing SDK
-                                com.example.surveysdk.SurveySDK.getInstance().showSurveyById(activity!!, surveyId)
-                                Log.d("SurveySDKFlutter", "✅ Using SDK full screen for: $surveyId")
-                            }
-                        }
-                        
-                        result.success(true)
-                    } catch (e: Exception) {
-                        Log.e("SurveySDKFlutter", "❌ Error: ${e.message}")
-                        result.error("SHOW_ERROR", "Failed", e.message)
-                    }
+                    // DÜZELTME: Manuel Intent açmak yerine Core SDK'ya devrettik.
+                    // Core SDK config'e bakıp Dialog mu BottomSheet mi karar verecek.
+                    SurveySDK.getInstance().showSurveyById(activity!!, surveyId)
+                    result.success(true)
                 } else {
-                    result.error("NO_ACTIVITY", "Activity or survey ID missing", null)
+                    result.error("INVALID_ARGS", "Missing ID", null)
                 }
             }
-            
-            "autoSetup" -> {
-                if (activity != null) {
-                    try {
-                        com.example.surveysdk.SurveySDK.getInstance().autoSetup(activity!!)
-                        Log.d("SurveySDKFlutter", "✅ Auto setup completed")
-                        result.success(true)
-                    } catch (e: Exception) {
-                        Log.e("SurveySDKFlutter", "❌ Auto setup failed: ${e.message}")
-                        result.error("SETUP_ERROR", "Auto setup failed", e.message)
-                    }
-                } else {
-                    result.error("NO_ACTIVITY", "No activity available", null)
-                }
-            }
-            
-            "isUserExcluded" -> {
-                try {
-                    val isExcluded = com.example.surveysdk.SurveySDK.getInstance().isUserExcluded()
-                    Log.d("SurveySDKFlutter", "User excluded check: $isExcluded")
-                    result.success(isExcluded)
-                } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "User excluded check failed: ${e.message}")
-                    result.error("EXCLUSION_ERROR", "Failed to check exclusion", e.message)
-                }
-            }
-            
-            "isUserExcludedForSurvey" -> {
-                val surveyId = call.argument<String>("surveyId")
-                if (surveyId != null) {
-                    try {
-                        val isExcluded = com.example.surveysdk.SurveySDK.getInstance().isUserExcluded(surveyId)
-                        Log.d("SurveySDKFlutter", "User excluded check for $surveyId: $isExcluded")
-                        result.success(isExcluded)
-                    } catch (e: Exception) {
-                        Log.e("SurveySDKFlutter", "User excluded check failed for $surveyId: ${e.message}")
-                        result.error("EXCLUSION_ERROR", "Failed to check exclusion for survey", e.message)
-                    }
-                } else {
-                    result.error("INVALID_ARGS", "Survey ID missing", null)
-                }
-            }
-            
-            "getDebugStatus" -> {
-                try {
-                    val debugStatus = com.example.surveysdk.SurveySDK.getInstance().debugSurveyStatus()
-                    Log.d("SurveySDKFlutter", "Debug status retrieved")
-                    result.success(debugStatus)
-                } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "Debug status failed: ${e.message}")
-                    result.error("DEBUG_ERROR", "Failed to get debug status", e.message)
-                }
-            }
-            
-            "getSurveyIds" -> {
-                try {
-                    val surveyIds = com.example.surveysdk.SurveySDK.getInstance().getSurveyIds()
-                    Log.d("SurveySDKFlutter", "Retrieved ${surveyIds.size} survey IDs")
-                    result.success(surveyIds)
-                } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "Get survey IDs failed: ${e.message}")
-                    result.error("CONFIG_ERROR", "Failed to get survey IDs", e.message)
-                }
-            }
-            
-            "isConfigurationLoaded" -> {
-                try {
-                    val isLoaded = com.example.surveysdk.SurveySDK.getInstance().isConfigurationLoaded()
-                    Log.d("SurveySDKFlutter", "Configuration loaded: $isLoaded")
-                    result.success(isLoaded)
-                } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "Config status check failed: ${e.message}")
-                    result.error("CONFIG_ERROR", "Failed to check config status", e.message)
-                }
-            }
-            
+
+            // =====================================================================
+            // ⚙️ 4. USER PROPERTIES & SESSION
+            // =====================================================================
+
             "setUserProperty" -> {
                 val key = call.argument<String>("key")
                 val value = call.argument<String>("value")
                 if (key != null && value != null && activity != null) {
-                    try {
-                        activity!!.getSharedPreferences("survey_sdk_data", android.content.Context.MODE_PRIVATE)
-                            .edit()
-                            .putString(key, value)
-                            .apply()
-                        Log.d("SurveySDKFlutter", "User property set: $key = $value")
-                        result.success(true)
-                    } catch (e: Exception) {
-                        Log.e("SurveySDKFlutter", "Set user property failed: ${e.message}")
-                        result.error("PROPERTY_ERROR", "Failed to set user property", e.message)
-                    }
+                    // Veriyi SharedPreferences'a yazıyoruz, Core SDK buradan okuyor
+                    activity!!.getSharedPreferences("survey_sdk_data", Context.MODE_PRIVATE)
+                        .edit().putString(key, value).apply()
+                    result.success(true)
                 } else {
-                    result.error("INVALID_ARGS", "Key, value or activity missing", null)
+                    result.success(false)
                 }
             }
-            
-            "trackEvent" -> {
-                val eventName = call.argument<String>("eventName")
-                val properties = call.argument<Map<String, Any>>("properties")
-                if (eventName != null) {
-                    try {
-                        Log.d("SurveySDKFlutter", "Event tracked: $eventName, Properties: $properties")
-                        result.success(true)
-                    } catch (e: Exception) {
-                        Log.e("SurveySDKFlutter", "Track event failed: ${e.message}")
-                        result.error("TRACK_ERROR", "Failed to track event", e.message)
-                    }
-                } else {
-                    result.error("INVALID_ARGS", "Event name missing", null)
-                }
-            }
-            
+
             "setSessionData" -> {
                 val key = call.argument<String>("key")
                 val value = call.argument<String>("value")
                 if (key != null && value != null) {
                     try {
-                        com.example.surveysdk.SurveySDK.getInstance().setSessionData(key, value)
-                        Log.d("SurveySDKFlutter", "Session data set: $key = $value")
+                        SurveySDK.getInstance().setSessionData(key, value)
                         result.success(true)
                     } catch (e: Exception) {
-                        Log.e("SurveySDKFlutter", "Set session data failed: ${e.message}")
-                        result.error("SESSION_ERROR", "Failed to set session data", e.message)
+                        result.error("SESSION_ERROR", e.message, null)
                     }
                 } else {
-                    result.error("INVALID_ARGS", "Key or value missing", null)
-                }
-            }
-            
-            "resetSessionData" -> {
-                try {
-                    com.example.surveysdk.SurveySDK.getInstance().resetSessionData()
-                    Log.d("SurveySDKFlutter", "Session data reset")
-                    result.success(true)
-                } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "Reset session data failed: ${e.message}")
-                    result.error("SESSION_ERROR", "Failed to reset session data", e.message)
-                }
-            }
-            
-            "resetTriggers" -> {
-                try {
-                    com.example.surveysdk.SurveySDK.getInstance().resetTriggers()
-                    Log.d("SurveySDKFlutter", "Triggers reset")
-                    result.success(true)
-                } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "Reset triggers failed: ${e.message}")
-                    result.error("TRIGGER_ERROR", "Failed to reset triggers", e.message)
+                    result.error("INVALID_ARGS", "Args missing", null)
                 }
             }
 
-            "getQueueStatus" -> {
+            "resetSessionData" -> {
                 try {
-                    val status = com.example.surveysdk.SurveySDK.getInstance().getQueueStatus()
-                    Log.d("SurveySDKFlutter", "Queue status: $status")
+                    SurveySDK.getInstance().resetSessionData()
+                    result.success(true)
+                } catch (e: Exception) {
+                    result.error("SESSION_ERROR", e.message, null)
+                }
+            }
+
+            "trackEvent" -> {
+                // Core SDK'da trackEvent public değilse veya otomatikse burası loglama yapar
+                val eventName = call.argument<String>("eventName")
+                val properties = call.argument<Map<String, Any>>("properties")
+                Log.d("SurveySDKFlutter", "Track Event: $eventName, Props: $properties")
+                // Eğer Core SDK'da public bir trackEvent varsa:
+                // SurveySDK.getInstance().trackEvent(eventName, properties)
+                result.success(true)
+            }
+
+            // =====================================================================
+            // 📊 5. STATUS & DEBUGGING
+            // =====================================================================
+            
+            "getDebugStatus" -> {
+                try {
+                    val status = SurveySDK.getInstance().debugSurveyStatus()
                     result.success(status)
                 } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "Get queue status failed: ${e.message}")
-                    result.error("QUEUE_ERROR", "Failed to get queue status", e.message)
+                    result.success("Error: ${e.message}")
+                }
+            }
+
+            "getSurveyIds" -> {
+                try {
+                    val ids = SurveySDK.getInstance().getSurveyIds()
+                    result.success(ids)
+                } catch (e: Exception) {
+                    result.error("ERROR", e.message, null)
+                }
+            }
+
+            "isSDKEnabled" -> {
+                try {
+                    result.success(SurveySDK.getInstance().isSDKEnabled())
+                } catch (e: Exception) {
+                    result.error("ERROR", e.message, null)
+                }
+            }
+
+            "isConfigurationLoaded" -> {
+                try {
+                    result.success(SurveySDK.getInstance().isConfigurationLoaded())
+                } catch (e: Exception) {
+                    result.error("ERROR", e.message, null)
                 }
             }
             
-            "clearSurveyQueue" -> {
+            "getQueueStatus" -> {
                 try {
-                    com.example.surveysdk.SurveySDK.getInstance().clearSurveyQueue()
-                    Log.d("SurveySDKFlutter", "Survey queue cleared")
-                    result.success(true)
+                    result.success(SurveySDK.getInstance().getQueueStatus())
                 } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "Clear queue failed: ${e.message}")
-                    result.error("QUEUE_ERROR", "Failed to clear survey queue", e.message)
+                    result.error("ERROR", e.message, null)
                 }
             }
             
             "isShowingSurvey" -> {
                 try {
-                    val isShowing = com.example.surveysdk.SurveySDK.getInstance().isShowingSurvey()
-                    Log.d("SurveySDKFlutter", "Is showing survey: $isShowing")
-                    result.success(isShowing)
+                    result.success(SurveySDK.getInstance().isShowingSurvey())
                 } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "Check survey status failed: ${e.message}")
-                    result.error("SURVEY_ERROR", "Failed to check if survey is showing", e.message)
+                    result.error("ERROR", e.message, null)
                 }
             }
-            
-            "isSDKEnabled" -> {
+
+            // =====================================================================
+            // 🧹 6. CLEANUP & EXCLUSIONS
+            // =====================================================================
+
+            "isUserExcluded" -> {
                 try {
-                    val isEnabled = com.example.surveysdk.SurveySDK.getInstance().isSDKEnabled()
-                    Log.d("SurveySDKFlutter", "SDK enabled: $isEnabled")
-                    result.success(isEnabled)
+                    result.success(SurveySDK.getInstance().isUserExcluded())
                 } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "Check SDK status failed: ${e.message}")
-                    result.error("STATUS_ERROR", "Failed to check if SDK is enabled", e.message)
+                    result.error("ERROR", e.message, null)
+                }
+            }
+
+            "isUserExcludedForSurvey" -> {
+                val surveyId = call.argument<String>("surveyId")
+                if (surveyId != null) {
+                    try {
+                        result.success(SurveySDK.getInstance().isUserExcluded(surveyId))
+                    } catch (e: Exception) {
+                        result.error("ERROR", e.message, null)
+                    }
+                } else {
+                    result.error("INVALID_ARGS", "Missing ID", null)
+                }
+            }
+
+            "clearSurveyQueue" -> {
+                try {
+                    SurveySDK.getInstance().clearSurveyQueue()
+                    result.success(true)
+                } catch (e: Exception) {
+                    result.error("ERROR", e.message, null)
+                }
+            }
+
+            "resetTriggers" -> {
+                try {
+                    SurveySDK.getInstance().resetTriggers()
+                    result.success(true)
+                } catch (e: Exception) {
+                    result.error("ERROR", e.message, null)
                 }
             }
             
             "fetchConfiguration" -> {
                 try {
-                    com.example.surveysdk.SurveySDK.getInstance().fetchConfiguration()
-                    Log.d("SurveySDKFlutter", "Configuration fetch initiated")
+                    SurveySDK.getInstance().fetchConfiguration()
                     result.success(true)
                 } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "Fetch configuration failed: ${e.message}")
-                    result.error("CONFIG_ERROR", "Failed to fetch configuration", e.message)
+                    result.error("ERROR", e.message, null)
                 }
             }
             
             "getConfigForDebug" -> {
                 try {
-                    val configDebug = com.example.surveysdk.SurveySDK.getInstance().getConfigForDebug()
-                    Log.d("SurveySDKFlutter", "Config debug retrieved")
-                    result.success(configDebug)
+                    result.success(SurveySDK.getInstance().getConfigForDebug())
                 } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "Get config debug failed: ${e.message}")
-                    result.error("CONFIG_ERROR", "Failed to get config debug info", e.message)
+                    result.error("ERROR", e.message, null)
                 }
             }
-            
+
             "cleanup" -> {
-                try {
-                    com.example.surveysdk.SurveySDK.getInstance().cleanup()
-                    Log.d("SurveySDKFlutter", "SDK cleanup completed")
-                    result.success(true)
-                } catch (e: Exception) {
-                    Log.e("SurveySDKFlutter", "Cleanup failed: ${e.message}")
-                    result.error("CLEANUP_ERROR", "Failed to cleanup SDK", e.message)
+                try { 
+                    SurveySDK.getInstance().cleanup()
+                    result.success(true) 
+                } catch (e: Exception) { 
+                    result.success(false) 
                 }
             }
             
-            else -> {
-                result.notImplemented()
-            }
+            else -> result.notImplemented()
         }
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
-        Log.d("SurveySDKFlutter", "Plugin detached from engine")
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activity = binding.activity
-        Log.d("SurveySDKFlutter", "✅ Activity attached: ${activity?.javaClass?.simpleName}")
     }
 
     override fun onDetachedFromActivity() {
-        Log.d("SurveySDKFlutter", "⚠️ Activity detached")
         activity = null
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
         activity = binding.activity
-        Log.d("SurveySDKFlutter", "✅ Activity reattached for config changes")
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
-        Log.d("SurveySDKFlutter", "⚠️ Activity detached for config changes")
         activity = null
     }
 }

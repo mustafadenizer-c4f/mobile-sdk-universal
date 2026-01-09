@@ -1,40 +1,30 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
+
+// =============================================================================
+// 🧠 MAIN SDK CLASS
+// =============================================================================
 
 class SurveySdkFlutter {
   static const MethodChannel _channel = MethodChannel('surveysdk_flutter');
 
+  // ---------------------------------------------------------------------------
+  // 🚀 INITIALIZATION & SETUP
+  // ---------------------------------------------------------------------------
+
+  /// Initialize the SDK with your API Key.
   static Future<bool> initialize(String apiKey) async {
     try {
-      final bool result = await _channel.invokeMethod('initialize', {
-        'apiKey': apiKey,
-      });
+      final bool result = await _channel.invokeMethod('initialize', {'apiKey': apiKey});
       return result;
     } on PlatformException catch (e) {
       throw Exception('Failed to initialize SDK: ${e.message}');
     }
   }
 
-  static Future<bool> showSurvey() async {
-    try {
-      final bool result = await _channel.invokeMethod('showSurvey');
-      return result;
-    } on PlatformException catch (e) {
-      throw Exception('Failed to show survey: ${e.message}');
-    }
-  }
-
-  static Future<bool> showSurveyById(String surveyId) async {
-    try {
-      final bool result = await _channel.invokeMethod('showSurveyById', {
-        'surveyId': surveyId,
-      });
-      return result;
-    } on PlatformException catch (e) {
-      throw Exception('Failed to show survey $surveyId: ${e.message}');
-    }
-  }
-
+  /// Enables automatic lifecycle tracking (App Start/Exit).
+  /// Note: For Button & Scroll detection, use SurveyTrigger and SurveyScrollView widgets.
   static Future<bool> autoSetup() async {
     try {
       final bool result = await _channel.invokeMethod('autoSetup');
@@ -44,83 +34,80 @@ class SurveySdkFlutter {
     }
   }
 
-  static Future<bool> isUserExcluded() async {
+  // ---------------------------------------------------------------------------
+  // 🔗 TRIGGER METHODS (Signal Senders)
+  // ---------------------------------------------------------------------------
+
+  /// Manually triggers a button survey logic.
+  /// Matches a survey with 'buttonTriggerId' == [buttonId].
+  static Future<void> triggerButton(String buttonId) async {
     try {
-      final bool result = await _channel.invokeMethod('isUserExcluded');
-      return result;
+      await _channel.invokeMethod('triggerButton', {'buttonId': buttonId});
     } on PlatformException catch (e) {
-      throw Exception('Failed to check exclusion: ${e.message}');
+      print('Failed to trigger button: ${e.message}');
     }
   }
 
-  static Future<bool> isUserExcludedForSurvey(String surveyId) async {
+  /// Manually triggers navigation logic.
+  /// Matches a survey with 'triggerScreens' containing [screenName].
+  static Future<void> triggerNavigation(String screenName) async {
     try {
-      final bool result = await _channel.invokeMethod('isUserExcludedForSurvey', {
-        'surveyId': surveyId,
-      });
-      return result;
+      await _channel.invokeMethod('triggerNavigation', {'screenName': screenName});
     } on PlatformException catch (e) {
-      throw Exception('Failed to check exclusion for $surveyId: ${e.message}');
+      print('Failed to trigger navigation: ${e.message}');
     }
   }
 
-  static Future<String> getDebugStatus() async {
+  /// Manually triggers scroll logic.
+  /// Matches surveys with 'enableScrollTrigger' == true based on [scrollY].
+  static Future<void> triggerScroll({int scrollY = 500}) async {
     try {
-      final String result = await _channel.invokeMethod('getDebugStatus');
-      return result;
+      await _channel.invokeMethod('triggerScroll', {'scrollY': scrollY});
     } on PlatformException catch (e) {
-      throw Exception('Failed to get debug status: ${e.message}');
+      print('Failed to trigger scroll: ${e.message}');
     }
   }
 
-  static Future<List<dynamic>> getSurveyIds() async {
+  // ---------------------------------------------------------------------------
+  // 🛠️ DISPLAY & UTILS
+  // ---------------------------------------------------------------------------
+
+  /// Shows the most relevant survey automatically based on priority.
+  static Future<bool> showSurvey() async {
     try {
-      final List<dynamic> result = await _channel.invokeMethod('getSurveyIds');
+      final bool result = await _channel.invokeMethod('showSurvey');
       return result;
     } on PlatformException catch (e) {
-      throw Exception('Failed to get survey IDs: ${e.message}');
+      throw Exception('Failed to show survey: ${e.message}');
     }
   }
 
-  static Future<bool> isConfigurationLoaded() async {
+  /// Shows a specific survey by its ID.
+  static Future<bool> showSurveyById(String surveyId) async {
     try {
-      final bool result = await _channel.invokeMethod('isConfigurationLoaded');
+      final bool result = await _channel.invokeMethod('showSurveyById', {'surveyId': surveyId});
       return result;
     } on PlatformException catch (e) {
-      throw Exception('Failed to check config status: ${e.message}');
+      throw Exception('Failed to show survey $surveyId: ${e.message}');
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // ⚙️ DATA & CONFIGURATION
+  // ---------------------------------------------------------------------------
 
   static Future<bool> setUserProperty(String key, String value) async {
     try {
-      final bool result = await _channel.invokeMethod('setUserProperty', {
-        'key': key,
-        'value': value,
-      });
+      final bool result = await _channel.invokeMethod('setUserProperty', {'key': key, 'value': value});
       return result;
     } on PlatformException catch (e) {
       throw Exception('Failed to set user property: ${e.message}');
     }
   }
 
-  static Future<bool> trackEvent(String eventName, [Map<String, dynamic>? properties]) async {
-    try {
-      final bool result = await _channel.invokeMethod('trackEvent', {
-        'eventName': eventName,
-        'properties': properties ?? {},
-      });
-      return result;
-    } on PlatformException catch (e) {
-      throw Exception('Failed to track event: ${e.message}');
-    }
-  }
-
   static Future<bool> setSessionData(String key, String value) async {
     try {
-      final bool result = await _channel.invokeMethod('setSessionData', {
-        'key': key,
-        'value': value,
-      });
+      final bool result = await _channel.invokeMethod('setSessionData', {'key': key, 'value': value});
       return result;
     } on PlatformException catch (e) {
       throw Exception('Failed to set session data: ${e.message}');
@@ -136,41 +123,34 @@ class SurveySdkFlutter {
     }
   }
 
-  static Future<bool> resetTriggers() async {
+  // ---------------------------------------------------------------------------
+  // 📊 STATUS & DEBUGGING
+  // ---------------------------------------------------------------------------
+
+  static Future<String> getDebugStatus() async {
     try {
-      final bool result = await _channel.invokeMethod('resetTriggers');
+      final String result = await _channel.invokeMethod('getDebugStatus');
       return result;
     } on PlatformException catch (e) {
-      throw Exception('Failed to reset triggers: ${e.message}');
+      return 'Error: ${e.message}';
     }
   }
-
-  // ===== NEW MULTI-SURVEY METHODS =====
 
   static Future<String> getQueueStatus() async {
     try {
       final String result = await _channel.invokeMethod('getQueueStatus');
       return result;
     } on PlatformException catch (e) {
-      throw Exception('Failed to get queue status: ${e.message}');
+      return 'Error: ${e.message}';
     }
   }
 
-  static Future<bool> clearSurveyQueue() async {
+  static Future<List<dynamic>> getSurveyIds() async {
     try {
-      final bool result = await _channel.invokeMethod('clearSurveyQueue');
+      final List<dynamic> result = await _channel.invokeMethod('getSurveyIds');
       return result;
     } on PlatformException catch (e) {
-      throw Exception('Failed to clear survey queue: ${e.message}');
-    }
-  }
-
-  static Future<bool> isShowingSurvey() async {
-    try {
-      final bool result = await _channel.invokeMethod('isShowingSurvey');
-      return result;
-    } on PlatformException catch (e) {
-      throw Exception('Failed to check if survey is showing: ${e.message}');
+      return [];
     }
   }
 
@@ -179,25 +159,7 @@ class SurveySdkFlutter {
       final bool result = await _channel.invokeMethod('isSDKEnabled');
       return result;
     } on PlatformException catch (e) {
-      throw Exception('Failed to check if SDK is enabled: ${e.message}');
-    }
-  }
-
-  static Future<bool> fetchConfiguration() async {
-    try {
-      final bool result = await _channel.invokeMethod('fetchConfiguration');
-      return result;
-    } on PlatformException catch (e) {
-      throw Exception('Failed to fetch configuration: ${e.message}');
-    }
-  }
-
-  static Future<String> getConfigForDebug() async {
-    try {
-      final String result = await _channel.invokeMethod('getConfigForDebug');
-      return result;
-    } on PlatformException catch (e) {
-      throw Exception('Failed to get config debug info: ${e.message}');
+      return false;
     }
   }
 
@@ -206,64 +168,171 @@ class SurveySdkFlutter {
       final bool result = await _channel.invokeMethod('cleanup');
       return result;
     } on PlatformException catch (e) {
-      throw Exception('Failed to cleanup SDK: ${e.message}');
+      return false;
+    }
+  }
+  
+  static Future<bool> resetTriggers() async {
+    try {
+      final bool result = await _channel.invokeMethod('resetTriggers');
+      return result;
+    } on PlatformException catch (e) {
+      return false;
+    }
+  }
+  
+  static Future<bool> clearSurveyQueue() async {
+    try {
+      final bool result = await _channel.invokeMethod('clearSurveyQueue');
+      return result;
+    } on PlatformException catch (e) {
+      return false;
+    }
+  }
+  
+  // New Methods from your previous list
+  static Future<bool> isUserExcluded() async {
+    try {
+      final bool result = await _channel.invokeMethod('isUserExcluded');
+      return result;
+    } on PlatformException catch (e) {
+      return false;
     }
   }
 
-  // ===== CONVENIENCE METHODS =====
-
-  /// Get all surveys with their exclusion status
-  static Future<Map<String, bool>> getAllSurveysStatus() async {
+  static Future<bool> isUserExcludedForSurvey(String surveyId) async {
     try {
-      final List<dynamic> surveyIds = await getSurveyIds();
-      final Map<String, bool> statusMap = {};
-      
-      for (var surveyId in surveyIds) {
-        try {
-          final isExcluded = await isUserExcludedForSurvey(surveyId.toString());
-          statusMap[surveyId.toString()] = isExcluded;
-        } catch (e) {
-          statusMap[surveyId.toString()] = false;
-        }
-      }
-      
-      return statusMap;
-    } catch (e) {
-      throw Exception('Failed to get all surveys status');
+      final bool result = await _channel.invokeMethod('isUserExcludedForSurvey', {'surveyId': surveyId});
+      return result;
+    } on PlatformException catch (e) {
+      return false;
     }
   }
-
-  /// Show the first available survey
-  static Future<bool> showFirstAvailableSurvey() async {
+  
+  static Future<bool> isConfigurationLoaded() async {
     try {
-      final List<dynamic> surveyIds = await getSurveyIds();
-      
-      for (var surveyId in surveyIds) {
-        final isExcluded = await isUserExcludedForSurvey(surveyId.toString());
-        if (!isExcluded) {
-          return await showSurveyById(surveyId.toString());
-        }
-      }
-      
-      throw Exception('No available surveys to show');
-    } catch (e) {
-      throw Exception('Failed to show first available survey');
+      final bool result = await _channel.invokeMethod('isConfigurationLoaded');
+      return result;
+    } on PlatformException catch (e) {
+      return false;
     }
   }
-
-  /// Set multiple user properties at once
-  static Future<bool> setUserProperties(Map<String, String> properties) async {
+  
+  static Future<String> getConfigForDebug() async {
     try {
-      final List<Future<bool>> futures = [];
+      final String result = await _channel.invokeMethod('getConfigForDebug');
+      return result;
+    } on PlatformException catch (e) {
+      return "Error";
+    }
+  }
+}
+
+// =============================================================================
+// 🧱 WIDGETS FOR AUTO-DETECTION
+// =============================================================================
+
+/// 1. BUTTON TRIGGER WIDGET (Fixed with Listener)
+/// Wraps any widget (Button, Icon, Container) to enable auto-detection.
+class SurveyTrigger extends StatelessWidget {
+  final String triggerId;
+  final Widget child;
+
+  const SurveyTrigger({
+    super.key,
+    required this.triggerId,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // ✅ Uses Listener to catch touches even if child button consumes them
+    return Listener(
+      onPointerUp: (_) {
+        print("👆 [SurveySDK] SurveyTrigger detected click on: $triggerId");
+        SurveySdkFlutter.triggerButton(triggerId);
+      },
+      behavior: HitTestBehavior.translucent, 
+      child: child,
+    );
+  }
+}
+
+/// 2. NAVIGATION OBSERVER
+/// Add this to your MaterialApp to enable auto-navigation detection.
+class SurveyNavigationObserver extends NavigatorObserver {
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    _checkRoute(route);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    if (newRoute != null) _checkRoute(newRoute);
+  }
+
+  void _checkRoute(Route<dynamic> route) {
+    final String? screenName = route.settings.name;
+    if (screenName != null) {
+      print("📍 [SurveySDK] NavigationObserver detected: $screenName");
+      SurveySdkFlutter.triggerNavigation(screenName);
+    }
+  }
+}
+
+/// 3. SCROLL TRIGGER WIDGET
+/// Wraps content in a SingleChildScrollView that automatically reports scroll events.
+class SurveyScrollView extends StatefulWidget {
+  final Widget child;
+  final int threshold; // Pixel threshold to trigger survey (default 100)
+
+  const SurveyScrollView({
+    super.key,
+    required this.child,
+    this.threshold = 100,
+  });
+
+  @override
+  State<SurveyScrollView> createState() => _SurveyScrollViewState();
+}
+
+class _SurveyScrollViewState extends State<SurveyScrollView> {
+  final ScrollController _controller = ScrollController();
+  bool _triggered = false; 
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (!_triggered && _controller.offset >= widget.threshold) {
+      print("📜 [SurveySDK] Scroll threshold reached");
+      SurveySdkFlutter.triggerScroll(scrollY: _controller.offset.toInt());
+      _triggered = true;
       
-      properties.forEach((key, value) {
-        futures.add(setUserProperty(key, value));
+      // Reset trigger after 3 seconds (Cool-down)
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) setState(() => _triggered = false);
       });
-      
-      final results = await Future.wait(futures);
-      return results.every((result) => result == true);
-    } catch (e) {
-      throw Exception('Failed to set user properties');
     }
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_onScroll);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      controller: _controller,
+      child: widget.child,
+    );
   }
 }

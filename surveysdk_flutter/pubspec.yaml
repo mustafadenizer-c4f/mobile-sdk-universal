@@ -1,6 +1,6 @@
 name: surveysdk_flutter
 description: Flutter plugin for Survey SDK with automatic triggers, user targeting, and exclusion rules. Display surveys seamlessly in your Flutter apps.
-version: 1.2.12
+version: 1.2.13
 homepage: https://github.com/mustafadenizer-c4f/mobile-sdk-universal
 repository: https://github.com/mustafadenizer-c4f/mobile-sdk-universal
 issue_tracker: https://github.com/mustafadenizer-c4f/mobile-sdk-universal/issues
