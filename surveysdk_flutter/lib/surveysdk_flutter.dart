@@ -44,7 +44,7 @@ class SurveySdkFlutter {
     try {
       await _channel.invokeMethod('triggerButton', {'buttonId': buttonId});
     } on PlatformException catch (e) {
-      print('Failed to trigger button: ${e.message}');
+      debugPrint('Failed to trigger button: ${e.message}');
     }
   }
 
@@ -54,7 +54,7 @@ class SurveySdkFlutter {
     try {
       await _channel.invokeMethod('triggerNavigation', {'screenName': screenName});
     } on PlatformException catch (e) {
-      print('Failed to trigger navigation: ${e.message}');
+      debugPrint('Failed to trigger navigation: ${e.message}');
     }
   }
 
@@ -64,7 +64,7 @@ class SurveySdkFlutter {
     try {
       await _channel.invokeMethod('triggerScroll', {'scrollY': scrollY});
     } on PlatformException catch (e) {
-      print('Failed to trigger scroll: ${e.message}');
+      debugPrint('Failed to trigger scroll: ${e.message}');
     }
   }
 
@@ -149,7 +149,7 @@ class SurveySdkFlutter {
     try {
       final List<dynamic> result = await _channel.invokeMethod('getSurveyIds');
       return result;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return [];
     }
   }
@@ -158,7 +158,7 @@ class SurveySdkFlutter {
     try {
       final bool result = await _channel.invokeMethod('isSDKEnabled');
       return result;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return false;
     }
   }
@@ -167,7 +167,7 @@ class SurveySdkFlutter {
     try {
       final bool result = await _channel.invokeMethod('cleanup');
       return result;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return false;
     }
   }
@@ -176,7 +176,7 @@ class SurveySdkFlutter {
     try {
       final bool result = await _channel.invokeMethod('resetTriggers');
       return result;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return false;
     }
   }
@@ -185,7 +185,7 @@ class SurveySdkFlutter {
     try {
       final bool result = await _channel.invokeMethod('clearSurveyQueue');
       return result;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return false;
     }
   }
@@ -195,7 +195,7 @@ class SurveySdkFlutter {
     try {
       final bool result = await _channel.invokeMethod('isUserExcluded');
       return result;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return false;
     }
   }
@@ -204,7 +204,7 @@ class SurveySdkFlutter {
     try {
       final bool result = await _channel.invokeMethod('isUserExcludedForSurvey', {'surveyId': surveyId});
       return result;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return false;
     }
   }
@@ -213,7 +213,7 @@ class SurveySdkFlutter {
     try {
       final bool result = await _channel.invokeMethod('isConfigurationLoaded');
       return result;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return false;
     }
   }
@@ -222,7 +222,7 @@ class SurveySdkFlutter {
     try {
       final String result = await _channel.invokeMethod('getConfigForDebug');
       return result;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return "Error";
     }
   }
@@ -249,7 +249,7 @@ class SurveyTrigger extends StatelessWidget {
     // ✅ Uses Listener to catch touches even if child button consumes them
     return Listener(
       onPointerUp: (_) {
-        print("👆 [SurveySDK] SurveyTrigger detected click on: $triggerId");
+        debugPrint("👆 [SurveySDK] SurveyTrigger detected click on: $triggerId");
         SurveySdkFlutter.triggerButton(triggerId);
       },
       behavior: HitTestBehavior.translucent, 
@@ -276,7 +276,7 @@ class SurveyNavigationObserver extends NavigatorObserver {
   void _checkRoute(Route<dynamic> route) {
     final String? screenName = route.settings.name;
     if (screenName != null) {
-      print("📍 [SurveySDK] NavigationObserver detected: $screenName");
+      debugPrint("📍 [SurveySDK] NavigationObserver detected: $screenName");
       SurveySdkFlutter.triggerNavigation(screenName);
     }
   }
@@ -310,7 +310,7 @@ class _SurveyScrollViewState extends State<SurveyScrollView> {
 
   void _onScroll() {
     if (!_triggered && _controller.offset >= widget.threshold) {
-      print("📜 [SurveySDK] Scroll threshold reached");
+      debugPrint("📜 [SurveySDK] Scroll threshold reached");
       SurveySdkFlutter.triggerScroll(scrollY: _controller.offset.toInt());
       _triggered = true;
       

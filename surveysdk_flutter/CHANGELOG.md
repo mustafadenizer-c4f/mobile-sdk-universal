@@ -9,3 +9,7 @@
 ## 1.0.1
 
 - Implemented new Survey SDK multiple survey version
+
+## 1.2.11
+
+- Fixed all trigger method for auto detection
