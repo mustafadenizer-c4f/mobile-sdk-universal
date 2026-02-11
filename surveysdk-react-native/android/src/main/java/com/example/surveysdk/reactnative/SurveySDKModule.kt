@@ -27,23 +27,111 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
 
     override fun getName(): String = "SurveySDK"
 
+
+    // async initialize(apiKey, params) {
+    //     if (params && params.length > 0) {
+    //         return await SurveySDK.initializeWithParams(apiKey, params);
+    //     } else {
+    //         return await SurveySDK.initialize(apiKey);
+    //     }
+    // }
+
     @ReactMethod
-    fun initialize(apiKey: String, promise: Promise) {
+    fun initialize(apiKey: String, params: ReadableArray?, promise: Promise) {
         try {
             Log.d("SurveySDK_RN", "RN: Initializing SurveySDK...")
             
             val activity = getCurrentActivity()
-            if (activity != null) {
-                SurveySDK.initialize(activity.applicationContext, apiKey)
-                Log.d("SurveySDK_RN", "✅ SDK initialized successfully")
-                promise.resolve(true)
-            } else {
-                Log.w("SurveySDK_RN", "⚠️ No activity yet, scheduling initialization")
-                promise.resolve(true) // Resolve anyway
+            if (activity == null) {
+                promise.reject("NO_ACTIVITY", "No activity available")
+                return
             }
+            
+            val context = activity.applicationContext
+            
+            // ALWAYS use the simple 2-parameter initialize method
+            // We'll handle parameters separately
+            SurveySDK.initialize(context, apiKey)
+            
+            // If we have parameters, set them manually
+            if (params != null && params.size() > 0) {
+                setParametersFromReactNative(context, params)
+            }
+            
+            Log.d("SurveySDK_RN", "✅ SDK initialized")
+            promise.resolve(true)
+            
         } catch (e: Exception) {
             Log.e("SurveySDK_RN", "❌ SDK initialization failed", e)
             promise.reject("INIT_ERROR", "Initialization failed: ${e.message}")
+        }
+    }
+
+    private fun setParametersFromReactNative(context: Context, params: ReadableArray) {
+        try {
+            // Get the SDK instance
+            val surveySDK = SurveySDK.getInstance()
+            
+            // Use reflection to access the customParams field
+            val customParamsField = surveySDK.javaClass.getDeclaredField("customParams")
+            customParamsField.isAccessible = true
+            
+            // Get current parameters
+            val currentParams = (customParamsField.get(surveySDK) as? Map<*, *>)?.let {
+                try {
+                    @Suppress("UNCHECKED_CAST")
+                    it as MutableMap<String, String>
+                } catch (e: Exception) {
+                    mutableMapOf<String, String>()
+                }
+            } ?: mutableMapOf<String, String>()
+            
+            // Add parameters from React Native
+            for (i in 0 until params.size()) {
+                when (params.getType(i)) {
+                    ReadableType.String -> {
+                        val paramName = params.getString(i)
+                        if (paramName != null) {
+                            // Look up from storage
+                            val value = try {
+                                val storageUtilsClass = Class.forName("com.example.surveysdk.StorageUtils")
+                                val method = storageUtilsClass.getDeclaredMethod("findSpecificData", Context::class.java, String::class.java)
+                                method.invoke(null, context, paramName) as? String
+                            } catch (e: Exception) {
+                                null
+                            }
+                            if (value != null) {
+                                currentParams[paramName] = value
+                                Log.d("SurveySDK_RN", "   ✅ From storage: $paramName = $value")
+                            }
+                        }
+                    }
+                    ReadableType.Map -> {
+                        val paramMap = params.getMap(i)
+                        paramMap?.keySetIterator()?.let { iterator ->
+                            while (iterator.hasNextKey()) {
+                                val key = iterator.nextKey()
+                                val value = paramMap.getString(key)
+                                if (key != null && value != null) {
+                                    currentParams[key] = value
+                                    Log.d("SurveySDK_RN", "   ✅ Direct param: $key = $value")
+                                }
+                            }
+                        }
+                    }
+                    else -> {
+                        Log.w("SurveySDK_RN", "⚠️ Skipping invalid parameter type")
+                    }
+                }
+            }
+            
+            // Update the customParams field
+            customParamsField.set(surveySDK, currentParams)
+            
+            Log.d("SurveySDK_RN", "✅ Set ${currentParams.size} parameters via reflection")
+            
+        } catch (e: Exception) {
+            Log.e("SurveySDK_RN", "❌ Failed to set parameters", e)
         }
     }
 
@@ -217,102 +305,49 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         }
     }
 
-    private fun createScrollListener(onScroll: (Int) -> Unit): Any {
-        return java.lang.reflect.Proxy.newProxyInstance(
-            this::class.java.classLoader,
-            arrayOf(Class.forName("android.view.View\$OnScrollChangeListener"))
-        ) { _, method, args ->
-            if (method.name == "onScrollChange") {
-                // args[0] = view, args[1] = scrollX, args[2] = scrollY
-                val scrollY = args?.get(2) as? Int ?: 0
-                onScroll(scrollY)
-            }
-            null
-        }
-    }
-
     private fun triggerScrollSurvey(activity: Activity) {
         try {
             val surveySDK = SurveySDK.getInstance()
-            
-            // Get all surveys from config
-            val configField = surveySDK.javaClass.getDeclaredField("config")
-            configField.isAccessible = true
-            val config = configField.get(surveySDK) as com.example.surveysdk.Config
-            
-            // Find scroll trigger surveys
-            val scrollSurveys = config.surveys.filter { it.enableScrollTrigger && it.scrollThreshold > 0 }
-            
-            if (scrollSurveys.isNotEmpty()) {
-                // Get the highest priority scroll survey
-                val highestPrioritySurvey = scrollSurveys.maxByOrNull { it.priority }
-                
-                if (highestPrioritySurvey != null) {
-                    Log.d("SurveySDK_RN", "🎯 Triggering scroll survey: ${highestPrioritySurvey.surveyId}")
-                    
-                    // Use reflection to call showSingleSurvey
-                    val showSingleSurveyMethod = surveySDK.javaClass.getDeclaredMethod(
-                        "showSingleSurvey", 
-                        Activity::class.java,
-                        com.example.surveysdk.SurveyConfig::class.java
-                    )
-                    showSingleSurveyMethod.isAccessible = true
-                    showSingleSurveyMethod.invoke(surveySDK, activity, highestPrioritySurvey)
-                }
-            }
-            
+            surveySDK.triggerScrollManual(activity, 1000)
         } catch (e: Exception) {
             Log.e("SurveySDK_RN", "❌ Failed to trigger scroll survey", e)
+        }
+    }
+
+    @ReactMethod
+    fun enableNavigationSafety(promise: Promise) {
+        try {
+            SurveySDK.getInstance().enableNavigationSafety()
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("SAFETY_ERROR", "Failed to enable navigation safety")
+        }
+    }
+
+    @ReactMethod
+    fun autoSetupSafe(promise: Promise) {
+        try {
+            val activity = getCurrentActivity()
+            if (activity != null) {
+                SurveySDK.getInstance().autoSetupSafe(activity)
+                promise.resolve(true)
+            } else {
+                promise.reject("NO_ACTIVITY", "No activity available")
+            }
+        } catch (e: Exception) {
+            promise.reject("SETUP_ERROR", "Failed to safe auto setup")
         }
     }
 
     private fun setupReactNativeNavigationDetection(activity: Activity) {
         try {
             Log.d("SurveySDK_RN", "📍 Setting up React Native navigation detection...")
-            
-            // This will detect when user switches between tabs
-            // In a real implementation, you'd hook into React Navigation events
-            
+            // Implementation would hook into React Navigation events
         } catch (e: Exception) {
             Log.e("SurveySDK_RN", "❌ Navigation detection setup failed", e)
         }
     }
 
-    @ReactMethod
-    fun registerButton(buttonId: String, promise: Promise) {
-        try {
-            Log.d("SurveySDK_RN", "🎯 Registering React Native button: $buttonId")
-            
-            registeredReactButtons.add(buttonId)
-            
-            val activity = getCurrentActivity()
-            if (activity != null) {
-                // Setup click listener for this button
-                setupReactNativeButton(activity, buttonId)
-            }
-            
-            promise.resolve(true)
-            
-        } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Failed to register button", e)
-            promise.reject("BUTTON_ERROR", "Failed to register button: ${e.message}")
-        }
-    }
-
-    private fun setupReactNativeButton(activity: Activity, buttonId: String) {
-        try {
-            // This is a simplified implementation
-            // In production, you'd need to find the actual React Native view
-            
-            Log.d("SurveySDK_RN", "✅ React Native button registered: $buttonId")
-            Log.d("SurveySDK_RN", "ℹ️ Button clicks will be handled by React Native onClick listeners")
-            
-        } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Failed to setup React Native button", e)
-        }
-    }
-
-   
     @ReactMethod
     fun triggerButtonSurvey(buttonId: String, promise: Promise) {
         try {
@@ -320,7 +355,6 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             
             val activity = getCurrentActivity()
             if (activity != null) {
-                // Call the new method we added to SurveySDK.kt
                 SurveySDK.getInstance().triggerButtonByStringId(buttonId, activity)
                 promise.resolve(true)
             } else {
@@ -340,7 +374,6 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             
             val activity = getCurrentActivity()
             if (activity != null) {
-                // Call the new manual scroll method with a high value to force trigger
                 SurveySDK.getInstance().triggerScrollManual(activity, 1000)
                 promise.resolve(true)
             } else {
@@ -360,7 +393,6 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             
             val activity = getCurrentActivity()
             if (activity != null) {
-                // Call the existing navigation method
                 SurveySDK.getInstance().triggerByNavigation(screenName, activity)
                 promise.resolve(true)
             } else {
@@ -373,43 +405,7 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         }
     }
 
-    private fun triggerButtonSurveyInternal(activity: Activity, buttonId: String) {
-        try {
-            val surveySDK = SurveySDK.getInstance()
-            
-            // Get all surveys from config
-            val configField = surveySDK.javaClass.getDeclaredField("config")
-            configField.isAccessible = true
-            val config = configField.get(surveySDK) as com.example.surveysdk.Config
-            
-            // Find button trigger surveys
-            val buttonSurveys = config.surveys.filter { it.enableButtonTrigger }
-            
-            if (buttonSurveys.isNotEmpty()) {
-                // Find survey for this specific button or highest priority
-                val targetSurvey = buttonSurveys.find { it.buttonTriggerId == buttonId } 
-                    ?: buttonSurveys.maxByOrNull { it.priority }
-                
-                if (targetSurvey != null) {
-                    Log.d("SurveySDK_RN", "🎯 Showing button survey: ${targetSurvey.surveyId}")
-                    
-                    // Use reflection to call showSingleSurvey
-                    val showSingleSurveyMethod = surveySDK.javaClass.getDeclaredMethod(
-                        "showSingleSurvey", 
-                        Activity::class.java,
-                        com.example.surveysdk.SurveyConfig::class.java
-                    )
-                    showSingleSurveyMethod.isAccessible = true
-                    showSingleSurveyMethod.invoke(surveySDK, activity, targetSurvey)
-                }
-            }
-            
-        } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Failed to trigger button survey", e)
-        }
-    }
-
-    // Keep all existing methods unchanged...
+    // Keep all other existing methods exactly as they were...
     @ReactMethod
     fun showSurvey(promise: Promise) {
         try {
@@ -417,16 +413,12 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             
             val activity = getCurrentActivity()
             if (activity != null) {
-                val surveySDK = SurveySDK.getInstance()
-                surveySDK.showSurvey(activity)
-                Log.d("SurveySDK_RN", "✅ Manual survey shown")
+                SurveySDK.getInstance().showSurvey(activity)
                 promise.resolve(true)
             } else {
-                Log.e("SurveySDK_RN", "❌ No activity available")
                 promise.reject("NO_ACTIVITY", "No activity available")
             }
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Show survey failed", e)
             promise.reject("SHOW_ERROR", "Failed to show survey: ${e.message}")
         }
     }
@@ -434,20 +426,14 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun showSurveyById(surveyId: String, promise: Promise) {
         try {
-            Log.d("SurveySDK_RN", "RN: Showing specific survey: $surveyId")
-            
             val activity = getCurrentActivity()
             if (activity != null) {
-                val surveySDK = SurveySDK.getInstance()
-                surveySDK.showSurveyById(activity, surveyId)
-                Log.d("SurveySDK_RN", "✅ Specific survey shown: $surveyId")
+                SurveySDK.getInstance().showSurveyById(activity, surveyId)
                 promise.resolve(true)
             } else {
-                Log.e("SurveySDK_RN", "❌ No activity available")
                 promise.reject("NO_ACTIVITY", "No activity available")
             }
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Show specific survey failed", e)
             promise.reject("SHOW_ERROR", "Failed to show survey $surveyId: ${e.message}")
         }
     }
@@ -455,22 +441,15 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun setUserProperty(key: String, value: String, promise: Promise) {
         try {
-            Log.d("SurveySDK_RN", "RN: Setting user property: $key = $value")
-            
             val activity = getCurrentActivity()
             if (activity != null) {
                 activity.getSharedPreferences("survey_sdk_data", Context.MODE_PRIVATE)
-                    .edit()
-                    .putString(key, value)
-                    .apply()
-                Log.d("SurveySDK_RN", "✅ User property set")
+                    .edit().putString(key, value).apply()
                 promise.resolve(true)
             } else {
-                Log.e("SurveySDK_RN", "❌ No activity available")
                 promise.reject("NO_ACTIVITY", "No current activity available")
             }
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Set user property failed", e)
             promise.reject("PROPERTY_ERROR", "Failed to set user property: ${e.message}")
         }
     }
@@ -478,12 +457,8 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun isUserExcluded(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            val isExcluded = surveySDK.isUserExcluded()
-            Log.d("SurveySDK_RN", "RN: User excluded: $isExcluded")
-            promise.resolve(isExcluded)
+            promise.resolve(SurveySDK.getInstance().isUserExcluded())
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ User excluded check failed", e)
             promise.reject("EXCLUSION_ERROR", "Failed to check exclusion: ${e.message}")
         }
     }
@@ -491,26 +466,17 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun getDebugStatus(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            val debugStatus = surveySDK.debugSurveyStatus()
-            Log.d("SurveySDK_RN", "RN: Debug status requested")
-            promise.resolve(debugStatus)
+            promise.resolve(SurveySDK.getInstance().debugSurveyStatus())
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Debug status failed", e)
             promise.reject("DEBUG_ERROR", "Failed to get debug status: ${e.message}")
         }
     }
 
-    // Add all other existing methods without changes
     @ReactMethod
     fun isUserExcludedForSurvey(surveyId: String, promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            val isExcluded = surveySDK.isUserExcluded(surveyId)
-            Log.d("SurveySDK_RN", "RN: User excluded check for $surveyId: $isExcluded")
-            promise.resolve(isExcluded)
+            promise.resolve(SurveySDK.getInstance().isUserExcluded(surveyId))
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: User excluded check failed for $surveyId", e)
             promise.reject("EXCLUSION_ERROR", "Failed to check exclusion for survey $surveyId: ${e.message}")
         }
     }
@@ -518,12 +484,9 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun setSessionData(key: String, value: String, promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            surveySDK.setSessionData(key, value)
-            Log.d("SurveySDK_RN", "RN: Session data set: $key = $value")
+            SurveySDK.getInstance().setSessionData(key, value)
             promise.resolve(true)
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: Set session data failed", e)
             promise.reject("SESSION_ERROR", "Failed to set session data: ${e.message}")
         }
     }
@@ -531,12 +494,9 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun resetSessionData(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            surveySDK.resetSessionData()
-            Log.d("SurveySDK_RN", "RN: Session data reset")
+            SurveySDK.getInstance().resetSessionData()
             promise.resolve(true)
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: Reset session data failed", e)
             promise.reject("SESSION_ERROR", "Failed to reset session data: ${e.message}")
         }
     }
@@ -544,12 +504,9 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun resetTriggers(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            surveySDK.resetTriggers()
-            Log.d("SurveySDK_RN", "RN: Triggers reset")
+            SurveySDK.getInstance().resetTriggers()
             promise.resolve(true)
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: Reset triggers failed", e)
             promise.reject("TRIGGER_ERROR", "Failed to reset triggers: ${e.message}")
         }
     }
@@ -557,18 +514,11 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun getSurveyIds(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            val surveyIds = surveySDK.getSurveyIds()
-            
+            val surveyIds = SurveySDK.getInstance().getSurveyIds()
             val writableArray = Arguments.createArray()
-            surveyIds.forEach { surveyId ->
-                writableArray.pushString(surveyId)
-            }
-            
-            Log.d("SurveySDK_RN", "RN: Retrieved ${writableArray.size()} survey IDs")
+            surveyIds.forEach { writableArray.pushString(it) }
             promise.resolve(writableArray)
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: Failed to get survey IDs", e)
             promise.reject("CONFIG_ERROR", "Failed to get survey IDs: ${e.message}")
         }
     }
@@ -576,12 +526,8 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun isConfigurationLoaded(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            val isLoaded = surveySDK.isConfigurationLoaded()
-            Log.d("SurveySDK_RN", "RN: Configuration loaded: $isLoaded")
-            promise.resolve(isLoaded)
+            promise.resolve(SurveySDK.getInstance().isConfigurationLoaded())
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: Failed to check config status", e)
             promise.reject("CONFIG_ERROR", "Failed to check configuration status: ${e.message}")
         }
     }
@@ -589,12 +535,8 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun getQueueStatus(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            val status = surveySDK.getQueueStatus()
-            Log.d("SurveySDK_RN", "RN: Queue status requested")
-            promise.resolve(status)
+            promise.resolve(SurveySDK.getInstance().getQueueStatus())
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: Failed to get queue status", e)
             promise.reject("QUEUE_ERROR", "Failed to get queue status: ${e.message}")
         }
     }
@@ -602,12 +544,9 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun clearSurveyQueue(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            surveySDK.clearSurveyQueue()
-            Log.d("SurveySDK_RN", "RN: Survey queue cleared")
+            SurveySDK.getInstance().clearSurveyQueue()
             promise.resolve(true)
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: Failed to clear survey queue", e)
             promise.reject("QUEUE_ERROR", "Failed to clear survey queue: ${e.message}")
         }
     }
@@ -615,12 +554,8 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun isShowingSurvey(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            val isShowing = surveySDK.isShowingSurvey()
-            Log.d("SurveySDK_RN", "RN: Is showing survey: $isShowing")
-            promise.resolve(isShowing)
+            promise.resolve(SurveySDK.getInstance().isShowingSurvey())
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: Failed to check survey status", e)
             promise.reject("SURVEY_ERROR", "Failed to check if survey is showing: ${e.message}")
         }
     }
@@ -628,12 +563,8 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun isSDKEnabled(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            val isEnabled = surveySDK.isSDKEnabled()
-            Log.d("SurveySDK_RN", "RN: SDK enabled: $isEnabled")
-            promise.resolve(isEnabled)
+            promise.resolve(SurveySDK.getInstance().isSDKEnabled())
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: Failed to check SDK status", e)
             promise.reject("STATUS_ERROR", "Failed to check if SDK is enabled: ${e.message}")
         }
     }
@@ -641,12 +572,9 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun fetchConfiguration(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            surveySDK.fetchConfiguration()
-            Log.d("SurveySDK_RN", "RN: Configuration fetch initiated")
+            SurveySDK.getInstance().fetchConfiguration()
             promise.resolve(true)
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: Failed to fetch configuration", e)
             promise.reject("CONFIG_ERROR", "Failed to fetch configuration: ${e.message}")
         }
     }
@@ -654,12 +582,8 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun getConfigForDebug(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            val configDebug = surveySDK.getConfigForDebug()
-            Log.d("SurveySDK_RN", "RN: Config debug requested")
-            promise.resolve(configDebug)
+            promise.resolve(SurveySDK.getInstance().getConfigForDebug())
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: Failed to get config debug", e)
             promise.reject("CONFIG_ERROR", "Failed to get config debug info: ${e.message}")
         }
     }
@@ -667,13 +591,10 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     @ReactMethod
     fun cleanup(promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            surveySDK.cleanup()
+            SurveySDK.getInstance().cleanup()
             coroutineScope.cancel()
-            Log.d("SurveySDK_RN", "RN: SDK cleanup completed")
             promise.resolve(true)
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "RN: Failed to cleanup SDK", e)
             promise.reject("CLEANUP_ERROR", "Failed to cleanup SDK: ${e.message}")
         }
     }

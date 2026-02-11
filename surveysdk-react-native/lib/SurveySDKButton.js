@@ -1,58 +1,165 @@
-import React, { useEffect } from 'react';
-import { TouchableOpacity, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { TouchableOpacity, Text, View, Platform, ActivityIndicator } from 'react-native';
 import SurveySDK from './SurveySDK';
 
 const SurveySDKButton = ({ 
+  // Button properties
   surveyId, 
   buttonId, 
   style, 
   textStyle, 
   children,
+  text = "Take Survey",
+  disabled = false,
+  loading = false,
+  
+  // Survey properties
+  autoRegister = true,
+  checkAvailability = true,
+  
+  // Event handlers
   onPress,
   onSurveyShown,
-  onSurveyError 
+  onSurveyError,
+  onSurveyNotAvailable,
+  
+  // Loading state
+  showLoader = true,
+  loadingText = "Loading...",
+  loadingComponent,
 }) => {
+  const [isChecking, setIsChecking] = useState(false);
+  const [isSurveyAvailable, setIsSurveyAvailable] = useState(true);
+  
+  // Check if survey is available
+  useEffect(() => {
+    const checkSurveyAvailability = async () => {
+      if (checkAvailability && surveyId) {
+        setIsChecking(true);
+        try {
+          const isExcluded = await SurveySDK.isUserExcludedForSurvey(surveyId);
+          setIsSurveyAvailable(!isExcluded);
+        } catch (error) {
+          console.error('Error checking survey availability:', error);
+          setIsSurveyAvailable(true); // Default to available on error
+        } finally {
+          setIsChecking(false);
+        }
+      }
+    };
+    
+    checkSurveyAvailability();
+  }, [surveyId, checkAvailability]);
+  
+  // Auto-register button with native SDK
+  useEffect(() => {
+    if (buttonId && autoRegister && Platform.OS === 'android') {
+      SurveySDK.triggerButtonSurvey(buttonId).catch(error => {
+        console.log(`Button registration: ${error.message}`);
+      });
+    }
+  }, [buttonId, autoRegister]);
   
   const handlePress = async () => {
+    if (disabled || loading || isChecking || !isSurveyAvailable) return;
+    
     try {
+      // Call custom onPress handler
       if (onPress) {
         onPress();
       }
       
+      // Show survey
+      let result;
       if (surveyId) {
-        const result = await SurveySDK.showSurveyById(surveyId);
-        if (onSurveyShown) {
-          onSurveyShown(result);
-        }
+        result = await SurveySDK.showSurveyById(surveyId);
       } else {
-        const result = await SurveySDK.showSurvey();
-        if (onSurveyShown) {
-          onSurveyShown(result);
-        }
+        result = await SurveySDK.showSurvey();
+      }
+      
+      // Call success callback
+      if (onSurveyShown && result) {
+        onSurveyShown(result);
       }
     } catch (error) {
-      if (onSurveyError) {
-        onSurveyError(error);
+      // Handle specific error types
+      if (error.message?.includes('No available surveys')) {
+        if (onSurveyNotAvailable) {
+          onSurveyNotAvailable();
+        }
+      } else {
+        if (onSurveyError) {
+          onSurveyError(error);
+        }
+        console.error('SurveySDK Button Error:', error);
       }
-      console.error('SurveySDK Button Error:', error);
     }
   };
   
-  // Auto-register button if buttonId is provided
-  useEffect(() => {
-    if (buttonId) {
-      // This would require additional native code to register custom buttons
-      // For now, we'll just log it
-      console.log(`SurveySDK Button registered with ID: ${buttonId}`);
-    }
-  }, [buttonId]);
+  const isDisabled = disabled || loading || isChecking || !isSurveyAvailable;
   
   return (
     <TouchableOpacity 
-      style={style}
+      style={[
+        {
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          backgroundColor: isDisabled ? '#E0E0E0' : '#007AFF',
+          borderRadius: 8,
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 44,
+          opacity: isDisabled ? 0.6 : 1,
+        },
+        style
+      ]}
       onPress={handlePress}
+      disabled={isDisabled}
+      activeOpacity={0.8}
+      accessibilityLabel={text}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: isDisabled }}
     >
-      {children || <Text style={textStyle}>Take Survey</Text>}
+      {loading || isChecking ? (
+        loadingComponent || (
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <ActivityIndicator size="small" color="#FFFFFF" />
+            <Text style={[
+              {
+                color: '#FFFFFF',
+                fontSize: 16,
+                fontWeight: '600',
+                marginLeft: 8,
+              },
+              textStyle
+            ]}>
+              {loadingText}
+            </Text>
+          </View>
+        )
+      ) : !isSurveyAvailable ? (
+        <Text style={[
+          {
+            color: '#666666',
+            fontSize: 16,
+            fontStyle: 'italic',
+          },
+          textStyle
+        ]}>
+          Survey Not Available
+        </Text>
+      ) : children || (
+        <Text style={[
+          {
+            color: '#FFFFFF',
+            fontSize: 16,
+            fontWeight: '600',
+          },
+          textStyle
+        ]}>
+          {text}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };

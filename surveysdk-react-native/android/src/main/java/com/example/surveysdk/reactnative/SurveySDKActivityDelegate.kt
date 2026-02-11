@@ -46,7 +46,7 @@ class SurveySDKActivityDelegate(private val reactContext: ReactApplicationContex
                 
                 // Track screen view for navigation detection
                 try {
-                    SurveySDK.getInstance()?.trackScreenView(activity)
+                    SurveySDK.getInstance().trackScreenView(activity)
                 } catch (e: Exception) {
                     Log.e("SurveySDK_RN", "Error tracking screen view: ${e.message}")
                 }
@@ -66,7 +66,7 @@ class SurveySDKActivityDelegate(private val reactContext: ReactApplicationContex
                 
                 // Clean up queue for this activity
                 try {
-                    SurveySDK.getInstance()?.clearQueueForActivity(activity)
+                    SurveySDK.getInstance().clearQueueForActivity(activity)
                 } catch (e: Exception) {
                     Log.e("SurveySDK_RN", "Error clearing queue: ${e.message}")
                 }
@@ -93,7 +93,7 @@ class SurveySDKActivityDelegate(private val reactContext: ReactApplicationContex
                 activity.window?.decorView?.post {
                     try {
                         val surveySDK = SurveySDK.getInstance()
-                        surveySDK?.autoSetup(activity)
+                        surveySDK.autoSetup(activity)
                         isAutoSetupComplete = true
                         Log.d("SurveySDK_RN", "✅ Auto detection setup complete")
                     } catch (e: Exception) {

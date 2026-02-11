@@ -18,7 +18,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mustafadenizer-c4f/mobile-sdk-universal"
+    "url": "git+https://github.com/mustafadenizer-c4f/mobile-sdk-universal.git"
   },
   "peerDependencies": {
     "react-native": ">=0.60.0"

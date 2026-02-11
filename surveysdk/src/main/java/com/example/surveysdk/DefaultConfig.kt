@@ -14,7 +14,7 @@ object DefaultConfig {
         sdkVersion = SDKConstants.SDK_VERSION,
         cacheDurationHours = SDKConstants.CACHE_DURATION_HOURS,
         surveys = listOf(
-            // ===== 1. BUTTON TRIGGER SURVEY =====
+            // ===== 1. BUTTON (DEFAULT) TRIGGER SURVEY =====
             SurveyConfig(
                 surveyId = "button_trigger_survey",
                 surveyName = "Button Trigger Survey",
@@ -68,7 +68,7 @@ object DefaultConfig {
                 )
             ),
 
-            // ===== 2. SCROLL TRIGGER SURVEY =====
+            // ===== 2. SCROLL AND BUTTON (CUSTOM) TRIGGER SURVEY =====
             SurveyConfig(
                 surveyId = "scroll_trigger_survey",
                 surveyName = "Scroll Trigger Survey",
@@ -85,7 +85,7 @@ object DefaultConfig {
                 buttonTriggerId = "my_custom_button",
 
                 // ===== TRIGGER CONFIGURATION =====
-                triggerScreens = emptySet(),
+                triggerScreens = setOf("notifications"),
                 triggerTabs = emptySet(),
                 timeDelay = 0L,
                 scrollThreshold = 500,
@@ -139,7 +139,7 @@ object DefaultConfig {
                 buttonTriggerId = null,
 
                 // ===== TRIGGER CONFIGURATION =====
-                triggerScreens = setOf("notifications", "profile", "settings"),
+                triggerScreens = setOf("notifications"),
                 triggerTabs = emptySet(),
                 timeDelay = 2000L,
                 scrollThreshold = 0,
@@ -195,7 +195,7 @@ object DefaultConfig {
                 // ===== TRIGGER CONFIGURATION =====
                 triggerScreens = emptySet(),
                 triggerTabs = emptySet(),
-                timeDelay = 5000L,
+                timeDelay = 3000L,
                 scrollThreshold = 0,
                 triggerType = "delayed",
 
@@ -247,9 +247,9 @@ object DefaultConfig {
                 buttonTriggerId = null,
 
                 // ===== TRIGGER CONFIGURATION =====
-                triggerScreens = setOf(),
+                triggerScreens = setOf("dashboard"),
                 triggerTabs = emptySet(),
-                timeDelay = 1000L,
+                timeDelay = 0L,
                 scrollThreshold = 0,
                 triggerType = "instant",
 
@@ -295,14 +295,14 @@ object DefaultConfig {
                 enableScrollTrigger = false,
                 enableNavigationTrigger = false,
                 enableAppLaunchTrigger = false,
-                enableExitTrigger = false,
+                enableExitTrigger = true,
                 enableTabChangeTrigger = true,
 
                 buttonTriggerId = null,
                 
                 // ===== TRIGGER CONFIGURATION =====
                 triggerScreens = emptySet(),
-                triggerTabs = setOf("mens", "womens", "electronics"),
+                triggerTabs = setOf("mens", "womens"),
                 timeDelay = 0L,
                 scrollThreshold = 0,
                 triggerType = "instant",
@@ -342,8 +342,8 @@ object DefaultConfig {
 
     // ===== QUICK CONFIG SWITCHER =====
     fun getFallbackConfig(): Config {
-        //return EMPTY_CONFIG // For prod, empty config
-        return TEST_CONFIG // Comment this out when prod
+        return EMPTY_CONFIG // For prod, empty config
+        //return TEST_CONFIG // Comment this out when prod
     }
 }
 

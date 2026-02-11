@@ -3,11 +3,50 @@ import { NativeModules } from 'react-native';
 const { SurveySDK } = NativeModules;
 
 class SurveySDKBridge {
+  /**
+   * Initialize the Survey SDK
+   * @param {string} apiKey - Your API key
+   * @param {Array} params - Optional parameters (strings or objects)
+   * 
+   * Examples:
+   * // 1. Simple initialization
+   * await SurveySDK.initialize('your-api-key');
+   * 
+   * // 2. With ONE parameter name (look up from storage)
+   * await SurveySDK.initialize('your-api-key', ['userID']);
+   * 
+   * // 3. With MULTIPLE parameter names (look up from storage)
+   * await SurveySDK.initialize('your-api-key', ['userID', 'email', 'userTier']);
+   * 
+   * // 4. With DIRECT values (key-value pairs)
+   * await SurveySDK.initialize('your-api-key', [
+   *   { userId: '12345' },
+   *   { userTier: 'premium' }
+   * ]);
+   * 
+   * // 5. MIXED parameters (some from storage, some direct values)
+   * await SurveySDK.initialize('your-api-key', [
+   *   'userID',           // Look up from storage
+   *   { email: 'user@example.com' },  // Direct value
+   *   'language',         // Look up from storage
+   *   { source: 'mobile_app' }        // Direct value
+   * ]);
+   */
   async initialize(apiKey) {
     if (!apiKey) {
       throw new Error('API key is required');
     }
     return await SurveySDK.initialize(apiKey);
+  }
+
+  async initializeWithParams(apiKey, params = []) {
+    if (!apiKey) {
+      throw new Error('API key is required');
+    }
+    if (!Array.isArray(params)) {
+      throw new Error('Params must be an array');
+    }
+    return await SurveySDK.initializeWithParams(apiKey, params);
   }
 
   async showSurvey() {
@@ -125,6 +164,15 @@ class SurveySDKBridge {
    */
   async triggerScrollSurvey() {
     return await SurveySDK.triggerScrollSurvey();
+  }
+
+    // SurveySDKBridge class:
+  async enableNavigationSafety() {
+      return await SurveySDK.enableNavigationSafety();
+  }
+
+  async autoSetupSafe() {
+      return await SurveySDK.autoSetupSafe();
   }
 
   /**

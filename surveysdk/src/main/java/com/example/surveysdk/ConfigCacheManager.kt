@@ -8,6 +8,7 @@ import android.util.Log
 import org.json.JSONObject
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
+import org.json.JSONException 
 
 class ConfigCacheManager(private val context: Context) {
 
@@ -15,42 +16,56 @@ class ConfigCacheManager(private val context: Context) {
         private const val PREFS_NAME = "survey_config_cache"
         private const val KEY_CONFIG_JSON = "cached_config"
         private const val KEY_TIMESTAMP = "cache_timestamp"
+        private const val KEY_CACHE_DURATION = "cache_duration"
+        private const val KEY_PARAMS_HASH = "cached_params_hash"
     }
 
-    fun saveConfig(config: Config) {
+    fun saveConfig(config: Config, params: Map<String, String> = emptyMap()) {
         try {
             val configJson = configToJson(config)
+            val paramsHash = params.hashCode().toString()
+            
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
                 .putString(KEY_CONFIG_JSON, configJson)
                 .putLong(KEY_TIMESTAMP, System.currentTimeMillis())
+                .putLong(KEY_CACHE_DURATION, config.cacheDurationHours)
+                .putString(KEY_PARAMS_HASH, paramsHash)
                 .apply()
-            Log.d("ConfigCache", "Configuration cached successfully - ${config.surveys.size} surveys")
+            Log.d("ConfigCache", "Configuration cached successfully for params: $params")
         } catch (e: Exception) {
             Log.e("ConfigCache", "Failed to cache configuration: ${e.message}")
         }
     }
 
-    fun getCachedConfig(): Config? {
+    fun getCachedConfig(params: Map<String, String> = emptyMap()): Config? {
         try {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val cachedJson = prefs.getString(KEY_CONFIG_JSON, null) ?: return null
             val timestamp = prefs.getLong(KEY_TIMESTAMP, 0)
-
-            // Get cache duration from the config itself
-            val config = jsonToConfig(cachedJson)
-            val cacheDurationHours = config.cacheDurationHours
-
-            // Check if cache is expired using config value
+            val cachedParamsHash = prefs.getString(KEY_PARAMS_HASH, "")
+            val currentParamsHash = params.hashCode().toString()
+            
+            // Check if cached config matches current parameters
+            if (cachedParamsHash != currentParamsHash) {
+                Log.d("ConfigCache", "⚠️ Cached config parameters don't match current parameters")
+                Log.d("ConfigCache", "   • Cached hash: $cachedParamsHash")
+                Log.d("ConfigCache", "   • Current hash: $currentParamsHash")
+                clearCache()
+                return null
+            }
+            
+            val cacheDurationHours = prefs.getLong(KEY_CACHE_DURATION, 24L)
             val cacheAge = System.currentTimeMillis() - timestamp
             val cacheExpired = cacheAge > TimeUnit.HOURS.toMillis(cacheDurationHours)
-
+            
             if (cacheExpired) {
                 Log.d("ConfigCache", "Cache expired, age: ${cacheAge / 1000 / 60} minutes")
                 clearCache()
                 return null
             }
-
-            Log.d("ConfigCache", "Using cached configuration - ${config.surveys.size} surveys, age: ${cacheAge / 1000 / 60} minutes")
+            
+            val config = jsonToConfig(cachedJson)
+            Log.d("ConfigCache", "Using cached configuration for params: $params")
             return config
         } catch (e: Exception) {
             Log.e("ConfigCache", "Failed to load cached configuration: ${e.message}")
@@ -156,18 +171,43 @@ class ConfigCacheManager(private val context: Context) {
     private fun jsonToConfig(jsonString: String): Config {
         return try {
             val json = JSONObject(jsonString)
-
-            // Get the configuration object from server response
-            val configJson = json.optJSONObject("configuration") ?: json
-
+            
+            // Determine which JSON object contains our config
+            val configJson = when {
+                // Case 1: Response from backend (has data wrapper)
+                json.has("data") && !json.isNull("data") -> {
+                    Log.d("ConfigCacheManager", "📦 Parsing from backend response (data wrapper)")
+                    json.getJSONObject("data")
+                }
+                // Case 2: Already parsed config (direct structure)
+                json.has("surveys") -> {
+                    Log.d("ConfigCacheManager", "📦 Parsing cached config (direct structure)")
+                    json
+                }
+                // Case 3: Invalid structure - return empty config
+                else -> {
+                    Log.e("ConfigCacheManager", "❌ Invalid config structure in cache")
+                    Log.e("ConfigCacheManager", "❌ JSON: ${jsonString.take(500)}")
+                    // Return empty config instead of throwing
+                    return DefaultConfig.EMPTY_CONFIG
+                }
+            }
+            
             val surveysArray = configJson.optJSONArray("surveys")
             val surveys = mutableListOf<SurveyConfig>()
 
             if (surveysArray != null) {
+                Log.d("ConfigCacheManager", "📊 Found ${surveysArray.length()} surveys")
                 for (i in 0 until surveysArray.length()) {
-                    val surveyJson = surveysArray.getJSONObject(i)
-                    surveys.add(parseSurveyConfigFromJson(surveyJson))
+                    try {
+                        val surveyJson = surveysArray.getJSONObject(i)
+                        surveys.add(parseSurveyConfigFromJson(surveyJson))
+                    } catch (e: Exception) {
+                        Log.e("ConfigCacheManager", "Error parsing survey at index $i: ${e.message}")
+                    }
                 }
+            } else {
+                Log.w("ConfigCacheManager", "⚠️ No surveys found in cached config")
             }
 
             Config(
@@ -177,59 +217,68 @@ class ConfigCacheManager(private val context: Context) {
             )
         } catch (e: Exception) {
             Log.e("ConfigCacheManager", "Error parsing config JSON: ${e.message}")
+            Log.e("ConfigCacheManager", "❌ Raw JSON that failed: ${jsonString.take(500)}")
             DefaultConfig.EMPTY_CONFIG
         }
     }
 
     private fun parseSurveyConfigFromJson(surveyJson: JSONObject): SurveyConfig {
+        // Handle priority which can be String or Int
+        val priorityValue = surveyJson.opt("priority")
+        val priority = when (priorityValue) {
+            is String -> priorityValue.toIntOrNull() ?: SDKConstants.DEFAULT_PRIORITY
+            is Int -> priorityValue
+            is Double -> priorityValue.toInt()
+            else -> SDKConstants.DEFAULT_PRIORITY
+        }
+
+        // Get surveyId from backend, generate random if empty/null
+            val backendSurveyId = surveyJson.optString("surveyId", "")
+            val surveyId = if (backendSurveyId.isNotEmpty()) {
+                backendSurveyId  // Use backend ID if provided
+            } else {
+                // Generate random ID
+                "survey_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}"
+            }
+        
         return SurveyConfig(
-            surveyId = surveyJson.opt("surveyId").toString(), // Handle both string and number
-            surveyName = surveyJson.optString("surveyName", ""),
+            surveyId = surveyJson.optString("surveyId", ""), // Add surveyId field
+            surveyName = surveyJson.optString("surveyName", ""), // Add surveyName field
             baseUrl = surveyJson.optString("baseUrl", ""),
             status = surveyJson.optBoolean("status", true),
-            // Trigger Settings
             enableButtonTrigger = surveyJson.optBoolean("enableButtonTrigger", false),
             enableScrollTrigger = surveyJson.optBoolean("enableScrollTrigger", false),
             enableNavigationTrigger = surveyJson.optBoolean("enableNavigationTrigger", false),
             enableAppLaunchTrigger = surveyJson.optBoolean("enableAppLaunchTrigger", false),
             enableExitTrigger = surveyJson.optBoolean("enableExitTrigger", false),
             enableTabChangeTrigger = surveyJson.optBoolean("enableTabChangeTrigger", false),
-
             buttonTriggerId = surveyJson.optString("buttonTriggerId", null).takeIf { it.isNotEmpty() },
-
-            // Trigger Configuration
             triggerScreens = surveyJson.optJSONArray("triggerScreens")?.let { array ->
-                (0 until array.length()).map { array.getString(it) }.toSet()
+                (0 until array.length()).mapNotNull { 
+                    if (!array.isNull(it)) array.getString(it) else null 
+                }.toSet()
             } ?: emptySet(),
             triggerTabs = surveyJson.optJSONArray("triggerTabs")?.let { array ->
-                (0 until array.length()).map { array.getString(it) }.toSet()
+                (0 until array.length()).mapNotNull { 
+                    if (!array.isNull(it)) array.getString(it) else null 
+                }.toSet()
             } ?: emptySet(),
             timeDelay = surveyJson.optLong("timeDelay", 0L),
             scrollThreshold = surveyJson.optInt("scrollThreshold", 0),
             triggerType = surveyJson.optString("triggerType", "instant"),
-
-            // Display Settings
             modalStyle = surveyJson.optString("modalStyle", "full_screen"),
             animationType = surveyJson.optString("animationType", "slide_up"),
             backgroundColor = surveyJson.optString("backgroundColor", "#FFFFFF"),
-
-            // Targeting & Limits
             probability = surveyJson.optDouble("probability", 1.0),
             maxShowsPerSession = surveyJson.optInt("maxShowsPerSession", 0),
             cooldownPeriod = surveyJson.optLong("cooldownPeriod", 0L),
             triggerOnce = surveyJson.optBoolean("triggerOnce", false),
-            priority = surveyJson.optInt("priority", 1),
-
-            // Data Collection
+            priority = priority, // Use the parsed priority
             collectDeviceId = surveyJson.optBoolean("collectDeviceId", false),
             collectDeviceModel = surveyJson.optBoolean("collectDeviceModel", false),
             collectLocation = surveyJson.optBoolean("collectLocation", false),
             collectAppUsage = surveyJson.optBoolean("collectAppUsage", false),
-
-            // Custom Params
             customParams = parseCustomParams(surveyJson.optJSONArray("customParams")),
-
-            // Exclusion Rules - Handle integer operators
             exclusionRules = parseExclusionRules(surveyJson.optJSONArray("exclusionRules"))
         )
     }

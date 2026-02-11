@@ -33,9 +33,20 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 val apiKey = call.argument<String>("apiKey")
                 if (apiKey != null && activity != null) {
                     try {
-                        SurveySDK.initialize(activity!!.applicationContext, apiKey)
-                        Log.d("SurveySDKFlutter", "✅ SDK initialized")
+                        val context = activity!!.applicationContext
+                        
+                        // ALWAYS use simple initialize (no parameters) first
+                        SurveySDK.initialize(context, apiKey)
+                        
+                        // If we have parameters, set them via reflection (same as RN)
+                        val params = call.argument<List<Any>>("params")
+                        if (params != null && params.isNotEmpty()) {
+                            setParametersFromFlutter(context, params)
+                        }
+                        
+                        Log.d("SurveySDKFlutter", "✅ SDK initialized with ${params?.size ?: 0} parameters")
                         result.success(true)
+                        
                     } catch (e: Exception) {
                         Log.e("SurveySDKFlutter", "❌ Init failed", e)
                         result.error("INIT_ERROR", e.message, null)
@@ -96,6 +107,41 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.success(true)
                 } else {
                     result.success(false)
+                }
+            }
+
+            "enableNavigationSafety" -> {
+                try {
+                    SurveySDK.getInstance().enableNavigationSafety()
+                    result.success(true)
+                } catch (e: Exception) {
+                    result.error("SAFETY_ERROR", e.message, null)
+                }
+            }
+
+            "autoSetupSafe" -> {
+                if (activity != null) {
+                    try {
+                        SurveySDK.getInstance().autoSetupSafe(activity!!)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("SETUP_ERROR", e.message, null)
+                    }
+                } else {
+                    result.error("NO_ACTIVITY", "No activity", null)
+                }
+            }
+
+            "getCurrentParameters" -> {
+                try {
+                    val params = SurveySDK.getCurrentParameters()
+                    // Convert Map to JSON string for Flutter
+                    val json = params.entries.joinToString(", ", "{", "}") { 
+                        "\"${it.key}\":\"${it.value}\"" 
+                    }
+                    result.success(json)
+                } catch (e: Exception) {
+                    result.error("PARAMS_ERROR", e.message, null)
                 }
             }
 
@@ -301,6 +347,71 @@ class SurveySdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             else -> result.notImplemented()
         }
     }
+
+    private fun setParametersFromFlutter(context: Context, params: List<Any>) {
+    try {
+        Log.d("SurveySDKFlutter", "📦 Setting ${params.size} parameters from Flutter")
+        
+        // Get the SDK instance
+        val surveySDK = SurveySDK.getInstance()
+        
+        // Use reflection to access the customParams field
+        val customParamsField = surveySDK.javaClass.getDeclaredField("customParams")
+        customParamsField.isAccessible = true
+        
+        // Get current parameters
+        val currentParams = (customParamsField.get(surveySDK) as? Map<*, *>)?.let {
+            try {
+                @Suppress("UNCHECKED_CAST")
+                it as MutableMap<String, String>
+            } catch (e: Exception) {
+                mutableMapOf<String, String>()
+            }
+        } ?: mutableMapOf<String, String>()
+        
+        // Add parameters from Flutter
+        params.forEach { param ->
+            when (param) {
+                is String -> {
+                    // Look up from storage
+                    val value = try {
+                        val storageUtilsClass = Class.forName("com.example.surveysdk.StorageUtils")
+                        val method = storageUtilsClass.getDeclaredMethod("findSpecificData", Context::class.java, String::class.java)
+                        method.invoke(null, context, param) as? String
+                    } catch (e: Exception) {
+                        null
+                    }
+                    if (value != null) {
+                        currentParams[param] = value
+                        Log.d("SurveySDKFlutter", "   ✅ From storage: $param = $value")
+                    } else {
+                        Log.d("SurveySDKFlutter", "   ⚠️ '$param' not found in storage")
+                    }
+                }
+                is Map<*, *> -> {
+                    // Direct key-value pair
+                    val map = param as Map<String, Any>
+                    map.entries.forEach { entry ->
+                        val value = entry.value.toString()
+                        currentParams[entry.key] = value
+                        Log.d("SurveySDKFlutter", "   ✅ Direct param: ${entry.key} = $value")
+                    }
+                }
+                else -> {
+                    Log.w("SurveySDKFlutter", "⚠️ Skipping invalid parameter type: ${param::class.java.simpleName}")
+                }
+            }
+        }
+        
+        // Update the customParams field
+        customParamsField.set(surveySDK, currentParams)
+        
+        Log.d("SurveySDKFlutter", "✅ Set ${currentParams.size} parameters via reflection")
+        
+    } catch (e: Exception) {
+        Log.e("SurveySDKFlutter", "❌ Failed to set parameters", e)
+    }
+}
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)

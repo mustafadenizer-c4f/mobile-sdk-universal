@@ -13,14 +13,59 @@ class SurveySdkFlutter {
   // 🚀 INITIALIZATION & SETUP
   // ---------------------------------------------------------------------------
 
+  /// Initialize the SDK with your API Key. old one
+  // static Future<bool> initialize(String apiKey) async {
+  //   try {
+  //     final bool result = await _channel.invokeMethod('initialize', {'apiKey': apiKey});
+  //     return result;
+  //   } on PlatformException catch (e) {
+  //     throw Exception('Failed to initialize SDK: ${e.message}');
+  //   }
+  // }
+
   /// Initialize the SDK with your API Key.
-  static Future<bool> initialize(String apiKey) async {
+  /// 
+  /// Examples:
+  /// // 1. Simple initialization (no parameters)
+  /// await SurveySdkFlutter.initialize('your-api-key');
+  /// 
+  /// // 2. With parameter names to look up from storage
+  /// await SurveySdkFlutter.initialize('your-api-key', 
+  ///   params: ['userID', 'rank', 'language']);
+  /// 
+  /// // 3. With direct values (key-value pairs)
+  /// await SurveySdkFlutter.initialize('your-api-key',
+  ///   params: [
+  ///     {'userID': '12345'},
+  ///     {'userTier': 'premium'}
+  ///   ]);
+  /// 
+  /// // 4. Mixed parameters (some from storage, some direct)
+  /// await SurveySdkFlutter.initialize('your-api-key',
+  ///   params: [
+  ///     'userID',                     // Look up from storage
+  ///     {'rank': 'gold'},             // Direct value
+  ///     'language',                   // Look up from storage
+  ///     {'source': 'flutter_app'},    // Direct value
+  ///   ]);
+  static Future<bool> initialize(String apiKey, {List<dynamic>? params}) async {
     try {
-      final bool result = await _channel.invokeMethod('initialize', {'apiKey': apiKey});
+      final Map<String, dynamic> args = {'apiKey': apiKey};
+      
+      if (params != null && params.isNotEmpty) {
+        args['params'] = params;
+      }
+      
+      final bool result = await _channel.invokeMethod('initialize', args);
       return result;
     } on PlatformException catch (e) {
       throw Exception('Failed to initialize SDK: ${e.message}');
     }
+  }
+
+  /// Backward compatibility - simple initialize without parameters
+  static Future<bool> initializeSimple(String apiKey) async {
+    return await initialize(apiKey);
   }
 
   /// Enables automatic lifecycle tracking (App Start/Exit).
@@ -31,6 +76,24 @@ class SurveySdkFlutter {
       return result;
     } on PlatformException catch (e) {
       throw Exception('Failed to auto setup: ${e.message}');
+    }
+  }
+
+  static Future<bool> enableNavigationSafety() async {
+    try {
+      final bool result = await _channel.invokeMethod('enableNavigationSafety');
+      return result;
+    } on PlatformException catch (e) {
+      throw Exception('Failed to enable navigation safety: ${e.message}');
+    }
+  }
+
+  static Future<bool> autoSetupSafe() async {
+    try {
+      final bool result = await _channel.invokeMethod('autoSetupSafe');
+      return result;
+    } on PlatformException catch (e) {
+      throw Exception('Failed to safe auto setup: ${e.message}');
     }
   }
 

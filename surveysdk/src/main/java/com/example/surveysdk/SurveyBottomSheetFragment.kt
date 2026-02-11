@@ -138,18 +138,25 @@ class SurveyBottomSheetFragment : BottomSheetDialogFragment() {
         super.onStart()
         Log.d("SurveyBottomSheet", "Bottom sheet onStart")
 
-        // Ensure no dimming
+        // Ensure no dimming (keep your existing transparency logic)
         dialog?.window?.setDimAmount(0.0f)
 
-        // Set bottom sheet behavior
         val bottomSheet = dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-        bottomSheet?.setBackgroundColor(Color.TRANSPARENT)
+        if (bottomSheet != null) {
+            bottomSheet.setBackgroundColor(Color.TRANSPARENT)
 
-        val behavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet!!)
-        behavior.isDraggable = true
-        behavior.isFitToContents = false
-        behavior.halfExpandedRatio = 0.7f
-        behavior.peekHeight = 800
+            val behavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet)
+            
+            // 🛑 Disable "Swipe Down to Close"
+            behavior.isHideable = false 
+            
+            // 🛑 Disable dragging entirely (optional, keeps it fixed)
+            behavior.isDraggable = false 
+            
+            behavior.isFitToContents = false
+            behavior.halfExpandedRatio = 0.7f
+            behavior.peekHeight = 800
+        }
     }
 
     private fun setupWebView(webView: WebView, url: String, allowedDomain: String?) {
@@ -196,6 +203,19 @@ class SurveyBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         super.onDestroyView()
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): android.app.Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState) as com.google.android.material.bottomsheet.BottomSheetDialog
+        
+        // 🛑 Prevent closing when clicking outside the sheet
+        dialog.setCanceledOnTouchOutside(false)
+        
+        // 🛑 Optional: Prevent closing when pressing the Android "Back" button
+        // Uncomment the next line if you want strict "Only X button" closing
+        // dialog.setCancelable(false) 
+
+        return dialog
     }
 
     // Helper method to show the bottom sheet

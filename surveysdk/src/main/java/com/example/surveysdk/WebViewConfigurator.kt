@@ -1,61 +1,92 @@
 package com.example.surveysdk
 
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import android.webkit.WebResourceRequest
-import android.webkit.WebChromeClient
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.view.View
-import android.webkit.WebResourceResponse
+import android.webkit.*
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.RequiresApi
+import android.net.http.SslError
 
 object WebViewConfigurator {
 
-    // UPDATED METHOD SIGNATURE - With callbacks
+    // ====================================================================
+    // MAIN CONFIGURATION METHOD
+    // ====================================================================
     fun setupSecureWebView(
         webView: WebView,
         url: String,
         allowedDomain: String?,
         onPageStarted: (() -> Unit)? = null,
         onPageFinished: (() -> Unit)? = null,
-        onSurveyClosed: (() -> Unit)? = null  // ✅ ADD THIS: Callback for when survey is closed
+        onSurveyClosed: (() -> Unit)? = null
     ) {
         configureWebViewSettings(webView)
-        webView.webViewClient = createSafeWebViewClient(allowedDomain, webView, url, onPageStarted, onPageFinished, onSurveyClosed)
+        webView.webViewClient = createSafeWebViewClient(
+            allowedDomain, 
+            webView, 
+            url, 
+            onPageStarted, 
+            onPageFinished, 
+            onSurveyClosed
+        )
         webView.webChromeClient = WebChromeClient()
         webView.loadUrl(url)
     }
 
-    // ADD THIS METHOD - WebView settings configuration
+    // ====================================================================
+    // WEBVIEW SETTINGS CONFIGURATION
+    // ====================================================================
     private fun configureWebViewSettings(webView: WebView) {
         with(webView.settings) {
             javaScriptEnabled = true
             domStorageEnabled = true
             allowFileAccess = false
             allowContentAccess = false
-            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
-            cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
+            mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+            cacheMode = WebSettings.LOAD_DEFAULT
+            
+            // Additional security settings
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                allowFileAccessFromFileURLs = false
+                allowUniversalAccessFromFileURLs = false
+            }
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+            }
+            
+            // Performance settings
+            loadWithOverviewMode = true
+            useWideViewPort = true
+            builtInZoomControls = false
+            displayZoomControls = false
         }
     }
 
-    // UPDATED METHOD - With callbacks
+    // ====================================================================
+    // WEBVIEW CLIENT CREATION
+    // ====================================================================
     private fun createSafeWebViewClient(
         allowedDomain: String?,
         webView: WebView,
         originalUrl: String,
         onPageStarted: (() -> Unit)? = null,
         onPageFinished: (() -> Unit)? = null,
-        onSurveyClosed: (() -> Unit)? = null  // ✅ ADD THIS
+        onSurveyClosed: (() -> Unit)? = null
     ): WebViewClient {
         return object : WebViewClient() {
             private var errorOccurred = false
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
                 Log.d("WebViewConfigurator", "🚀 Starting to load: $url")
-                errorOccurred = false // ⭐⭐⭐ RESET ERROR STATE ⭐⭐⭐
-                hideErrorLayout(webView) // ⭐⭐⭐ HIDE ANY PREVIOUS ERROR ⭐⭐⭐
+                errorOccurred = false
+                hideErrorLayout(webView)
                 onPageStarted?.invoke()
                 super.onPageStarted(view, url, favicon)
             }
@@ -63,7 +94,7 @@ object WebViewConfigurator {
             override fun onPageFinished(view: WebView?, loadedUrl: String?) {
                 if (errorOccurred) return
                 hideErrorLayout(webView)
-                onPageFinished?.invoke() // Call the callback
+                onPageFinished?.invoke()
                 Log.d("WebViewConfigurator", "✅ Page loaded successfully: $loadedUrl")
             }
 
@@ -78,43 +109,88 @@ object WebViewConfigurator {
                 Log.e("WebViewConfigurator", "❌ Error code: $errorCode")
                 Log.e("WebViewConfigurator", "❌ Failing URL: $failingUrl")
                 Log.e("WebViewConfigurator", "❌ Original URL: $originalUrl")
-                showErrorLayout(webView, originalUrl, onSurveyClosed)  // ✅ PASS CALLBACK
+                showErrorLayout(webView, originalUrl, onSurveyClosed)
             }
 
-            // Add HTTP error handling for API 21+
+            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             override fun onReceivedHttpError(
                 view: WebView?,
                 request: WebResourceRequest?,
                 errorResponse: WebResourceResponse?
             ) {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    Log.e("WebViewConfigurator", "❌ HTTP Error: ${errorResponse?.statusCode}")
-                    Log.e("WebViewConfigurator", "❌ HTTP Error URL: ${request?.url}")
+                if (errorResponse != null) {
+                    Log.e("WebViewConfigurator", "❌ HTTP Error: ${errorResponse.statusCode}")
+                }
+                if (request != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Log.e("WebViewConfigurator", "❌ HTTP Error URL: ${request.url}")
                 }
             }
 
+            // ============ FOR ANDROID 5.0+ (API 21+) ============
+            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
                 request: WebResourceRequest?
             ): Boolean {
-                val url = request?.url.toString()
-                val shouldAllow = isUrlAllowed(url, allowedDomain)
+                val url = request?.url?.toString() ?: return true
+                Log.d("WebViewConfigurator", "🔗 Navigation attempt (API 21+): $url")
+                return handleUrlLoading(url, allowedDomain)
+            }
 
-                Log.d("WebViewConfigurator", "🔗 Navigation attempt: $url")
+            // ============ FOR ANDROID < 5.0 (LEGACY) ============
+            @Suppress("DEPRECATION")
+            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                // On Android 5.0+, let the new method handle it
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    return super.shouldOverrideUrlLoading(view, url)
+                }
+                
+                val safeUrl = url ?: return true
+                Log.d("WebViewConfigurator", "🔗 Navigation attempt (Legacy): $safeUrl")
+                return handleUrlLoading(safeUrl, allowedDomain)
+            }
+
+            // ============ SSL ERROR HANDLING ============
+            override fun onReceivedSslError(
+                view: WebView?,
+                handler: SslErrorHandler?,
+                error: SslError?
+            ) {
+                Log.e("WebViewConfigurator", "🔒 SSL Error: ${error?.toString()}")
+                
+                // For safety, cancel SSL errors in production
+                // You can modify this based on your needs
+                handler?.cancel()
+                errorOccurred = true
+                showErrorLayout(webView, originalUrl, onSurveyClosed)
+            }
+            
+            // ============ HELPER METHOD ============
+            private fun handleUrlLoading(url: String, allowedDomain: String?): Boolean {
+                val shouldAllow = isUrlAllowed(url, allowedDomain)
                 Log.d("WebViewConfigurator", "🔗 Allowed: $shouldAllow")
 
                 if (shouldAllow) {
                     errorOccurred = false
-                    return false
+                    return false // Allow navigation
                 } else {
                     Log.w("WebViewConfigurator", "🚫 Blocked navigation to: $url")
-                    return true
+                    
+                    // Check if it's a special URL that should be opened externally
+                    if (isSpecialUrl(url)) {
+                        openUrlExternally(url, webView.context)
+                        return true // Override - handled externally
+                    }
+                    
+                    return true // Block navigation
                 }
             }
         }
     }
 
-    // ✅ UPDATED: Accept onSurveyClosed callback
+    // ====================================================================
+    // ERROR LAYOUT HANDLING
+    // ====================================================================
     private fun showErrorLayout(webView: WebView, originalUrl: String, onSurveyClosed: (() -> Unit)? = null) {
         webView.post {
             try {
@@ -123,9 +199,9 @@ object WebViewConfigurator {
                 // Create error layout
                 val errorLayout = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
-                    layoutParams = android.widget.LinearLayout.LayoutParams(
-                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT
                     )
                     setBackgroundColor(0xFFFFFFFF.toInt())
                     setPadding(50, 100, 50, 100)
@@ -137,9 +213,9 @@ object WebViewConfigurator {
                     text = "⚠️"
                     textSize = 48f
                     gravity = android.view.Gravity.CENTER
-                    layoutParams = android.widget.LinearLayout.LayoutParams(
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
                     ).apply {
                         bottomMargin = 20
                     }
@@ -151,9 +227,9 @@ object WebViewConfigurator {
                     textSize = 18f
                     setTextColor(0xFF333333.toInt())
                     gravity = android.view.Gravity.CENTER
-                    layoutParams = android.widget.LinearLayout.LayoutParams(
-                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
                     ).apply {
                         bottomMargin = 10
                     }
@@ -165,9 +241,9 @@ object WebViewConfigurator {
                     textSize = 14f
                     setTextColor(0xFF666666.toInt())
                     gravity = android.view.Gravity.CENTER
-                    layoutParams = android.widget.LinearLayout.LayoutParams(
-                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
                     ).apply {
                         bottomMargin = 30
                     }
@@ -179,9 +255,9 @@ object WebViewConfigurator {
                     setBackgroundColor(0xFF007AFF.toInt())
                     setTextColor(0xFFFFFFFF.toInt())
                     setPadding(40, 20, 40, 20)
-                    layoutParams = android.widget.LinearLayout.LayoutParams(
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
                     ).apply {
                         gravity = android.view.Gravity.CENTER
                     }
@@ -198,9 +274,9 @@ object WebViewConfigurator {
                     setBackgroundColor(0xFF8E8E93.toInt())
                     setTextColor(0xFFFFFFFF.toInt())
                     setPadding(40, 20, 40, 20)
-                    layoutParams = android.widget.LinearLayout.LayoutParams(
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
                     ).apply {
                         gravity = android.view.Gravity.CENTER
                         topMargin = 10
@@ -208,8 +284,7 @@ object WebViewConfigurator {
                     setOnClickListener {
                         Log.d("WebViewConfigurator", "❌ Close button clicked")
                         hideErrorLayout(webView)
-                        // Dismiss the survey using callback instead of direct call
-                        onSurveyClosed?.invoke() ?: dismissSurvey(webView)
+                        onSurveyClosed?.invoke()
                     }
                 }
 
@@ -223,11 +298,10 @@ object WebViewConfigurator {
                 // Replace WebView with error layout
                 val parent = webView.parent as? android.view.ViewGroup
                 parent?.let {
-                    // Store reference to webView for later restoration
                     webView.tag = "survey_webview"
                     it.removeView(webView)
                     it.addView(errorLayout)
-                    errorLayout.tag = "error_layout" // Tag for easy identification
+                    errorLayout.tag = "error_layout"
                 }
 
                 Log.d("WebViewConfigurator", "🔄 Error layout shown with retry/close buttons")
@@ -262,42 +336,39 @@ object WebViewConfigurator {
         }
     }
 
-    // ✅ UPDATED: Remove the surveyCompleted() call to prevent duplicates
-    private fun dismissSurvey(webView: WebView) {
-        try {
-            val context = webView.context
-            when (context) {
-                is androidx.fragment.app.DialogFragment -> {
-                    context.dismiss()
-                    Log.d("WebViewConfigurator", "✅ DialogFragment dismissed")
-                }
-                is com.google.android.material.bottomsheet.BottomSheetDialogFragment -> {
-                    context.dismiss()
-                    Log.d("WebViewConfigurator", "✅ BottomSheetFragment dismissed")
-                }
-                is android.app.Activity -> {
-                    context.finish()
-                    Log.d("WebViewConfigurator", "✅ Activity finished")
-                }
-                else -> {
-                    Log.w("WebViewConfigurator", "⚠️ Unknown context type, cannot dismiss")
-                }
-            }
-            // ❌ REMOVED: Don't call surveyCompleted() here - let the activity handle it
-        } catch (e: Exception) {
-            Log.e("WebViewConfigurator", "❌ Error dismissing survey: ${e.message}")
-        }
-    }
-
+    // ====================================================================
+    // URL VALIDATION & HANDLING
+    // ====================================================================
     private fun isUrlAllowed(url: String, allowedDomain: String?): Boolean {
-        if (allowedDomain.isNullOrEmpty()) return true
+        if (allowedDomain.isNullOrEmpty()) {
+            return true
+        }
 
         return try {
-            val uri = android.net.Uri.parse(url)
+            val uri = Uri.parse(url)
             val host = uri.host ?: return false
             host == allowedDomain || host.endsWith(".$allowedDomain")
         } catch (e: Exception) {
             false
+        }
+    }
+
+    private fun isSpecialUrl(url: String): Boolean {
+        return url.startsWith("mailto:") ||
+               url.startsWith("tel:") ||
+               url.startsWith("sms:") ||
+               url.startsWith("market://") ||
+               url.startsWith("intent://")
+    }
+
+    private fun openUrlExternally(url: String, context: Context?) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context?.startActivity(intent)
+            Log.d("WebViewConfigurator", "🔗 Opened URL externally: $url")
+        } catch (e: Exception) {
+            Log.e("WebViewConfigurator", "❌ Failed to open URL externally: $url - ${e.message}")
         }
     }
 }
