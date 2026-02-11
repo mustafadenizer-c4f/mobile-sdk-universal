@@ -323,6 +323,22 @@ class SurveySDK private constructor(
         fun getInstance(): SurveySDK {
             return instance ?: throw IllegalStateException(SDKConstants.ERROR_NOT_INITIALIZED)
         }
+
+        /**
+         * Initialize SDK with parameters for React Native bridge
+         * This is the ONLY method bridges should call
+         */
+        @JvmStatic
+        fun initializeWithBridgeParams(
+            context: Context,
+            apiKey: String,
+            vararg params: Any
+        ): SurveySDK {
+            return when {
+                params.isEmpty() -> initialize(context, apiKey)
+                else -> initialize(context, apiKey, *params)
+            }
+        }
         
         // Add this method for UniversalSurveySDK
         fun forceReinitialize(context: Context): Boolean {

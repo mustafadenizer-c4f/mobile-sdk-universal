@@ -56,7 +56,7 @@ dependencies {
        // IF YOU MADE ANY CHANGES WTIH CORE MODULES, USE PROJECT IMPLEMENTATION FOR JITPACK BUILD AND COMMEND OUT LATER FOR NPM RELEASE
     implementation(project(":surveysdk"))
        // USE TAG NUMBER FOR NPM RELEASE
-    //implementation("com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:v1.2.14")
+    //implementation("com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:v1.2.16")
       // WHILE YOU DONT HAVE TAG NUMBER
     //implementation("com.github.mustafadenizer-c4f.mobile-sdk-universal:surveysdk:main-SNAPSHOT")
     implementation("androidx.appcompat:appcompat:1.6.1")

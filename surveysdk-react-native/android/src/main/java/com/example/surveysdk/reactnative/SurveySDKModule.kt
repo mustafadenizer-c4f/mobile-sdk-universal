@@ -21,26 +21,18 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     private var scrollDetectionEnabled = false
     
     init {
-        // Store the current activity
         currentActivity = WeakReference(reactContext.currentActivity)
     }
 
     override fun getName(): String = "SurveySDK"
 
-
-    // async initialize(apiKey, params) {
-    //     if (params && params.length > 0) {
-    //         return await SurveySDK.initializeWithParams(apiKey, params);
-    //     } else {
-    //         return await SurveySDK.initialize(apiKey);
-    //     }
-    // }
-
-    // SurveySDKModule.kt - FIXED VERSION
+    // ====================================================================
+    // ✅ FIXED INITIALIZATION - NO REFLECTION, NO STORAGEUTILS
+    // ====================================================================
     @ReactMethod
     fun initialize(apiKey: String, params: ReadableArray?, promise: Promise) {
         try {
-            Log.d("SurveySDK_RN", "RN: Initializing SurveySDK with params...")
+            Log.d("SurveySDK_RN", "RN: Initializing SurveySDK...")
             
             val activity = getCurrentActivity()
             if (activity == null) {
@@ -50,19 +42,20 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             
             val context = activity.applicationContext
             
-            // CRITICAL FIX: Convert params to the right format for the correct overload
             if (params != null && params.size() > 0) {
-                // Convert ReadableArray to Array<Any> for the vararg overload
-                val paramArray = convertToVarargParams(params, context)
+                // Convert React Native params to vararg array
+                val paramArray = convertReadableArrayToVararg(params)
                 
-                // Call the CORRECT overload - the one that accepts vararg Any
-                SurveySDK.initialize(context, apiKey, *paramArray)
+                // ✅ USE THE PUBLIC BRIDGE API - NO REFLECTION
+                SurveySDK.initializeWithBridgeParams(context, apiKey, *paramArray)
+                
+                Log.d("SurveySDK_RN", "✅ SDK initialized with ${paramArray.size} parameters")
             } else {
                 // Simple initialization
                 SurveySDK.initialize(context, apiKey)
+                Log.d("SurveySDK_RN", "✅ SDK initialized without parameters")
             }
             
-            Log.d("SurveySDK_RN", "✅ SDK initialized with parameters")
             promise.resolve(true)
             
         } catch (e: Exception) {
@@ -71,21 +64,20 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         }
     }
 
-    private fun convertToVarargParams(params: ReadableArray, context: Context): Array<Any> {
+    // ====================================================================
+    // ✅ PARAMETER CONVERSION - SAFE, NO REFLECTION, NO STORAGEUTILS
+    // ====================================================================
+    private fun convertReadableArrayToVararg(params: ReadableArray): Array<Any> {
         val result = mutableListOf<Any>()
         
         for (i in 0 until params.size()) {
             when (params.getType(i)) {
                 ReadableType.String -> {
                     val paramName = params.getString(i)
-                    // Look up from storage - this is what the vararg String overload expects
-                    val value = StorageUtils.findSpecificData(context, paramName)
-                    if (value != null) {
-                        // This will be interpreted as a Pair<String, String>? No, we need to handle differently
-                        // Actually, for the vararg Any overload, we can pass the string directly
+                    if (paramName != null) {
+                        // ✅ Just pass the string - CORE SDK will handle storage lookup
                         result.add(paramName)
-                    } else {
-                        result.add(paramName) // Still add the parameter name, SDK will handle missing
+                        Log.d("SurveySDK_RN", "   ➕ Parameter name: $paramName (SDK will look up)")
                     }
                 }
                 ReadableType.Map -> {
@@ -95,8 +87,9 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
                             val key = iterator.nextKey()
                             val value = map.getString(key)
                             if (key != null && value != null) {
-                                // For direct values, we need to create a Pair
+                                // ✅ Direct key-value pair
                                 result.add(Pair(key, value))
+                                Log.d("SurveySDK_RN", "   ➕ Direct param: $key = $value")
                             }
                         }
                     }
@@ -110,74 +103,9 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         return result.toTypedArray()
     }
 
-    // private fun setParametersFromReactNative(context: Context, params: ReadableArray) {
-    //     try {
-    //         // Get the SDK instance
-    //         val surveySDK = SurveySDK.getInstance()
-            
-    //         // Use reflection to access the customParams field
-    //         val customParamsField = surveySDK.javaClass.getDeclaredField("customParams")
-    //         customParamsField.isAccessible = true
-            
-    //         // Get current parameters
-    //         val currentParams = (customParamsField.get(surveySDK) as? Map<*, *>)?.let {
-    //             try {
-    //                 @Suppress("UNCHECKED_CAST")
-    //                 it as MutableMap<String, String>
-    //             } catch (e: Exception) {
-    //                 mutableMapOf<String, String>()
-    //             }
-    //         } ?: mutableMapOf<String, String>()
-            
-    //         // Add parameters from React Native
-    //         for (i in 0 until params.size()) {
-    //             when (params.getType(i)) {
-    //                 ReadableType.String -> {
-    //                     val paramName = params.getString(i)
-    //                     if (paramName != null) {
-    //                         // Look up from storage
-    //                         val value = try {
-    //                             val storageUtilsClass = Class.forName("com.example.surveysdk.StorageUtils")
-    //                             val method = storageUtilsClass.getDeclaredMethod("findSpecificData", Context::class.java, String::class.java)
-    //                             method.invoke(null, context, paramName) as? String
-    //                         } catch (e: Exception) {
-    //                             null
-    //                         }
-    //                         if (value != null) {
-    //                             currentParams[paramName] = value
-    //                             Log.d("SurveySDK_RN", "   ✅ From storage: $paramName = $value")
-    //                         }
-    //                     }
-    //                 }
-    //                 ReadableType.Map -> {
-    //                     val paramMap = params.getMap(i)
-    //                     paramMap?.keySetIterator()?.let { iterator ->
-    //                         while (iterator.hasNextKey()) {
-    //                             val key = iterator.nextKey()
-    //                             val value = paramMap.getString(key)
-    //                             if (key != null && value != null) {
-    //                                 currentParams[key] = value
-    //                                 Log.d("SurveySDK_RN", "   ✅ Direct param: $key = $value")
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //                 else -> {
-    //                     Log.w("SurveySDK_RN", "⚠️ Skipping invalid parameter type")
-    //                 }
-    //             }
-    //         }
-            
-    //         // Update the customParams field
-    //         customParamsField.set(surveySDK, currentParams)
-            
-    //         Log.d("SurveySDK_RN", "✅ Set ${currentParams.size} parameters via reflection")
-            
-    //     } catch (e: Exception) {
-    //         Log.e("SurveySDK_RN", "❌ Failed to set parameters", e)
-    //     }
-    // }
-
+    // ====================================================================
+    // AUTO SETUP
+    // ====================================================================
     @ReactMethod
     fun autoSetup(promise: Promise) {
         try {
@@ -185,65 +113,40 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             
             val activity = getCurrentActivity()
             if (activity == null) {
-                Log.e("SurveySDK_RN", "❌ No activity available")
                 promise.reject("NO_ACTIVITY", "No activity available")
                 return
             }
             
-            // Run on UI thread
             activity.runOnUiThread {
                 try {
-                    // Wait for UI to be ready
                     activity.window?.decorView?.postDelayed({
                         try {
-                            Log.d("SurveySDK_RN", "📱 Setting up React Native auto detection...")
-                            
-                            // Get SDK instance
                             val surveySDK = SurveySDK.getInstance()
-                            
-                            // Setup React Native specific detection
                             setupReactNativeDetection(activity)
-                            
-                            // Also call the core SDK's autoSetup for native detection
                             surveySDK.autoSetup(activity)
-                            
                             isAutoSetupComplete = true
-                            
                             Log.d("SurveySDK_RN", "✅ React Native auto setup completed")
-                            Log.d("SurveySDK_RN", "🎯 Detection methods:")
-                            Log.d("SurveySDK_RN", "   • React Native button click listeners")
-                            Log.d("SurveySDK_RN", "   • React Native scroll listeners")
-                            Log.d("SurveySDK_RN", "   • Navigation tab changes")
-                            
                             promise.resolve(true)
-                            
                         } catch (e: Exception) {
-                            Log.e("SurveySDK_RN", "❌ Auto setup failed", e)
                             promise.reject("SETUP_ERROR", "Auto setup failed: ${e.message}")
                         }
-                    }, 500) // Give UI time to fully render
-                    
+                    }, 500)
                 } catch (e: Exception) {
-                    Log.e("SurveySDK_RN", "❌ UI thread setup failed", e)
                     promise.reject("SETUP_ERROR", "UI thread setup failed: ${e.message}")
                 }
             }
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Auto setup failed", e)
             promise.reject("SETUP_ERROR", "Auto setup failed: ${e.message}")
         }
     }
 
+    // ====================================================================
+    // REACT NATIVE DETECTION
+    // ====================================================================
     private fun setupReactNativeDetection(activity: Activity) {
         try {
             Log.d("SurveySDK_RN", "🔍 Setting up React Native detection...")
-            
-            // Setup scroll detection for React Native
             setupReactNativeScrollDetection(activity)
-            
-            // Setup navigation detection for React Native tabs
-            setupReactNativeNavigationDetection(activity)
-            
         } catch (e: Exception) {
             Log.e("SurveySDK_RN", "❌ React Native detection setup failed", e)
         }
@@ -252,14 +155,11 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     private fun setupReactNativeScrollDetection(activity: Activity) {
         try {
             Log.d("SurveySDK_RN", "📜 Setting up React Native scroll detection...")
-            
-            // Find React Native ScrollView or FlatList components
             val rootView = activity.window.decorView.findViewById<View>(android.R.id.content)
             if (rootView != null) {
                 findAndSetupScrollViews(rootView, activity)
                 scrollDetectionEnabled = true
             }
-            
         } catch (e: Exception) {
             Log.e("SurveySDK_RN", "❌ Scroll detection setup failed", e)
         }
@@ -267,7 +167,6 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
 
     private fun findAndSetupScrollViews(view: View, activity: Activity) {
         try {
-            // Check if this is a scrollable view
             if (view::class.java.name.contains("ScrollView") ||
                 view::class.java.name.contains("FlatList") ||
                 view::class.java.name.contains("RecyclerView")) {
@@ -276,84 +175,104 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
                 setupScrollListener(view, activity)
             }
             
-            // Recursively check child views
             if (view is ViewGroup) {
                 for (i in 0 until view.childCount) {
-                    val child = view.getChildAt(i)
-                    findAndSetupScrollViews(child, activity)
+                    findAndSetupScrollViews(view.getChildAt(i), activity)
                 }
             }
-            
         } catch (e: Exception) {
-            // Silent fail for individual views
+            // Silent fail
         }
     }
 
-   private fun setupScrollListener(scrollView: View, activity: Activity) {
+    private fun setupScrollListener(scrollView: View, activity: Activity) {
         try {
-            // State variables specific to this listener
             var lastTriggerTime = 0L
-            val SCROLL_COOLDOWN_MS = 3000L // 3 Seconds wait time between triggers
+            val SCROLL_COOLDOWN_MS = 3000L
             
-            Log.d("SurveySDK_RN", "🎯 Setting up native scroll listener on: ${scrollView.javaClass.simpleName}")
-
-            // Use Android's standard ViewTreeObserver instead of Reflection
             scrollView.viewTreeObserver.addOnScrollChangedListener {
-                
-                // 1. COOLDOWN CHECK (The "Fren" Mechanism)
-                // If 3 seconds haven't passed since the last trigger, stop here.
                 val currentTime = System.currentTimeMillis()
                 if (currentTime - lastTriggerTime < SCROLL_COOLDOWN_MS) {
                     return@addOnScrollChangedListener
                 }
 
-                // 2. CALCULATE POSITIONS
                 val scrollY = scrollView.scrollY
                 val viewHeight = scrollView.height
                 
-                // React Native ScrollViews usually have 1 child containing the actual content
                 val contentHeight = if (scrollView is ViewGroup && scrollView.childCount > 0) {
                     scrollView.getChildAt(0).height
                 } else {
                     scrollView.height
                 }
 
-                // 3. CALCULATE PERCENTAGE
-                // Formula: (Current Position + Screen Height) / Total Content Height
                 val scrollPercentage = if (contentHeight > viewHeight) {
                     ((scrollY.toFloat() + viewHeight) / contentHeight) * 100
                 } else {
                     0f
                 }
 
-                // Optional: Log only occasionally to avoid spam
-                // Log.d("SurveySDK_RN", "📜 Scroll: $scrollPercentage%")
-
-                // 4. TRIGGER CONDITION (e.g., Reached 90% of the page)
                 if (scrollPercentage >= 90) {
-                    Log.d("SurveySDK_RN", "🎯 Scroll threshold reached ($scrollPercentage%) - Triggering Survey")
-                    
-                    // LOCK: Update the time so it doesn't trigger again immediately
+                    Log.d("SurveySDK_RN", "🎯 Scroll threshold reached ($scrollPercentage%)")
                     lastTriggerTime = currentTime
-                    
-                    // FIRE THE EVENT
-                    triggerScrollSurvey(activity)
+                    // ✅ FIX: Call the SDK directly, not the ReactMethod
+                    SurveySDK.getInstance().triggerScrollManual(activity, 1000)
                 }
             }
             
             Log.d("SurveySDK_RN", "✅ Scroll listener setup successful")
-
         } catch (e: Exception) {
             Log.e("SurveySDK_RN", "❌ Failed to setup scroll listener", e)
         }
     }
 
-    private fun triggerScrollSurvey(activity: Activity) {
+    // ====================================================================
+    // TRIGGER METHODS
+    // ====================================================================
+    @ReactMethod
+    fun triggerButtonSurvey(buttonId: String, promise: Promise) {
         try {
-            val surveySDK = SurveySDK.getInstance()
-            surveySDK.triggerScrollManual(activity, 1000)
+            Log.d("SurveySDK_RN", "🎯 RN Bridge: Manual trigger for button: $buttonId")
+            val activity = getCurrentActivity()
+            if (activity != null) {
+                SurveySDK.getInstance().triggerButtonByStringId(buttonId, activity)
+                promise.resolve(true)
+            } else {
+                promise.reject("NO_ACTIVITY", "No activity available")
+            }
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Failed to trigger scroll survey", e)
+            promise.reject("TRIGGER_ERROR", "Failed to trigger survey: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun triggerScrollSurvey(promise: Promise) {  // ← Parameter is Promise, NOT Activity
+        try {
+            Log.d("SurveySDK_RN", "📜 RN Bridge: Manual scroll trigger")
+            val activity = getCurrentActivity()
+            if (activity != null) {
+                SurveySDK.getInstance().triggerScrollManual(activity, 1000)  // ← Pass activity here
+                promise.resolve(true)
+            } else {
+                promise.reject("NO_ACTIVITY", "No activity available")
+            }
+        } catch (e: Exception) {
+            promise.reject("TRIGGER_ERROR", "Failed to trigger scroll survey: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun triggerNavigationSurvey(screenName: String, promise: Promise) {
+        try {
+            Log.d("SurveySDK_RN", "📍 RN Bridge: Manual navigation trigger: $screenName")
+            val activity = getCurrentActivity()
+            if (activity != null) {
+                SurveySDK.getInstance().triggerByNavigation(screenName, activity)
+                promise.resolve(true)
+            } else {
+                promise.reject("NO_ACTIVITY", "No activity available")
+            }
+        } catch (e: Exception) {
+            promise.reject("TRIGGER_ERROR", "Failed to trigger navigation survey: ${e.message}")
         }
     }
 
@@ -382,78 +301,12 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         }
     }
 
-    private fun setupReactNativeNavigationDetection(activity: Activity) {
-        try {
-            Log.d("SurveySDK_RN", "📍 Setting up React Native navigation detection...")
-            // Implementation would hook into React Navigation events
-        } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Navigation detection setup failed", e)
-        }
-    }
-
-    @ReactMethod
-    fun triggerButtonSurvey(buttonId: String, promise: Promise) {
-        try {
-            Log.d("SurveySDK_RN", "🎯 RN Bridge: Manual trigger for button: $buttonId")
-            
-            val activity = getCurrentActivity()
-            if (activity != null) {
-                SurveySDK.getInstance().triggerButtonByStringId(buttonId, activity)
-                promise.resolve(true)
-            } else {
-                promise.reject("NO_ACTIVITY", "No activity available")
-            }
-            
-        } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Failed to trigger button survey", e)
-            promise.reject("TRIGGER_ERROR", "Failed to trigger survey: ${e.message}")
-        }
-    }
-
-    @ReactMethod
-    fun triggerScrollSurvey(promise: Promise) {
-        try {
-            Log.d("SurveySDK_RN", "📜 RN Bridge: Manual scroll trigger")
-            
-            val activity = getCurrentActivity()
-            if (activity != null) {
-                SurveySDK.getInstance().triggerScrollManual(activity, 1000)
-                promise.resolve(true)
-            } else {
-                promise.reject("NO_ACTIVITY", "No activity available")
-            }
-            
-        } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Failed to trigger scroll survey", e)
-            promise.reject("TRIGGER_ERROR", "Failed to trigger scroll survey: ${e.message}")
-        }
-    }
-
-    @ReactMethod
-    fun triggerNavigationSurvey(screenName: String, promise: Promise) {
-        try {
-            Log.d("SurveySDK_RN", "📍 RN Bridge: Manual navigation trigger: $screenName")
-            
-            val activity = getCurrentActivity()
-            if (activity != null) {
-                SurveySDK.getInstance().triggerByNavigation(screenName, activity)
-                promise.resolve(true)
-            } else {
-                promise.reject("NO_ACTIVITY", "No activity available")
-            }
-            
-        } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Failed to trigger navigation survey", e)
-            promise.reject("TRIGGER_ERROR", "Failed to trigger navigation survey: ${e.message}")
-        }
-    }
-
-    // Keep all other existing methods exactly as they were...
+    // ====================================================================
+    // SURVEY DISPLAY METHODS
+    // ====================================================================
     @ReactMethod
     fun showSurvey(promise: Promise) {
         try {
-            Log.d("SurveySDK_RN", "RN: Manual survey request...")
-            
             val activity = getCurrentActivity()
             if (activity != null) {
                 SurveySDK.getInstance().showSurvey(activity)
@@ -481,6 +334,9 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         }
     }
 
+    // ====================================================================
+    // USER PROPERTIES
+    // ====================================================================
     @ReactMethod
     fun setUserProperty(key: String, value: String, promise: Promise) {
         try {
@@ -494,33 +350,6 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             }
         } catch (e: Exception) {
             promise.reject("PROPERTY_ERROR", "Failed to set user property: ${e.message}")
-        }
-    }
-
-    @ReactMethod
-    fun isUserExcluded(promise: Promise) {
-        try {
-            promise.resolve(SurveySDK.getInstance().isUserExcluded())
-        } catch (e: Exception) {
-            promise.reject("EXCLUSION_ERROR", "Failed to check exclusion: ${e.message}")
-        }
-    }
-
-    @ReactMethod
-    fun getDebugStatus(promise: Promise) {
-        try {
-            promise.resolve(SurveySDK.getInstance().debugSurveyStatus())
-        } catch (e: Exception) {
-            promise.reject("DEBUG_ERROR", "Failed to get debug status: ${e.message}")
-        }
-    }
-
-    @ReactMethod
-    fun isUserExcludedForSurvey(surveyId: String, promise: Promise) {
-        try {
-            promise.resolve(SurveySDK.getInstance().isUserExcluded(surveyId))
-        } catch (e: Exception) {
-            promise.reject("EXCLUSION_ERROR", "Failed to check exclusion for survey $surveyId: ${e.message}")
         }
     }
 
@@ -544,13 +373,33 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         }
     }
 
+    // ====================================================================
+    // STATUS & DEBUG METHODS
+    // ====================================================================
     @ReactMethod
-    fun resetTriggers(promise: Promise) {
+    fun isUserExcluded(promise: Promise) {
         try {
-            SurveySDK.getInstance().resetTriggers()
-            promise.resolve(true)
+            promise.resolve(SurveySDK.getInstance().isUserExcluded())
         } catch (e: Exception) {
-            promise.reject("TRIGGER_ERROR", "Failed to reset triggers: ${e.message}")
+            promise.reject("EXCLUSION_ERROR", "Failed to check exclusion: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun isUserExcludedForSurvey(surveyId: String, promise: Promise) {
+        try {
+            promise.resolve(SurveySDK.getInstance().isUserExcluded(surveyId))
+        } catch (e: Exception) {
+            promise.reject("EXCLUSION_ERROR", "Failed to check exclusion for survey $surveyId: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun getDebugStatus(promise: Promise) {
+        try {
+            promise.resolve(SurveySDK.getInstance().debugSurveyStatus())
+        } catch (e: Exception) {
+            promise.reject("DEBUG_ERROR", "Failed to get debug status: ${e.message}")
         }
     }
 
@@ -628,6 +477,16 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             promise.resolve(SurveySDK.getInstance().getConfigForDebug())
         } catch (e: Exception) {
             promise.reject("CONFIG_ERROR", "Failed to get config debug info: ${e.message}")
+        }
+    }
+
+    @ReactMethod
+    fun resetTriggers(promise: Promise) {
+        try {
+            SurveySDK.getInstance().resetTriggers()
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("TRIGGER_ERROR", "Failed to reset triggers: ${e.message}")
         }
     }
 
