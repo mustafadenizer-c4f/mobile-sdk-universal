@@ -36,10 +36,11 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     //     }
     // }
 
+    // SurveySDKModule.kt - FIXED VERSION
     @ReactMethod
     fun initialize(apiKey: String, params: ReadableArray?, promise: Promise) {
         try {
-            Log.d("SurveySDK_RN", "RN: Initializing SurveySDK...")
+            Log.d("SurveySDK_RN", "RN: Initializing SurveySDK with params...")
             
             val activity = getCurrentActivity()
             if (activity == null) {
@@ -49,16 +50,19 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             
             val context = activity.applicationContext
             
-            // ALWAYS use the simple 2-parameter initialize method
-            // We'll handle parameters separately
-            SurveySDK.initialize(context, apiKey)
-            
-            // If we have parameters, set them manually
+            // CRITICAL FIX: Convert params to the right format for the correct overload
             if (params != null && params.size() > 0) {
-                setParametersFromReactNative(context, params)
+                // Convert ReadableArray to Array<Any> for the vararg overload
+                val paramArray = convertToVarargParams(params, context)
+                
+                // Call the CORRECT overload - the one that accepts vararg Any
+                SurveySDK.initialize(context, apiKey, *paramArray)
+            } else {
+                // Simple initialization
+                SurveySDK.initialize(context, apiKey)
             }
             
-            Log.d("SurveySDK_RN", "✅ SDK initialized")
+            Log.d("SurveySDK_RN", "✅ SDK initialized with parameters")
             promise.resolve(true)
             
         } catch (e: Exception) {
@@ -67,73 +71,112 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         }
     }
 
-    private fun setParametersFromReactNative(context: Context, params: ReadableArray) {
-        try {
-            // Get the SDK instance
-            val surveySDK = SurveySDK.getInstance()
-            
-            // Use reflection to access the customParams field
-            val customParamsField = surveySDK.javaClass.getDeclaredField("customParams")
-            customParamsField.isAccessible = true
-            
-            // Get current parameters
-            val currentParams = (customParamsField.get(surveySDK) as? Map<*, *>)?.let {
-                try {
-                    @Suppress("UNCHECKED_CAST")
-                    it as MutableMap<String, String>
-                } catch (e: Exception) {
-                    mutableMapOf<String, String>()
+    private fun convertToVarargParams(params: ReadableArray, context: Context): Array<Any> {
+        val result = mutableListOf<Any>()
+        
+        for (i in 0 until params.size()) {
+            when (params.getType(i)) {
+                ReadableType.String -> {
+                    val paramName = params.getString(i)
+                    // Look up from storage - this is what the vararg String overload expects
+                    val value = StorageUtils.findSpecificData(context, paramName)
+                    if (value != null) {
+                        // This will be interpreted as a Pair<String, String>? No, we need to handle differently
+                        // Actually, for the vararg Any overload, we can pass the string directly
+                        result.add(paramName)
+                    } else {
+                        result.add(paramName) // Still add the parameter name, SDK will handle missing
+                    }
                 }
-            } ?: mutableMapOf<String, String>()
-            
-            // Add parameters from React Native
-            for (i in 0 until params.size()) {
-                when (params.getType(i)) {
-                    ReadableType.String -> {
-                        val paramName = params.getString(i)
-                        if (paramName != null) {
-                            // Look up from storage
-                            val value = try {
-                                val storageUtilsClass = Class.forName("com.example.surveysdk.StorageUtils")
-                                val method = storageUtilsClass.getDeclaredMethod("findSpecificData", Context::class.java, String::class.java)
-                                method.invoke(null, context, paramName) as? String
-                            } catch (e: Exception) {
-                                null
-                            }
-                            if (value != null) {
-                                currentParams[paramName] = value
-                                Log.d("SurveySDK_RN", "   ✅ From storage: $paramName = $value")
+                ReadableType.Map -> {
+                    val map = params.getMap(i)
+                    map?.keySetIterator()?.let { iterator ->
+                        while (iterator.hasNextKey()) {
+                            val key = iterator.nextKey()
+                            val value = map.getString(key)
+                            if (key != null && value != null) {
+                                // For direct values, we need to create a Pair
+                                result.add(Pair(key, value))
                             }
                         }
                     }
-                    ReadableType.Map -> {
-                        val paramMap = params.getMap(i)
-                        paramMap?.keySetIterator()?.let { iterator ->
-                            while (iterator.hasNextKey()) {
-                                val key = iterator.nextKey()
-                                val value = paramMap.getString(key)
-                                if (key != null && value != null) {
-                                    currentParams[key] = value
-                                    Log.d("SurveySDK_RN", "   ✅ Direct param: $key = $value")
-                                }
-                            }
-                        }
-                    }
-                    else -> {
-                        Log.w("SurveySDK_RN", "⚠️ Skipping invalid parameter type")
-                    }
+                }
+                else -> {
+                    Log.w("SurveySDK_RN", "⚠️ Skipping unsupported parameter type: ${params.getType(i)}")
                 }
             }
-            
-            // Update the customParams field
-            customParamsField.set(surveySDK, currentParams)
-            
-            Log.d("SurveySDK_RN", "✅ Set ${currentParams.size} parameters via reflection")
-            
-        } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Failed to set parameters", e)
         }
+        
+        return result.toTypedArray()
     }
+
+    // private fun setParametersFromReactNative(context: Context, params: ReadableArray) {
+    //     try {
+    //         // Get the SDK instance
+    //         val surveySDK = SurveySDK.getInstance()
+            
+    //         // Use reflection to access the customParams field
+    //         val customParamsField = surveySDK.javaClass.getDeclaredField("customParams")
+    //         customParamsField.isAccessible = true
+            
+    //         // Get current parameters
+    //         val currentParams = (customParamsField.get(surveySDK) as? Map<*, *>)?.let {
+    //             try {
+    //                 @Suppress("UNCHECKED_CAST")
+    //                 it as MutableMap<String, String>
+    //             } catch (e: Exception) {
+    //                 mutableMapOf<String, String>()
+    //             }
+    //         } ?: mutableMapOf<String, String>()
+            
+    //         // Add parameters from React Native
+    //         for (i in 0 until params.size()) {
+    //             when (params.getType(i)) {
+    //                 ReadableType.String -> {
+    //                     val paramName = params.getString(i)
+    //                     if (paramName != null) {
+    //                         // Look up from storage
+    //                         val value = try {
+    //                             val storageUtilsClass = Class.forName("com.example.surveysdk.StorageUtils")
+    //                             val method = storageUtilsClass.getDeclaredMethod("findSpecificData", Context::class.java, String::class.java)
+    //                             method.invoke(null, context, paramName) as? String
+    //                         } catch (e: Exception) {
+    //                             null
+    //                         }
+    //                         if (value != null) {
+    //                             currentParams[paramName] = value
+    //                             Log.d("SurveySDK_RN", "   ✅ From storage: $paramName = $value")
+    //                         }
+    //                     }
+    //                 }
+    //                 ReadableType.Map -> {
+    //                     val paramMap = params.getMap(i)
+    //                     paramMap?.keySetIterator()?.let { iterator ->
+    //                         while (iterator.hasNextKey()) {
+    //                             val key = iterator.nextKey()
+    //                             val value = paramMap.getString(key)
+    //                             if (key != null && value != null) {
+    //                                 currentParams[key] = value
+    //                                 Log.d("SurveySDK_RN", "   ✅ Direct param: $key = $value")
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //                 else -> {
+    //                     Log.w("SurveySDK_RN", "⚠️ Skipping invalid parameter type")
+    //                 }
+    //             }
+    //         }
+            
+    //         // Update the customParams field
+    //         customParamsField.set(surveySDK, currentParams)
+            
+    //         Log.d("SurveySDK_RN", "✅ Set ${currentParams.size} parameters via reflection")
+            
+    //     } catch (e: Exception) {
+    //         Log.e("SurveySDK_RN", "❌ Failed to set parameters", e)
+    //     }
+    // }
 
     @ReactMethod
     fun autoSetup(promise: Promise) {

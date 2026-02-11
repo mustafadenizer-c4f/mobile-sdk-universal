@@ -369,7 +369,7 @@ class SurveySDK private constructor(
     private var lastScrollTriggerTime: Long = 0
     private val SCROLL_COOLDOWN_MS = 3000L
     private var lastNavigationTriggerTime: Long = 0
-    private val NAVIGATION_TRIGGER_DEBOUNCE_MS = 1000L
+    private val NAVIGATION_TRIGGER_DEBOUNCE_MS = 300L
     private val navigationListenersSet = mutableSetOf<String>()
     private var navigationSafetyEnabled = false
     private var appLaunchTriggerSetup = false
@@ -1398,6 +1398,7 @@ class SurveySDK private constructor(
         Log.d("SurveySDK", "🧹 SDK fully cleaned up")
     }
 
+
     private fun resetSurveyTracking() {
         Log.d("SurveySDK", "🔄 Resetting survey tracking...")
         
@@ -1480,6 +1481,25 @@ class SurveySDK private constructor(
 
     private fun showSingleSurvey(activity: Activity, survey: SurveyConfig) {
         Log.d("SurveySDK", "🎯 [BEFORE] Showing survey ${survey.surveyId}, processedViews size: ${processedViews.size}")
+
+
+        // Add timeout check
+        if (activity.isFinishing || activity.isDestroyed) {
+            Log.e("SurveySDK", "❌ Activity invalid, cannot show survey")
+            surveyCompleted()
+            return
+        }
+        
+        // Add UI thread check
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            Log.e("SurveySDK", "❌ Not on main thread, posting to main thread")
+            Handler(Looper.getMainLooper()).post {
+                showSingleSurvey(activity, survey)
+            }
+            return
+        }
+        
+
 
         if (survey == null) {
             Log.e("SurveySDK", "❌ Survey is null")
@@ -2898,67 +2918,113 @@ class SurveySDK private constructor(
         }
     }
 
+    // private fun autoDetectNavigation(activity: Activity) {
+    //     if (navigationSafetyEnabled) {
+    //         Log.d("SurveySDK", "🛡️ Skipping all auto navigation detection (safety mode)")
+    //         return
+    //     }
+
+    //     if (!configurationLoaded) {
+    //         Log.d("SurveySDK", "⏳ Config not loaded, delaying navigation detection...")
+    //         activity.window.decorView.postDelayed({
+    //             autoDetectNavigation(activity)
+    //         }, 1000)
+    //         return
+    //     }
+        
+    //     // Check if we have navigation/tab surveys in the NEW config
+    //     val hasNavSurveys = config.surveys.any { 
+    //         it.enableNavigationTrigger || it.enableTabChangeTrigger 
+    //     }
+        
+    //     if (!hasNavSurveys) {
+    //         Log.d("SurveySDK", "📭 No navigation/tab surveys in current config")
+    //         return
+    //     }
+        
+    //     try {
+    //         Log.d("SurveySDK", "🔄 Starting/Restarting auto navigation detection...")
+            
+    //         val activityKey = activity.javaClass.simpleName
+            
+    //         // Clear previous listeners to avoid duplicates
+    //         navigationListenersSet.remove("${activityKey}_bottom_nav")
+    //         navigationListenersSet.remove("${activityKey}_nav_component")
+            
+    //         // Method 1: Try BottomNavigationView detection
+    //         val bottomNavView = findBottomNavigationView(activity)
+    //         if (bottomNavView != null) {
+    //             Log.d("SurveySDK", "✅ Found BottomNavigationView - setting up listener")
+                
+    //             if (navigationSafetyEnabled) {
+    //                 Log.d("SurveySDK", "🛡️ Safety mode - using non-interfering observation")
+    //                 setupNonInterferingObservation(bottomNavView, activity)
+    //             } else {
+    //                 setupSimpleBottomNavListener(bottomNavView, activity)
+    //             }
+                
+    //             navigationListenersSet.add("${activityKey}_bottom_nav")
+    //             return
+    //         }
+            
+    //         // Method 2: Try Navigation Component
+    //         setupNavigationComponentDetection(activity)
+            
+    //         // Method 3: Try ViewPager
+    //         findAndSetupViewPager(activity)
+            
+    //         Log.d("SurveySDK", "✅ Auto navigation detection setup completed")
+
+    //     } catch (e: Exception) {
+    //         Log.e("SurveySDK", "❌ Auto navigation detection failed: ${e.message}")
+    //     }
+    // }
+
     private fun autoDetectNavigation(activity: Activity) {
-        if (navigationSafetyEnabled) {
-            Log.d("SurveySDK", "🛡️ Skipping all auto navigation detection (safety mode)")
-            return
-        }
-
-        if (!configurationLoaded) {
-            Log.d("SurveySDK", "⏳ Config not loaded, delaying navigation detection...")
-            activity.window.decorView.postDelayed({
-                autoDetectNavigation(activity)
-            }, 1000)
-            return
-        }
-        
-        // Check if we have navigation/tab surveys in the NEW config
-        val hasNavSurveys = config.surveys.any { 
-            it.enableNavigationTrigger || it.enableTabChangeTrigger 
-        }
-        
-        if (!hasNavSurveys) {
-            Log.d("SurveySDK", "📭 No navigation/tab surveys in current config")
-            return
-        }
-        
-        try {
-            Log.d("SurveySDK", "🔄 Starting/Restarting auto navigation detection...")
-            
-            val activityKey = activity.javaClass.simpleName
-            
-            // Clear previous listeners to avoid duplicates
-            navigationListenersSet.remove("${activityKey}_bottom_nav")
-            navigationListenersSet.remove("${activityKey}_nav_component")
-            
-            // Method 1: Try BottomNavigationView detection
-            val bottomNavView = findBottomNavigationView(activity)
-            if (bottomNavView != null) {
-                Log.d("SurveySDK", "✅ Found BottomNavigationView - setting up listener")
-                
-                if (navigationSafetyEnabled) {
-                    Log.d("SurveySDK", "🛡️ Safety mode - using non-interfering observation")
-                    setupNonInterferingObservation(bottomNavView, activity)
-                } else {
-                    setupSimpleBottomNavListener(bottomNavView, activity)
-                }
-                
-                navigationListenersSet.add("${activityKey}_bottom_nav")
-                return
-            }
-            
-            // Method 2: Try Navigation Component
-            setupNavigationComponentDetection(activity)
-            
-            // Method 3: Try ViewPager
-            findAndSetupViewPager(activity)
-            
-            Log.d("SurveySDK", "✅ Auto navigation detection setup completed")
-
-        } catch (e: Exception) {
-            Log.e("SurveySDK", "❌ Auto navigation detection failed: ${e.message}")
-        }
+    if (!configurationLoaded) {
+        Log.d("SurveySDK", "⏳ Config not loaded, delaying navigation detection...")
+        activity.window.decorView.postDelayed({
+            autoDetectNavigation(activity)
+        }, 1000)
+        return
     }
+    
+    // Check if we have navigation/tab surveys
+    val hasNavSurveys = config.surveys.any { 
+        it.enableNavigationTrigger || it.enableTabChangeTrigger 
+    }
+    
+    if (!hasNavSurveys) {
+        Log.d("SurveySDK", "📭 No navigation/tab surveys in current config")
+        return
+    }
+    
+    try {
+        Log.d("SurveySDK", "🔄 Starting/Restarting auto navigation detection...")
+        
+        // Method 1: Try BottomNavigationView detection
+        val bottomNavView = findBottomNavigationView(activity)
+        if (bottomNavView != null) {
+            Log.d("SurveySDK", "✅ Found BottomNavigationView - setting up listener")
+            
+            if (navigationSafetyEnabled) {
+                Log.d("SurveySDK", "🛡️ Safety mode - using passive observation")
+                setupNonInterferingObservation(bottomNavView, activity)
+            } else {
+                setupSimpleBottomNavListener(bottomNavView, activity)
+            }
+            return
+        }
+        
+        // Method 2: Try Navigation Component
+        setupNavigationComponentDetection(activity)
+        
+        Log.d("SurveySDK", "✅ Auto navigation detection setup completed")
+
+    } catch (e: Exception) {
+        Log.e("SurveySDK", "❌ Auto navigation detection failed: ${e.message}")
+    }
+}
 
     private fun setupNonInterferingObservation(navView: View, activity: Activity) {
         try {

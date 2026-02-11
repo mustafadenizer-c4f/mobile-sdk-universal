@@ -1,306 +1,260 @@
 Folder PATH listing
 Volume serial number is 345D-5334
 C:.
--   .gitignore
--   build.gradle.kts
--   filetree.txt
--   gradle.properties
--   gradlew
--   gradlew.bat
--   local.properties
--   settings.gradle.kts
--   tree.txt
--   
-+¦¦¦gradle
--   -   libs.versions.toml
--   -   
--   L¦¦¦wrapper
--           gradle-wrapper.jar
--           gradle-wrapper.properties
--           
-+¦¦¦surveysdk
--   -   build.gradle.kts
--   -   lint-baseline.xml
--   -   proguard-rules.pro
--   -   
--   L¦¦¦src
--       +¦¦¦androidTest
--       -   L¦¦¦java
--       -       L¦¦¦com
--       -           L¦¦¦example
--       -               L¦¦¦surveysdk
--       -                       ExampleInstrumentedTest.kt
--       -                       
--       +¦¦¦main
--       -   -   AndroidManifest.xml
--       -   -   
--       -   +¦¦¦java
--       -   -   L¦¦¦com
--       -   -       L¦¦¦example
--       -   -           L¦¦¦surveysdk
--       -   -               -   AnimationUtils.kt
--       -   -               -   AppUsageUtils.kt
--       -   -               -   BackPressHandler.kt
--       -   -               -   ConfigCacheManager.kt
--       -   -               -   DefaultConfig.kt
--       -   -               -   DeviceUtils.kt
--       -   -               -   ExclusionRuleEvaluator.kt
--       -   -               -   SafeDelayExecutor.kt
--       -   -               -   StorageUtils.kt
--       -   -               -   SurveyApiService.kt
--       -   -               -   SurveyBottomSheetActivity.kt
--       -   -               -   SurveyDialogActivity.kt
--       -   -               -   SurveyForegroundActivity.kt
--       -   -               -   SurveyFullScreenActivity.kt
--       -   -               -   SurveySDK.kt
--       -   -               -   WebViewConfigurator.kt
--       -   -               -   
--       -   -               +¦¦¦android
--       -   -               -       AndroidSurveySDK.kt
--       -   -               -       
--       -   -               L¦¦¦core
--       -   -                       SurveyPlatform.kt
--       -   -                       
--       -   L¦¦¦res
--       -       +¦¦¦anim
--       -       -       fade_in.xml
--       -       -       fade_out.xml
--       -       -       slide_in_bottom.xml
--       -       -       slide_out_bottom.xml
--       -       -       
--       -       +¦¦¦drawable
--       -       -       ic_launcher_background.xml
--       -       -       ic_launcher_foreground.xml
--       -       -       
--       -       +¦¦¦layout
--       -       -       activity_survey_webview.xml
--       -       -       
--       -       +¦¦¦mipmap-anydpi-v26
--       -       -       ic_launcher.xml
--       -       -       ic_launcher_round.xml
--       -       -       
--       -       +¦¦¦mipmap-hdpi
--       -       -       ic_launcher.webp
--       -       -       ic_launcher_round.webp
--       -       -       
--       -       +¦¦¦mipmap-mdpi
--       -       -       ic_launcher.webp
--       -       -       ic_launcher_round.webp
--       -       -       
--       -       +¦¦¦mipmap-xhdpi
--       -       -       ic_launcher.webp
--       -       -       ic_launcher_round.webp
--       -       -       
--       -       +¦¦¦mipmap-xxhdpi
--       -       -       ic_launcher.webp
--       -       -       ic_launcher_round.webp
--       -       -       
--       -       +¦¦¦mipmap-xxxhdpi
--       -       -       ic_launcher.webp
--       -       -       ic_launcher_round.webp
--       -       -       
--       -       +¦¦¦values
--       -       -       colors.xml
--       -       -       strings.xml
--       -       -       themes.xml
--       -       -       
--       -       +¦¦¦values-night
--       -       L¦¦¦xml
--       -               backup_rules.xml
--       -               data_extraction_rules.xml
--       -               
--       L¦¦¦test
--           L¦¦¦java
--               L¦¦¦com
--                   L¦¦¦example
--                       L¦¦¦surveysdk
--                               ExampleUnitTest.kt
--                               SurveySDK.kt
--                               
-+¦¦¦surveysdk-flutter
--   -   pubspec.yaml
--   -   
--   +¦¦¦android
--   -   L¦¦¦src
--   -       L¦¦¦main
--   -           L¦¦¦java
--   -               L¦¦¦com
--   -                   L¦¦¦example
--   -                       L¦¦¦surveysdk
--   -                           L¦¦¦flutter
--   -                                   SurveySDKPlugin.kt
--   -                                   
--   +¦¦¦ios
--   -   L¦¦¦Classes
--   -           SurveySDKPlugin.h
--   -           SurveySDKPlugin.m
--   -           
--   L¦¦¦lib
--       -   surveysdk.dart
--       -   
--       L¦¦¦src
--               surveysdk_method_channel.dart
--               
-L¦¦¦surveysdk-react-native
-    -   index.d.ts
-    -   index.js
-    -   package.json
-    -   README.md
-    -   
-    +¦¦¦android
-    -   -   build.gradle.kts
-    -   -   
-    -   +¦¦¦build
-    -   -   +¦¦¦generated
-    -   -   -   +¦¦¦res
-    -   -   -   -   +¦¦¦pngs
-    -   -   -   -   -   L¦¦¦debug
-    -   -   -   -   L¦¦¦resValues
-    -   -   -   -       L¦¦¦debug
-    -   -   -   L¦¦¦source
-    -   -   -       L¦¦¦buildConfig
-    -   -   -           L¦¦¦debug
-    -   -   -               L¦¦¦com
-    -   -   -                   L¦¦¦example
-    -   -   -                       L¦¦¦surveysdk
-    -   -   -                           L¦¦¦reactnative
-    -   -   -                                   BuildConfig.java
-    -   -   -                                   
-    -   -   +¦¦¦intermediates
-    -   -   -   +¦¦¦aapt_friendly_merged_manifests
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦processDebugManifest
-    -   -   -   -           L¦¦¦aapt
-    -   -   -   -                   AndroidManifest.xml
-    -   -   -   -                   output-metadata.json
-    -   -   -   -                   
-    -   -   -   +¦¦¦aar_metadata
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦writeDebugAarMetadata
-    -   -   -   -               aar-metadata.properties
-    -   -   -   -               
-    -   -   -   +¦¦¦annotation_processor_list
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦javaPreCompileDebug
-    -   -   -   -               annotationProcessors.json
-    -   -   -   -               
-    -   -   -   +¦¦¦assets
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦mergeDebugAssets
-    -   -   -   +¦¦¦compiled_local_resources
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦compileDebugLibraryResources
-    -   -   -   -           L¦¦¦out
-    -   -   -   +¦¦¦compile_r_class_jar
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦generateDebugRFile
-    -   -   -   -               R.jar
-    -   -   -   -               
-    -   -   -   +¦¦¦compile_symbol_list
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦generateDebugRFile
-    -   -   -   -               R.txt
-    -   -   -   -               
-    -   -   -   +¦¦¦data_binding_layout_info_type_package
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦packageDebugResources
-    -   -   -   -           L¦¦¦out
-    -   -   -   +¦¦¦incremental
-    -   -   -   -   +¦¦¦debug
-    -   -   -   -   -   L¦¦¦packageDebugResources
-    -   -   -   -   -       -   compile-file-map.properties
-    -   -   -   -   -       -   merger.xml
-    -   -   -   -   -       -   
-    -   -   -   -   -       +¦¦¦merged.dir
-    -   -   -   -   -       L¦¦¦stripped.dir
-    -   -   -   -   +¦¦¦mergeDebugAssets
-    -   -   -   -   -       merger.xml
-    -   -   -   -   -       
-    -   -   -   -   L¦¦¦mergeDebugShaders
-    -   -   -   -           merger.xml
-    -   -   -   -           
-    -   -   -   +¦¦¦local_only_symbol_list
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦parseDebugLocalResources
-    -   -   -   -               R-def.txt
-    -   -   -   -               
-    -   -   -   +¦¦¦manifest_merge_blame_file
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦processDebugManifest
-    -   -   -   -               manifest-merger-blame-debug-report.txt
-    -   -   -   -               
-    -   -   -   +¦¦¦merged_manifest
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦processDebugManifest
-    -   -   -   -               AndroidManifest.xml
-    -   -   -   -               
-    -   -   -   +¦¦¦merged_shaders
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦mergeDebugShaders
-    -   -   -   -           L¦¦¦out
-    -   -   -   +¦¦¦navigation_json
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦extractDeepLinksDebug
-    -   -   -   -               navigation.json
-    -   -   -   -               
-    -   -   -   +¦¦¦nested_resources_validation_report
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦generateDebugResources
-    -   -   -   -               nestedResourcesValidationReport.txt
-    -   -   -   -               
-    -   -   -   +¦¦¦packaged_res
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦packageDebugResources
-    -   -   -   +¦¦¦public_res
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦packageDebugResources
-    -   -   -   +¦¦¦symbol_list_with_package_name
-    -   -   -   -   L¦¦¦debug
-    -   -   -   -       L¦¦¦generateDebugRFile
-    -   -   -   -               package-aware-r.txt
-    -   -   -   -               
-    -   -   -   L¦¦¦tmp
-    -   -   -       L¦¦¦ProcessLibraryManifest
-    -   -   -           L¦¦¦debug
-    -   -   +¦¦¦kotlin
-    -   -   -   L¦¦¦compileDebugKotlin
-    -   -   -       +¦¦¦cacheable
-    -   -   -       -   -   dirty-sources.txt
-    -   -   -       -   -   
-    -   -   -       -   L¦¦¦caches-jvm
-    -   -   -       -       +¦¦¦inputs
-    -   -   -       -       +¦¦¦jvm
-    -   -   -       -       L¦¦¦lookups
-    -   -   -       +¦¦¦classpath-snapshot
-    -   -   -       L¦¦¦local-state
-    -   -   -               build-history.bin
-    -   -   -               
-    -   -   +¦¦¦outputs
-    -   -   -   L¦¦¦logs
-    -   -   -           manifest-merger-debug-report.txt
-    -   -   -           
-    -   -   L¦¦¦tmp
-    -   -       L¦¦¦kotlin-classes
-    -   -           L¦¦¦debug
-    -   L¦¦¦src
-    -       L¦¦¦main
-    -           L¦¦¦java
-    -               L¦¦¦com
-    -                   L¦¦¦example
-    -                       L¦¦¦surveysdk
-    -                           L¦¦¦reactnative
-    -                                   SurveySDKModule.kt
-    -                                   SurveySDKPackage.kt
-    -                                   
-    +¦¦¦ios
-    -       SurveySDK.m
-    -       
-    +¦¦¦lib
-    -       index.js
-    -       SurveySDK copy.js
-    -       SurveySDK.js
-    -       
-    L¦¦¦src
-        L¦¦¦main
-                AndroidManifest.xml
-                
+|   .gitignore
+|   build.gradle.kts
+|   filetree.txt
+|   gradle.properties
+|   gradlew
+|   gradlew.bat
+|   installation.md
+|   lint-baseline.xml
+|   local.properties
+|   proguard-rules.pro
+|   README.md
+|   settings.gradle.kts
+|   
++---.gradle
+|   |   file-system.probe
+|   |   
+|   +---8.0
+|   |   |   gc.properties
+|   |   |   
+|   |   +---checksums
+|   |   |       checksums.lock
+|   |   |       md5-checksums.bin
+|   |   |       sha1-checksums.bin
+|   |   |       
+|   |   +---dependencies-accessors
+|   |   |   |   dependencies-accessors.lock
+|   |   |   |   executionHistory.bin
+|   |   |   |   gc.properties
+|   |   |   |   
+|   |   |   \---191b4b0accec10f5b39b24787747a8cc6bb54603
+|   |   |       +---classes
+|   |   |       |   \---org
+|   |   |       |       \---gradle
+|   |   |       |           \---accessors
+|   |   |       |               \---dm
+|   |   |       |                       LibrariesForLibs$AndroidPluginAccessors.class
+|   |   |       |                       LibrariesForLibs$AndroidxActivityLibraryAccessors.class
+|   |   |       |                       LibrariesForLibs$AndroidxComposeLibraryAccessors.class
+|   |   |       |                       LibrariesForLibs$AndroidxCoreLibraryAccessors.class
+|   |   |       |                       LibrariesForLibs$AndroidxEspressoLibraryAccessors.class
+|   |   |       |                       LibrariesForLibs$AndroidxLibraryAccessors.class
+|   |   |       |                       LibrariesForLibs$AndroidxLifecycleLibraryAccessors.class
+|   |   |       |                       LibrariesForLibs$AndroidxLifecycleRuntimeLibraryAccessors.class
+|   |   |       |                       LibrariesForLibs$AndroidxUiLibraryAccessors.class
+|   |   |       |                       LibrariesForLibs$AndroidxUiTestLibraryAccessors.class
+|   |   |       |                       LibrariesForLibs$AndroidxUiToolingLibraryAccessors.class
+|   |   |       |                       LibrariesForLibs$BundleAccessors.class
+|   |   |       |                       LibrariesForLibs$KotlinPluginAccessors.class
+|   |   |       |                       LibrariesForLibs$PluginAccessors.class
+|   |   |       |                       LibrariesForLibs$VersionAccessors.class
+|   |   |       |                       LibrariesForLibs.class
+|   |   |       |                       
+|   |   |       \---sources
+|   |   |           \---org
+|   |   |               \---gradle
+|   |   |                   \---accessors
+|   |   |                       \---dm
+|   |   |                               LibrariesForLibs.java
+|   |   |                               
+|   |   +---executionHistory
+|   |   |       executionHistory.bin
+|   |   |       executionHistory.lock
+|   |   |       
+|   |   +---fileChanges
+|   |   |       last-build.bin
+|   |   |       
+|   |   +---fileHashes
+|   |   |       fileHashes.bin
+|   |   |       fileHashes.lock
+|   |   |       resourceHashesCache.bin
+|   |   |       
+|   |   \---vcsMetadata
+|   +---buildOutputCleanup
+|   |       buildOutputCleanup.lock
+|   |       cache.properties
+|   |       outputFiles.bin
+|   |       
+|   +---kotlin
+|   |   +---errors
+|   |   \---sessions
+|   \---vcs-1
+|           gc.properties
+|           
++---gradle
+|   |   libs.versions.toml
+|   |   
+|   \---wrapper
+|           gradle-wrapper.jar
+|           gradle-wrapper.properties
+|           
++---surveysdk
+|   |   build.gradle.kts
+|   |   lint-baseline.xml
+|   |   proguard-rules.pro
+|   |   
+|   \---src
+|       \---main
+|           |   AndroidManifest.xml
+|           |   
+|           +---java
+|           |   \---com
+|           |       \---example
+|           |           \---surveysdk
+|           |               |   AnimationUtils.kt
+|           |               |   AppUsageUtils.kt
+|           |               |   BackPressHandler.kt
+|           |               |   ConfigCacheManager.kt
+|           |               |   DefaultConfig.kt
+|           |               |   DeviceUtils.kt
+|           |               |   ExclusionRuleEvaluator.kt
+|           |               |   SafeDelayExecutor.kt
+|           |               |   SDKConstants.kt
+|           |               |   StorageUtils.kt
+|           |               |   SurveyApiService.kt
+|           |               |   SurveyBottomSheetFragment.kt
+|           |               |   SurveyDialogFragment.kt
+|           |               |   SurveyForegroundActivity.kt
+|           |               |   SurveyFullScreenActivity.kt
+|           |               |   SurveySDK.kt
+|           |               |   UniversalSurveySDK.kt
+|           |               |   WebViewConfigurator.kt
+|           |               |   
+|           |               +---android
+|           |               |       AndroidSurveySDK.kt
+|           |               |       
+|           |               \---core
+|           |                       SurveyPlatform.kt
+|           |                       
+|           \---res
+|               +---anim
+|               |       fade_in.xml
+|               |       fade_out.xml
+|               |       slide_in_bottom.xml
+|               |       slide_out_bottom.xml
+|               |       
+|               +---drawable
+|               |       ic_launcher_background.xml
+|               |       ic_launcher_foreground.xml
+|               |       
+|               +---layout
+|               |       activity_survey_webview.xml
+|               |       
+|               +---mipmap-anydpi-v26
+|               |       ic_launcher.xml
+|               |       ic_launcher_round.xml
+|               |       
+|               +---mipmap-hdpi
+|               |       ic_launcher.webp
+|               |       ic_launcher_round.webp
+|               |       
+|               +---mipmap-mdpi
+|               |       ic_launcher.webp
+|               |       ic_launcher_round.webp
+|               |       
+|               +---mipmap-xhdpi
+|               |       ic_launcher.webp
+|               |       ic_launcher_round.webp
+|               |       
+|               +---mipmap-xxhdpi
+|               |       ic_launcher.webp
+|               |       ic_launcher_round.webp
+|               |       
+|               +---mipmap-xxxhdpi
+|               |       ic_launcher.webp
+|               |       ic_launcher_round.webp
+|               |       
+|               +---values
+|               |       colors.xml
+|               |       strings.xml
+|               |       themes.xml
+|               |       
+|               +---values-night
+|               \---xml
+|                       backup_rules.xml
+|                       data_extraction_rules.xml
+|                       
++---surveysdk-react-native
+|   |   expo-plugin.js
+|   |   index.d.ts
+|   |   index.js
+|   |   package.json
+|   |   react-native.config.js
+|   |   README.md
+|   |   surveysdk-react-native-1.2.13.tgz
+|   |   
+|   +---android
+|   |   |   build.gradle.kts
+|   |   |   
+|   |   \---src
+|   |       \---main
+|   |           \---java
+|   |               \---com
+|   |                   \---example
+|   |                       \---surveysdk
+|   |                           \---reactnative
+|   |                                   SurveySDKActivityDelegate.kt
+|   |                                   SurveySDKModule.kt
+|   |                                   SurveySDKPackage.kt
+|   |                                   
+|   +---ios
+|   |       .gitkeep
+|   |       
+|   +---lib
+|   |       SurveySDK.js
+|   |       SurveySDKButton.js
+|   |       
+|   \---src
+|       \---main
+|               AndroidManifest.xml
+|               
+\---surveysdk_flutter
+    |   .gitignore
+    |   .metadata
+    |   analysis_options.yaml
+    |   CHANGELOG.md
+    |   LICENSE
+    |   pubspec.lock
+    |   pubspec.yaml
+    |   README.md
+    |   surveysdk_flutter.iml
+    |   
+    +---.dart_tool
+    |   |   package_config.json
+    |   |   package_graph.json
+    |   |   
+    |   \---extension_discovery
+    |           vs_code.json
+    |           
+    +---android
+    |   |   .gitignore
+    |   |   build.gradle
+    |   |   local.properties
+    |   |   settings.gradle
+    |   |   surveysdk_flutter_android.iml
+    |   |   
+    |   \---src
+    |       +---main
+    |       |   |   AndroidManifest.xml
+    |       |   |   
+    |       |   \---kotlin
+    |       |       \---com
+    |       |           \---example
+    |       |               \---surveysdk_flutter
+    |       |                       FlutterBottomSheetActivity.kt
+    |       |                       FlutterDialogActivity.kt
+    |       |                       SurveySdkFlutterPlugin.kt
+    |       |                       
+    |       \---test
+    |           \---kotlin
+    |               \---com
+    |                   \---example
+    |                       \---surveysdk_flutter
+    |                               SurveysdkFlutterPluginTest.kt
+    |                               
+    \---lib
+            surveysdk_flutter.dart
+            

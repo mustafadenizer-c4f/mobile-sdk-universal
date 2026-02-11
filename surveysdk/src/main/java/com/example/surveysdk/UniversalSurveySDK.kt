@@ -26,54 +26,17 @@ class UniversalSurveySDK private constructor() {
     // INITIALIZATION METHODS (UPDATED)
     // ====================================================================
 
-    /**
-     * Initialize with activity
-     */
-    fun initializeWithActivity(activity: Activity, apiKey: String, paramName: String? = null, paramValue: String? = null) {
+    // SIMPLE: Just one initialization method
+    fun initialize(application: Application, apiKey: String, vararg params: Any) {
         if (!isInitialized) {
-            Log.d("UniversalSurveySDK", "Initializing with activity and API key")
+            Log.d("UniversalSurveySDK", "Initializing with API key")
             
-            androidSDK = AndroidSurveySDK(
-                activity.application as Application, 
-                apiKey,
-                paramName,
-                paramValue
-            )
-            platform = androidSDK
-            isInitialized = true
-            Log.d("UniversalSurveySDK", "Initialization completed")
-        }
-    }
-
-    /**
-     * Initialize with context
-     */
-    fun initializeWithContext(context: Context, apiKey: String, paramName: String? = null, paramValue: String? = null) {
-        if (!isInitialized) {
-            Log.d("UniversalSurveySDK", "Initializing with context and API key")
+            // Pass through to the real SDK
+            SurveySDK.initialize(application, apiKey, *params)
             
-            androidSDK = AndroidSurveySDK(
-                context.applicationContext as Application,
-                apiKey,
-                paramName,
-                paramValue
-            )
+            androidSDK = AndroidSurveySDK(application, apiKey)
             platform = androidSDK
             isInitialized = true
-            Log.d("UniversalSurveySDK", "Initialization completed")
-        }
-    }
-
-    /**
-     * Simple initialization
-     */
-    fun initializeWithActivity(activity: Activity, apiKey: String) {
-        if (!isInitialized) {
-            Log.d("UniversalSurveySDK", "Initializing with activity and API key")
-            androidSDK = AndroidSurveySDK(activity.application as Application, apiKey)
-            platform = androidSDK
-            isInitialized = true
-            Log.d("UniversalSurveySDK", "Initialization completed")
         }
     }
 

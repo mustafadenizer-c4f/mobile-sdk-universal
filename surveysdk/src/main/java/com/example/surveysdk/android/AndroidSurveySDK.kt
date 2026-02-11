@@ -15,14 +15,14 @@ class AndroidSurveySDK(
 ) : SurveyPlatform {
 
     private val surveySDK: SurveySDK by lazy {
-        when {
-            paramName != null && paramValue != null -> 
-                SurveySDK.initialize(context, apiKey, paramName to paramValue)
-            paramName != null -> 
-                SurveySDK.initialize(context, apiKey, paramName)
-            else -> 
-                SurveySDK.initialize(context, apiKey)
-        }
+        // when {
+        //     paramName != null && paramValue != null -> 
+        //         SurveySDK.initialize(context, apiKey, paramName to paramValue)
+        //     paramName != null -> 
+        //         SurveySDK.initialize(context, apiKey, paramName)
+        //     else -> 
+        //         SurveySDK.initialize(context, apiKey)
+        // }
         SurveySDK.getInstance()
     }
 
@@ -115,28 +115,4 @@ class AndroidSurveySDK(
     fun triggerScrollManual(activity: Activity, scrollY: Int = 500) {
         surveySDK.triggerScrollManual(activity, scrollY)
     }
-    
-    fun reinitializeWithParameters(paramName: String, paramValue: String): Boolean {
-        try {
-            // Reinitialize the core SDK with new parameters
-            SurveySDK.initialize(context, apiKey, paramName to paramValue)
-            return true
-        } catch (e: Exception) {
-            Log.e("AndroidSurveySDK", "Reinitialization failed: ${e.message}")
-            return false
-        }
-    }
-    
-    fun reinitializeWithParameterName(paramName: String): Boolean {
-        try {
-            // Reinitialize the core SDK with parameter name
-            SurveySDK.initialize(context, apiKey, paramName)
-            return true
-        } catch (e: Exception) {
-            Log.e("AndroidSurveySDK", "Reinitialization failed: ${e.message}")
-            return false
-        }
-    }
-
-
 }
