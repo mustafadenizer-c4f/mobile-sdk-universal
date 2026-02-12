@@ -19,8 +19,7 @@ rootProject.name = "mobile-sdk-universal"
 
 // CORRECT PATHS for your structure
 include(":surveysdk")
-include(":surveysdk-react-native")
-
-// Correct project directory mappings
 project(":surveysdk").projectDir = file("surveysdk")
+
+include(":surveysdk-react-native")
 project(":surveysdk-react-native").projectDir = file("surveysdk-react-native/android")

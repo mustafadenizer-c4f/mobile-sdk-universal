@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import com.example.surveysdk.SurveySDK
+import com.example.surveysdk.UniversalSurveySDK
 import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 
@@ -20,19 +21,34 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     private var registeredReactButtons = mutableSetOf<String>()
     private var scrollDetectionEnabled = false
     
+    
     init {
-        currentActivity = WeakReference(reactContext.currentActivity)
-    }
+    Log.d("SurveySDK_RN_CRITICAL", "=== MODULE LOADED ===")
+    Log.d("SurveySDK_RN_CRITICAL", "Class: ${this::class.java.name}")
+        
+    currentActivity = WeakReference(reactContext.currentActivity)
+
+    // Print ALL methods this module exposes
+    val methods = this::class.java.methods
+    methods.filter { it.declaringClass == this::class.java }
+        .filter { it.name == "initialize" || it.name.contains("initialize") }
+        .forEach {
+            Log.d("SurveySDK_RN_CRITICAL", "📌 EXPOSED METHOD: ${it.name}")
+            Log.d("SurveySDK_RN_CRITICAL", "   Parameters: ${it.parameterTypes.joinToString { it.simpleName }}")
+        }
+}
 
     override fun getName(): String = "SurveySDK"
 
     // ====================================================================
     // ✅ FIXED INITIALIZATION - NO REFLECTION, NO STORAGEUTILS
     // ====================================================================
+
     @ReactMethod
     fun initialize(apiKey: String, params: ReadableArray?, promise: Promise) {
+        Log.d("SurveySDK_RN", "📱 RN Bridge")
         try {
-            Log.d("SurveySDK_RN", "RN: Initializing SurveySDK...")
+            Log.d("SurveySDK_RN", "📱 RN Bridge: initialize() called")
             
             val activity = getCurrentActivity()
             if (activity == null) {
@@ -40,45 +56,43 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
                 return
             }
             
-            val context = activity.applicationContext
+            // ✅ FIX: Use Application, not Context
+            val application = activity.application
             
             if (params != null && params.size() > 0) {
-                // Convert React Native params to vararg array
-                val paramArray = convertReadableArrayToVararg(params)
+                val anyParams = convertToAnyArray(params)
                 
-                // ✅ USE THE PUBLIC BRIDGE API - NO REFLECTION
-                SurveySDK.initializeWithBridgeParams(context, apiKey, *paramArray)
+                // ✅ Call UniversalSurveySDK with Application
+                UniversalSurveySDK.getInstance().initialize(application, apiKey, *anyParams)
                 
-                Log.d("SurveySDK_RN", "✅ SDK initialized with ${paramArray.size} parameters")
+                Log.d("SurveySDK_RN", "✅ SDK initialized with ${anyParams.size} params")
             } else {
                 // Simple initialization
-                SurveySDK.initialize(context, apiKey)
+                UniversalSurveySDK.getInstance().initialize(application, apiKey)
                 Log.d("SurveySDK_RN", "✅ SDK initialized without parameters")
             }
             
             promise.resolve(true)
             
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ SDK initialization failed", e)
-            promise.reject("INIT_ERROR", "Initialization failed: ${e.message}")
+            Log.e("SurveySDK_RN", "❌ Initialization failed", e)
+            promise.reject("INIT_ERROR", e.message)
         }
     }
 
-    // ====================================================================
-    // ✅ PARAMETER CONVERSION - SAFE, NO REFLECTION, NO STORAGEUTILS
-    // ====================================================================
-    private fun convertReadableArrayToVararg(params: ReadableArray): Array<Any> {
+    @ReactMethod
+    fun initialize(apiKey: String, promise: Promise) {
+        Log.d("SurveySDK_RN", "📱 RN Bridge: initialize(apiKey) - redirecting")
+        initialize(apiKey, null, promise)  // Call with null params
+    }
+
+    private fun convertToAnyArray(params: ReadableArray): Array<Any> {
         val result = mutableListOf<Any>()
         
         for (i in 0 until params.size()) {
             when (params.getType(i)) {
                 ReadableType.String -> {
-                    val paramName = params.getString(i)
-                    if (paramName != null) {
-                        // ✅ Just pass the string - CORE SDK will handle storage lookup
-                        result.add(paramName)
-                        Log.d("SurveySDK_RN", "   ➕ Parameter name: $paramName (SDK will look up)")
-                    }
+                    params.getString(i)?.let { result.add(it) }
                 }
                 ReadableType.Map -> {
                     val map = params.getMap(i)
@@ -87,15 +101,13 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
                             val key = iterator.nextKey()
                             val value = map.getString(key)
                             if (key != null && value != null) {
-                                // ✅ Direct key-value pair
                                 result.add(Pair(key, value))
-                                Log.d("SurveySDK_RN", "   ➕ Direct param: $key = $value")
                             }
                         }
                     }
                 }
                 else -> {
-                    Log.w("SurveySDK_RN", "⚠️ Skipping unsupported parameter type: ${params.getType(i)}")
+                    Log.w("SurveySDK_RN", "⚠️ Skipping unsupported type: ${params.getType(i)}")
                 }
             }
         }
@@ -103,11 +115,29 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         return result.toTypedArray()
     }
 
+    @ReactMethod
+    fun autoSetup(promise: Promise) {
+        try {
+            val activity = getCurrentActivity()
+            if (activity == null) {
+                promise.reject("NO_ACTIVITY", "No activity available")
+                return
+            }
+            
+            activity.runOnUiThread {
+                SurveySDK.getInstance().autoSetup(activity)
+                promise.resolve(true)
+            }
+        } catch (e: Exception) {
+            promise.reject("SETUP_ERROR", e.message)
+        }
+    }
+
     // ====================================================================
     // AUTO SETUP
     // ====================================================================
     @ReactMethod
-    fun autoSetup(promise: Promise) {
+    fun autoSetupReact(promise: Promise) {
         try {
             Log.d("SurveySDK_RN", "🔄 RN: Starting autoSetup...")
             

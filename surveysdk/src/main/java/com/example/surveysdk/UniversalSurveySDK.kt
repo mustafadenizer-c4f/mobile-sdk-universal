@@ -18,6 +18,10 @@ class UniversalSurveySDK private constructor() {
         }
     }
 
+    init {
+        Log.d("UniversalSurveySDK_RN", "🚨 UNIVERSAL MODULE LOADED!")
+    }
+
     private var platform: SurveyPlatform? = null
     private var isInitialized = false
     private var androidSDK: AndroidSurveySDK? = null
@@ -28,6 +32,7 @@ class UniversalSurveySDK private constructor() {
 
     // SIMPLE: Just one initialization method
     fun initialize(application: Application, apiKey: String, vararg params: Any) {
+    Log.d("UniversalSurveySDK_RN", "🚨 UNIVERSAL INITIALIZE CALLED!")
         if (!isInitialized) {
             Log.d("UniversalSurveySDK", "Initializing with API key")
             

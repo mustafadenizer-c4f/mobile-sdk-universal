@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules } from "react-native";
 
 const { SurveySDK } = NativeModules;
 
@@ -7,23 +7,23 @@ class SurveySDKBridge {
    * Initialize the Survey SDK
    * @param {string} apiKey - Your API key
    * @param {Array} params - Optional parameters (strings or objects)
-   * 
+   *
    * Examples:
    * // Simple initialization
    * await SurveySDK.initialize('your-api-key');
-   * 
+   *
    * // With parameter name (SDK will look up from storage)
    * await SurveySDK.initialize('your-api-key', ['userID']);
-   * 
+   *
    * // With multiple parameter names
    * await SurveySDK.initialize('your-api-key', ['userID', 'email', 'userTier']);
-   * 
+   *
    * // With direct values
    * await SurveySDK.initialize('your-api-key', [
    *   { userId: '12345' },
    *   { userTier: 'premium' }
    * ]);
-   * 
+   *
    * // Mixed parameters
    * await SurveySDK.initialize('your-api-key', [
    *   'userID',                    // Look up from storage
@@ -32,16 +32,24 @@ class SurveySDKBridge {
    *   { source: 'mobile_app' }     // Direct value
    * ]);
    */
+  // SurveySDK.js - MAKE SURE THIS MATCHES
   async initialize(apiKey, params = []) {
     if (!apiKey) {
-      throw new Error('API key is required');
+      throw new Error("API key is required");
     }
-    if (!Array.isArray(params)) {
-      throw new Error('Params must be an array');
-    }
-    
-    // SINGLE method for all cases - native side handles the conversion
-    return await SurveySDK.initialize(apiKey, params);
+
+    // ✅ CRITICAL FIX: Handle undefined/null parameters
+    // React Native bridge converts default params to undefined!
+    const safeParams = params || [];
+
+    // Ensure it's an array
+    const paramsArray = Array.isArray(safeParams) ? safeParams : [safeParams];
+
+    Log.d(
+      "SurveySDK_RN_JS",
+      `Initialize called with ${paramsArray.length} params`
+    );
+    return await SurveySDK.initializeNew(apiKey, paramsArray);
   }
 
   async showSurvey() {
@@ -50,21 +58,21 @@ class SurveySDKBridge {
 
   async showSurveyById(surveyId) {
     if (!surveyId) {
-      throw new Error('Survey ID is required');
+      throw new Error("Survey ID is required");
     }
     return await SurveySDK.showSurveyById(surveyId);
   }
 
   async setUserProperty(key, value) {
     if (!key || !value) {
-      throw new Error('Key and value are required');
+      throw new Error("Key and value are required");
     }
     return await SurveySDK.setUserProperty(key, value);
   }
 
   async setUserProperties(properties) {
-    if (!properties || typeof properties !== 'object') {
-      throw new Error('Properties must be an object');
+    if (!properties || typeof properties !== "object") {
+      throw new Error("Properties must be an object");
     }
     const promises = Object.entries(properties).map(([key, value]) =>
       this.setUserProperty(key, String(value))
@@ -78,7 +86,7 @@ class SurveySDKBridge {
 
   async isUserExcludedForSurvey(surveyId) {
     if (!surveyId) {
-      throw new Error('Survey ID is required');
+      throw new Error("Survey ID is required");
     }
     return await SurveySDK.isUserExcludedForSurvey(surveyId);
   }
@@ -109,7 +117,7 @@ class SurveySDKBridge {
 
   async setSessionData(key, value) {
     if (!key || !value) {
-      throw new Error('Key and value are required');
+      throw new Error("Key and value are required");
     }
     return await SurveySDK.setSessionData(key, value);
   }
@@ -152,7 +160,7 @@ class SurveySDKBridge {
 
   async triggerButtonSurvey(buttonId) {
     if (!buttonId) {
-      throw new Error('Button ID is required');
+      throw new Error("Button ID is required");
     }
     return await SurveySDK.triggerButtonSurvey(buttonId);
   }
@@ -163,17 +171,19 @@ class SurveySDKBridge {
 
   async triggerNavigationSurvey(screenName) {
     if (!screenName) {
-      throw new Error('Screen name is required');
+      throw new Error("Screen name is required");
     }
     return await SurveySDK.triggerNavigationSurvey(screenName);
   }
-  
+
   // ===== CONVENIENCE METHODS =====
   async getAllSurveysStatus() {
     const surveyIds = await this.getSurveyIds();
     const statusPromises = surveyIds.map(async (surveyId) => ({
       surveyId,
-      isExcluded: await this.isUserExcludedForSurvey(surveyId).catch(() => false),
+      isExcluded: await this.isUserExcludedForSurvey(surveyId).catch(
+        () => false
+      ),
     }));
     return Promise.all(statusPromises);
   }
@@ -186,7 +196,7 @@ class SurveySDKBridge {
         return await this.showSurveyById(surveyId);
       }
     }
-    throw new Error('No available surveys to show');
+    throw new Error("No available surveys to show");
   }
 }
 
