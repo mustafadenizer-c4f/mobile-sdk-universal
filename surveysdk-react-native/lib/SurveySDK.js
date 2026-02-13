@@ -30,26 +30,20 @@ class SurveySDKBridge {
    *   { email: 'user@example.com' }, // Direct value
    *   'language',                  // Look up from storage
    *   { source: 'mobile_app' }     // Direct value
-   * ]);
+   * ]);   
    */
   // SurveySDK.js - MAKE SURE THIS MATCHES
-  async initialize(apiKey, params = []) {
-    if (!apiKey) {
-      throw new Error("API key is required");
+  async initialize(apiKey, params) {
+    if (!apiKey) throw new Error("API key is required");
+
+    if (params === undefined || params === null) {
+      // Simple case - no second parameter at all
+      return await SurveySDK.initialize(apiKey); // Calls Kotlin's initialize(String, Promise)
+    } else {
+      // With params array - even if empty
+      const paramsArray = Array.isArray(params) ? params : [params];
+      return await SurveySDK.initializeWithParams(apiKey, paramsArray); // Different method!
     }
-
-    // ✅ CRITICAL FIX: Handle undefined/null parameters
-    // React Native bridge converts default params to undefined!
-    const safeParams = params || [];
-
-    // Ensure it's an array
-    const paramsArray = Array.isArray(safeParams) ? safeParams : [safeParams];
-
-    Log.d(
-      "SurveySDK_RN_JS",
-      `Initialize called with ${paramsArray.length} params`
-    );
-    return await SurveySDK.initializeNew(apiKey, paramsArray);
   }
 
   async showSurvey() {

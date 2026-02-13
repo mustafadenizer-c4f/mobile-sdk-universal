@@ -11,6 +11,7 @@ import com.example.surveysdk.SurveySDK
 import com.example.surveysdk.UniversalSurveySDK
 import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
+import androidx.annotation.Nullable
 
 @ReactModule(name = "SurveySDK")
 class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -40,15 +41,11 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
 
     override fun getName(): String = "SurveySDK"
 
-    // ====================================================================
-    // ✅ FIXED INITIALIZATION - NO REFLECTION, NO STORAGEUTILS
-    // ====================================================================
-
+    // ✅ FOR SIMPLE INIT - NO PARAMS ARRAY
     @ReactMethod
-    fun initialize(apiKey: String, params: ReadableArray?, promise: Promise) {
-        Log.d("SurveySDK_RN", "📱 RN Bridge")
+    fun initialize(apiKey: String, promise: Promise) {
         try {
-            Log.d("SurveySDK_RN", "📱 RN Bridge: initialize() called")
+            Log.d("SurveySDK_RN", "✅ initialize(apiKey) called")
             
             val activity = getCurrentActivity()
             if (activity == null) {
@@ -56,34 +53,33 @@ class SurveySDKModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
                 return
             }
             
-            // ✅ FIX: Use Application, not Context
             val application = activity.application
-            
-            if (params != null && params.size() > 0) {
-                val anyParams = convertToAnyArray(params)
-                
-                // ✅ Call UniversalSurveySDK with Application
-                UniversalSurveySDK.getInstance().initialize(application, apiKey, *anyParams)
-                
-                Log.d("SurveySDK_RN", "✅ SDK initialized with ${anyParams.size} params")
-            } else {
-                // Simple initialization
-                UniversalSurveySDK.getInstance().initialize(application, apiKey)
-                Log.d("SurveySDK_RN", "✅ SDK initialized without parameters")
-            }
-            
+            UniversalSurveySDK.getInstance().initialize(application, apiKey)
             promise.resolve(true)
-            
         } catch (e: Exception) {
-            Log.e("SurveySDK_RN", "❌ Initialization failed", e)
             promise.reject("INIT_ERROR", e.message)
         }
     }
 
+    // ✅ FOR INIT WITH PARAMETERS
     @ReactMethod
-    fun initialize(apiKey: String, promise: Promise) {
-        Log.d("SurveySDK_RN", "📱 RN Bridge: initialize(apiKey) - redirecting")
-        initialize(apiKey, null, promise)  // Call with null params
+    fun initializeWithParams(apiKey: String, params: ReadableArray, promise: Promise) {
+        try {
+            Log.d("SurveySDK_RN", "✅ initializeWithParams called")
+            
+            val activity = getCurrentActivity()
+            if (activity == null) {
+                promise.reject("NO_ACTIVITY", "No activity available")
+                return
+            }
+            
+            val application = activity.application
+            val anyParams = convertToAnyArray(params)
+            UniversalSurveySDK.getInstance().initialize(application, apiKey, *anyParams)
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("INIT_ERROR", e.message)
+        }
     }
 
     private fun convertToAnyArray(params: ReadableArray): Array<Any> {
